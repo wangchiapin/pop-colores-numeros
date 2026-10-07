@@ -1045,6 +1045,7 @@ function linkMsg(m){screen='linkmsg';app.innerHTML=`${titleHtml()}<div class="pa
 async function loadShared(id){
   app.innerHTML=`${titleHtml()}<p style="text-align:center">${tr('linkLoading')}</p>`;
   try{
+    for(let i=0;i<100&&!window.TA;i++)await new Promise(r=>setTimeout(r,100));   // Firebase 模組是後載入的，等它就緒
     if(!window.TA)throw {code:'unavailable'};
     const r=await window.TA.shareGet(id);
     if(!r)return linkMsg(tr('linkGone'));
