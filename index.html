@@ -257,6 +257,12 @@ const T={
  newConfig:['＋ 新增設定','＋ 新增设置','＋ Nueva','＋ New'],
  edit:['編輯','编辑','Editar','Edit'],del:['刪除','删除','Borrar','Delete'],
  testPlay:['試玩','试玩','Probar','Try'],copyLink:['複製連結','复制链接','Copiar enlace','Copy link'],
+ linkOff:['停用連結','停用链接','Desactivar enlace','Disable link'],
+ confirmOff:['停用後，已發出的連結會立刻失效（可再重新複製新連結）。確定嗎？','停用后，已发出的链接会立刻失效（可再重新复制新链接）。确定吗？','El enlace dejará de funcionar de inmediato (puedes crear otro). ¿Seguro?','The shared link stops working immediately (you can make a new one). Sure?'],
+ linkOffDone:['連結已停用','链接已停用','Enlace desactivado','Link disabled'],
+ linkGone:['這個連結已失效（老師已停用或刪除）','这个链接已失效（老师已停用或删除）','Este enlace ya no es válido (el profesor lo desactivó o borró)','This link is no longer valid (disabled or deleted by the teacher)'],
+ linkExpired:['這個連結暫時無法使用（老師的訂閱已到期）','这个链接暂时无法使用（老师的订阅已到期）','Este enlace no está disponible (la suscripción del profesor venció)','This link is unavailable (the teacher\'s subscription has expired)'],
+ linkLoading:['載入中…','载入中…','Cargando…','Loading…'],
  copied:['已複製連結','已复制链接','Enlace copiado','Link copied'],
  save:['儲存','保存','Guardar','Save'],cfgName:['設定名稱','设置名称','Nombre','Name'],
  rows:['列數','行数','Filas','Rows'],cols:['欄數','列数','Columnas','Columns'],
@@ -425,7 +431,9 @@ function decodeCfg(t){
   try{
     let b=String(t).replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';
     const bin=atob(b);const u=Uint8Array.from(bin,ch=>ch.charCodeAt(0));
-    return normalizeCfg(JSON.parse(new TextDecoder().decode(u)));
+    const c=normalizeCfg(JSON.parse(new TextDecoder().decode(u)));
+    if(!c||c.custom||c.nums)return null;   // 舊式網址只允許免費功能，進階設定一律要走 ID 連結
+    return c;
   }catch(e){return null;}
 }
 function toGame(c){
@@ -819,7 +827,7 @@ function drawTeacher(){
   const u=window.TA.user(),pro=isPro(),lim=limitN(),n=TS.items.length;
   const items=TS.items.map((it,i)=>`<div class="cfgItem"><b>${esc(it.cfg.name||('#'+(i+1)))}</b>
     <div class="s">${cfgSummary(it.cfg)}</div>
-    <div class="mini"><button onclick="edOpen(${i})">✏️ ${tr('edit')}</button><button onclick="tPlay(${i})">▶ ${tr('testPlay')}</button><button onclick="tLink(${i})">🔗 ${tr('copyLink')}</button><button onclick="tDel(${i})">🗑 ${tr('del')}</button></div></div>`).join('');
+    <div class="mini"><button onclick="edOpen(${i})">✏️ ${tr('edit')}</button><button onclick="tPlay(${i})">▶ ${tr('testPlay')}</button><button onclick="tLink(${i})">🔗 ${tr('copyLink')}</button>${it.sid?`<button onclick="tLinkOff(${i})">🚫 ${tr('linkOff')}</button>`:''}<button onclick="tDel(${i})">🗑 ${tr('del')}</button></div></div>`).join('');
   app.innerHTML=`${titleHtml()}
   <div class="panel"><div style="word-break:break-all">${esc(u.email||'')}</div>
     <div style="margin:6px 0">${tr('plan')}：<span class="badge ${pro?'pro':''}">${pro?planName(TS.profile.plan):tr('free')}</span>${TS.profile.expiresAt?` <span class="note">${tr('until')} ${fdate(TS.profile.expiresAt)}</span>`:''}</div>
@@ -831,10 +839,29 @@ function drawTeacher(){
   ${backBtn()}`;
 }
 function tPlay(i){const it=TS.items[i];if(it)startGame(toGame(it.cfg),'teacher');}
-function shareUrl(c){return location.origin+location.pathname+'?t='+encodeCfg(c);}
-function tLink(i){
+function newSid(){const a=new Uint8Array(12);crypto.getRandomValues(a);return [...a].map(x=>(x%36).toString(36)).join('');}
+function shareUrl(sid){return location.origin+location.pathname+'?c='+sid;}
+function usesPro(c){return !!(c.custom||c.nums);}
+async function tLink(i){
   const it=TS.items[i];if(!it)return;
-  copyText(shareUrl(it.cfg));
+  try{
+    if(!it.sid){
+      const items=TS.items.map((x,k)=>k===i?{...x,sid:newSid()}:x);
+      await window.TA.shareSave(items[i].sid,items[i].cfg,usesPro(items[i].cfg));
+      await window.TA.saveConfigs(items);TS.items=items;
+    }else await window.TA.shareSave(it.sid,it.cfg,usesPro(it.cfg));
+    drawTeacher();
+    copyText(shareUrl(TS.items[i].sid));
+  }catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
+}
+async function tLinkOff(i){
+  const it=TS.items[i];if(!it||!it.sid)return;
+  if(!confirm(tr('confirmOff')))return;
+  try{
+    await window.TA.shareDelete(it.sid);
+    const items=TS.items.map((x,k)=>{if(k!==i)return x;const y={...x};delete y.sid;return y;});
+    await window.TA.saveConfigs(items);TS.items=items;drawTeacher();toast(tr('linkOffDone'));
+  }catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
 }
 async function copyText(t){
   try{await navigator.clipboard.writeText(t);toast(tr('copied'));}
@@ -842,8 +869,9 @@ async function copyText(t){
 }
 async function tDel(i){
   if(!confirm(tr('confirmDel')))return;
-  const items=TS.items.filter((_,k)=>k!==i);
-  try{await window.TA.saveConfigs(items);TS.items=items;drawTeacher();}
+  const gone=TS.items[i],items=TS.items.filter((_,k)=>k!==i);
+  try{if(gone&&gone.sid){try{await window.TA.shareDelete(gone.sid);}catch(e){console.error(e);}}
+    await window.TA.saveConfigs(items);TS.items=items;drawTeacher();}
   catch(e){console.error(e);toast(tr('lbError'));}
 }
 // ---- 編輯器 ----
@@ -934,9 +962,12 @@ async function edSave(){
   if(!isPro()&&(c.custom||c.nums))return fail(tr('proOnly'));
   if(!c.name)c.name=(ED.idx>=0?'':'#')+(TS.items.length+(ED.idx>=0?0:1));
   const items=TS.items.slice(),entry={id:ED.id,cfg:c};
+  const old=ED.idx>=0?TS.items[ED.idx]:null;if(old&&old.sid)entry.sid=old.sid;
   if(ED.idx>=0)items[ED.idx]=entry;
   else{if(items.length>=limitN())return fail(tr('limitReached'));items.push(entry);ED.idx=items.length-1;}
-  try{await window.TA.saveConfigs(items);TS.items=items;ED.name=c.name;ED.err='';toast(tr('saved2'));}
+  try{await window.TA.saveConfigs(items);TS.items=items;ED.name=c.name;
+    if(entry.sid){try{await window.TA.shareSave(entry.sid,c,usesPro(c));}catch(e){console.error(e);}}
+   ED.err='';toast(tr('saved2'));}
   catch(e){console.error(e);fail((e.code||e.message||'')+'');}
 }
 // ---- 老師的連結（學生端） ----
@@ -1010,17 +1041,33 @@ function admRenew(i,d){
   const per=Math.max(0,(t.periods||0)+d);
   admSave(i,{periods:per,expiresAt:calcExpires(t.plan,fdate(t.startAt),per)});
 }
+function linkMsg(m){screen='linkmsg';app.innerHTML=`${titleHtml()}<div class="panel" style="text-align:center"><p class="err">${m}</p></div><button class="big" onclick="location.href=location.pathname">🏠 ${L('start')}</button>`;}
+async function loadShared(id){
+  app.innerHTML=`${titleHtml()}<p style="text-align:center">${tr('linkLoading')}</p>`;
+  try{
+    if(!window.TA)throw {code:'unavailable'};
+    const r=await window.TA.shareGet(id);
+    if(!r)return linkMsg(tr('linkGone'));
+    const c=normalizeCfg(r);
+    if(!c)return linkMsg(tr('linkGone'));
+    renderLinkStart(c);
+  }catch(e){
+    console.error(e);
+    linkMsg(e&&e.code==='permission-denied'?tr('linkExpired'):tr('lbError'));
+  }
+}
 window.onTAChange=()=>{if(screen==='teacher')renderTeacher();};
 (function init(){
-  const t=new URLSearchParams(location.search).get('t');
-  if(t){const c=decodeCfg(t);if(c){renderLinkStart(c);return;}}
+  const q=new URLSearchParams(location.search),t=q.get('t'),id=q.get('c');
+  if(id&&/^[a-z0-9]{8,32}$/.test(id)){loadShared(id);return;}
+  if(t){const c=decodeCfg(t);if(c){renderLinkStart(c);return;}linkMsg(tr('linkGone'));return;}
   renderSetup();
 })();
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInAnonymously,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,query,orderBy,limit,getDocs,getDoc,doc,setDoc,updateDoc,serverTimestamp,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,query,orderBy,limit,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={
   apiKey:"AIzaSyC_YSDn2OH6_GKKwCq0d8QFNl3fYXzTC60",
   authDomain:"memorma-24dab.firebaseapp.com",
@@ -1081,6 +1128,16 @@ try{
     async saveConfigs(items){
       const u=auth.currentUser;
       await setDoc(doc(db,'teacher_configs',u.uid),{items,updatedAt:serverTimestamp()});
+    },
+    async shareSave(id,c,pro){
+      const u=auth.currentUser;
+      await setDoc(doc(db,'shared_configs',id),{owner:u.uid,cfg:c,pro:!!pro,updatedAt:serverTimestamp()});
+    },
+    async shareDelete(id){await deleteDoc(doc(db,'shared_configs',id));},
+    async shareGet(id){
+      await ensureUid();
+      const s=await getDoc(doc(db,'shared_configs',id));
+      return s.exists()?s.data().cfg:null;
     },
     async listTeachers(){
       const s=await getDocs(collection(db,'teachers'));
