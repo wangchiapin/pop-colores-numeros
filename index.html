@@ -1041,27 +1041,27 @@ function admRenew(i,d){
   const per=Math.max(0,(t.periods||0)+d);
   admSave(i,{periods:per,expiresAt:calcExpires(t.plan,fdate(t.startAt),per)});
 }
-function linkMsg(m){screen='linkmsg';app.innerHTML=`${titleHtml()}<div class="panel" style="text-align:center"><p class="err">${m}</p></div><button class="big" onclick="location.href=location.pathname">🏠 ${L('start')}</button>`;}
+function linkMsg(k){screen='linkmsg';const t=T[k];app.innerHTML=`${titleHtml()}<div class="panel" style="text-align:center"><p class="err">${tr(k)}</p><p class="err" style="font-size:.95rem">${t[2]}</p><p class="err" style="font-size:.95rem">${t[3]}</p></div><button class="big" onclick="location.href=location.pathname">🏠 ${L('start')}</button>`;}
 async function loadShared(id){
   app.innerHTML=`${titleHtml()}<p style="text-align:center">${tr('linkLoading')}</p>`;
   try{
     for(let i=0;i<100&&!window.TA;i++)await new Promise(r=>setTimeout(r,100));   // Firebase 模組是後載入的，等它就緒
     if(!window.TA)throw {code:'unavailable'};
     const r=await window.TA.shareGet(id);
-    if(!r)return linkMsg(tr('linkGone'));
+    if(!r)return linkMsg('linkGone');
     const c=normalizeCfg(r);
-    if(!c)return linkMsg(tr('linkGone'));
+    if(!c)return linkMsg('linkGone');
     renderLinkStart(c);
   }catch(e){
     console.error(e);
-    linkMsg(e&&e.code==='permission-denied'?tr('linkExpired'):tr('lbError'));
+    linkMsg(e&&e.code==='permission-denied'?'linkExpired':'lbError');
   }
 }
 window.onTAChange=()=>{if(screen==='teacher')renderTeacher();};
 (function init(){
   const q=new URLSearchParams(location.search),t=q.get('t'),id=q.get('c');
   if(id&&/^[a-z0-9]{8,32}$/.test(id)){loadShared(id);return;}
-  if(t){const c=decodeCfg(t);if(c){renderLinkStart(c);return;}linkMsg(tr('linkGone'));return;}
+  if(t){const c=decodeCfg(t);if(c){renderLinkStart(c);return;}linkMsg('linkGone');return;}
   renderSetup();
 })();
 </script>
