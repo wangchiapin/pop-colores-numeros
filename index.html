@@ -35,7 +35,7 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 #cover{position:absolute;inset:0;background:#fff;border:2px dashed #ccc;border-radius:12px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:3;font-size:1.4rem;font-weight:700}
 #cover.show{display:flex}
 #cover button{border:0;background:#222;color:#fff;border-radius:12px;padding:10px 28px;font-size:1.1rem;cursor:pointer}
-.cell{position:relative;aspect-ratio:1.45/1;border-radius:8px;border:1px solid #bbb;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:calc(var(--cw)*.3);user-select:none}
+.cell{position:relative;aspect-ratio:1.45/1;border-radius:8px;border:1px solid #bbb;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:min(calc(var(--cw)*.3),34px);user-select:none}
 .cell.empty{visibility:hidden}
 .cell.pop{animation:pop .35s ease forwards}
 .cell.shake{animation:shake .3s}
@@ -82,6 +82,30 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 #lbArea{margin:6px 0 4px;text-align:left}
 #lbArea p{margin:6px 0;text-align:center}
 .hide{display:none!important}
+.txt{width:100%;padding:9px;font-size:1rem;border:1.5px solid #ccc;border-radius:10px;font-family:inherit;background:#fff}
+textarea.txt{min-height:70px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{padding:5px 9px;border:2px solid #ccc;border-radius:999px;font-size:.9rem;cursor:pointer;font-weight:700}
+.chip.off{opacity:.35}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.8rem;font-weight:700;background:#e4e4e7}
+.badge.pro{background:#ffd54f;color:#5d4200}
+.cfgItem{background:#fff;border:1px solid #e4e4e7;border-radius:12px;padding:9px 10px;margin-bottom:8px}
+.cfgItem b{font-size:1.05rem}
+.cfgItem .s{color:#777;font-size:.85rem;margin:2px 0 6px}
+.mini{display:flex;gap:5px;flex-wrap:wrap}
+.mini button,.sbtn{border:1.5px solid #d4d4d8;background:#fff;border-radius:9px;padding:6px 10px;font-size:.9rem;cursor:pointer;color:#222}
+.sbtn.dark{background:#222;color:#fff;border-color:#222}
+.crow{display:flex;gap:5px;align-items:center;margin-bottom:5px}
+.crow input[type=color]{width:40px;height:38px;padding:0;border:1.5px solid #ccc;border-radius:8px;background:#fff;flex:none}
+.crow .txt{padding:7px;min-width:0}
+.lock{opacity:.55}
+.note{color:#777;font-size:.85rem;margin:4px 0}
+.err{color:#c62828;font-size:.9rem;margin:6px 0}
+.step{display:flex;align-items:center;gap:8px}
+.step button{width:36px;height:36px;border-radius:50%;border:1.5px solid #ccc;background:#fff;font-size:1.2rem;cursor:pointer}
+.step span{min-width:2ch;text-align:center;font-weight:700;font-size:1.1rem}
+table.adm{width:100%;border-collapse:collapse;font-size:.85rem}
+table.adm td{padding:5px 3px;border-bottom:1px solid #eee;vertical-align:top}
 </style>
 </head>
 <body>
@@ -165,6 +189,7 @@ const COLORS={
  dgreen:{zh:['深綠','深绿'],es:'verde oscuro',en:'dark green',bg:'#1b5e20',fg:'#fff'},
  lgreen:{zh:['淺綠','浅绿'],es:'verde claro',en:'light green',bg:'#a5e08f',fg:'#111'}
 };
+Object.keys(COLORS).forEach(id=>{const c=COLORS[id];c.id=id;c.q=[c.zh[0]+'色',c.zh[1]+'色'];c.say=c.zh[0]+'色';});
 const SETS={
  basic:['red','yellow','blue','green','black','white','gray','orange','purple'],
  adv:['red','yellow','orange','purple','black','white','pink','brown','dgray','lgray','dblue','lblue','dgreen','lgreen']
@@ -224,6 +249,38 @@ const T={
  saved:['已上傳！','已上传！','¡Guardado!','Saved!'],
  empty:['還沒有成績','还没有成绩','Aún no hay puntajes','No scores yet'],
  close:['關閉','关闭','Cerrar','Close'],
+ teacher:['教師版','教师版','Versión docente','Teacher'],
+ login:['用 Google 登入','用 Google 登录','Entrar con Google','Sign in with Google'],
+ logout:['登出','登出','Salir','Sign out'],
+ needLogin:['教師版需要登入，用來儲存你的設定清單。','教师版需要登录，用来保存你的设置清单。','Inicia sesión para guardar tus configuraciones.','Sign in to save your configurations.'],
+ myConfigs:['我的設定','我的设置','Mis configuraciones','My configurations'],
+ newConfig:['＋ 新增設定','＋ 新增设置','＋ Nueva','＋ New'],
+ edit:['編輯','编辑','Editar','Edit'],del:['刪除','删除','Borrar','Delete'],
+ testPlay:['試玩','试玩','Probar','Try'],copyLink:['複製連結','复制链接','Copiar enlace','Copy link'],
+ copied:['已複製連結','已复制链接','Enlace copiado','Link copied'],
+ save:['儲存','保存','Guardar','Save'],cfgName:['設定名稱','设置名称','Nombre','Name'],
+ rows:['列數','行数','Filas','Rows'],cols:['欄數','列数','Columnas','Columns'],
+ hearts:['愛心數','爱心数','Vidas','Lives'],unlimited:['不限','不限','Sin límite','Unlimited'],
+ colorSel:['選擇顏色（至少 2 個）','选择颜色（至少 2 个）','Elige colores (mín. 2)','Choose colors (min. 2)'],
+ presetColors:['內建顏色','内建颜色','Colores del juego','Built-in colors'],
+ customColors:['自訂顏色','自定义颜色','Colores propios','Custom colors'],
+ colorName:['顏色名稱','颜色名称','Nombre','Name'],colorSay:['發音文字','发音文字','Texto a decir','Spoken text'],
+ addColor:['＋ 新增顏色','＋ 新增颜色','＋ Añadir color','＋ Add color'],
+ numSel:['數字','数字','Números','Numbers'],customNums:['自訂數字清單','自定义数字清单','Lista propia','Custom list'],
+ numHint:['用逗號或空白分隔，可用 10-20 表示範圍；數字限 0–9999，最多 200 個。','用逗号或空白分隔，可用 10-20 表示范围；数字限 0–9999，最多 200 个。','Separa con comas o espacios; usa 10-20 para rangos (0–9999, máx. 200).','Separate with commas or spaces; use 10-20 for ranges (0–9999, max 200).'],
+ proOnly:['訂閱版功能','订阅版功能','Solo Pro','Pro only'],
+ plan:['方案','方案','Plan','Plan'],free:['免費','免费','Gratis','Free'],pro:['訂閱','订阅','Pro','Pro'],until:['到期','到期','Vence','Until'],
+ limitReached:['已達設定數量上限','已达设置数量上限','Límite alcanzado','Limit reached'],
+ noteTitle:['學生姓名／備註','学生姓名／备注','Nombre / nota','Student name / note'],
+ noRecord:['這個成績不會上傳排行榜，請自行記錄，或下載成績圖片。','这个成绩不会上传排行榜，请自行记录，或下载成绩图片。','Este resultado no se sube al ranking. Anótalo o descarga la imagen.','This result is not uploaded. Write it down or download the image.'],
+ download:['下載成績圖片','下载成绩图片','Descargar imagen','Download image'],
+ backTeacher:['回教師區','回教师区','Volver al área docente','Back to teacher area'],
+ startLink:['老師出的題目','老师出的题目','Reto del profesor','Teacher\'s challenge'],
+ studentName:['你的名字（會印在成績圖片上）','你的名字（会印在成绩图片上）','Tu nombre (saldrá en la imagen)','Your name (shown on the image)'],
+ saved2:['已儲存','已保存','Guardado','Saved'],
+ confirmDel:['確定要刪除這個設定嗎？','确定要删除这个设置吗？','¿Borrar esta configuración?','Delete this configuration?'],
+ bad:['設定有問題','设置有问题','Revisa la configuración','Check the configuration'],
+ listen:['聽聽看','听听看','Escuchar','Listen'],
  // 以下只顯示中文（不加外語小字）
  confirm:['確認','确认'],back:['退格','退格']
 };
@@ -274,17 +331,23 @@ function speak(text,cb){
 
 // ---- 設定畫面 ----
 const app=document.getElementById('app');
+let LINKCFG=null,stuName='';
 function opt(label,on,fn){return `<div class="opt ${on?'on':''}" onclick="${fn}">${label}</div>`;}
-function renderSetup(){
-  screen='setup';
-  document.title=(cfg.simp?'色数消消乐':'色數消消樂')+' Pop Colores y Números';
-  app.innerHTML=`
-  <h1>${cfg.simp?'色数消消乐':'色數消消樂'}</h1><p class="sub">Pop Colores y Números</p>
-  <div id="voiceWarn">${voiceNote()}</div>
+function titleHtml(){return `<h1>${cfg.simp?'色数消消乐':'色數消消樂'}</h1><p class="sub">Pop Colores y Números</p>`;}
+function langPanels(){return `
   <div class="panel"><h3>${L('script')}</h3><div class="opts">
     ${opt('繁體',!cfg.simp,"setC('simp',false)")}${opt('简体',cfg.simp,"setC('simp',true)")}</div></div>
   <div class="panel"><h3>${L('aux')}</h3><div class="opts">
-    ${opt(tr('none'),cfg.aux==='none',"setC('aux','none')")}${opt('Español',cfg.aux==='es',"setC('aux','es')")}${opt('English',cfg.aux==='en',"setC('aux','en')")}</div></div>
+    ${opt(tr('none'),cfg.aux==='none',"setC('aux','none')")}${opt('Español',cfg.aux==='es',"setC('aux','es')")}${opt('English',cfg.aux==='en',"setC('aux','en')")}</div></div>`;}
+function ratePanel(){return `
+  <div class="panel"><h3>${L('rate')}</h3><div class="opts">
+    ${opt(L('slow'),cfg.rate===0.55,"setC('rate',0.55)")}${opt(L('normal'),cfg.rate===0.85,"setC('rate',0.85)")}${opt(L('fast'),cfg.rate===1.1,"setC('rate',1.1)")}</div></div>`;}
+function renderSetup(){
+  screen='setup';
+  document.title=(cfg.simp?'色数消消乐':'色數消消樂')+' Pop Colores y Números';
+  app.innerHTML=`${titleHtml()}
+  <div id="voiceWarn">${voiceNote()}</div>
+  ${langPanels()}
   <div class="panel"><h3>${L('pickMode')}</h3><div class="opts">
     ${opt(L('A'),cfg.mode==='A',"setC('mode','A')")}${opt(L('B'),cfg.mode==='B',"setC('mode','B')")}</div></div>
   <div class="panel"><h3>${L('grid')}</h3><div class="opts">
@@ -293,29 +356,105 @@ function renderSetup(){
     ${opt(L('basic'),cfg.set==='basic',"setC('set','basic')")}${opt(L('adv'),cfg.set==='adv',"setC('set','adv')")}</div></div>
   <div class="panel"><h3>${L('range')}</h3><div class="opts">
     ${opt('0 – 999',cfg.range===999,"setC('range',999)")}${opt('0 – 9999',cfg.range===9999,"setC('range',9999)")}</div></div>
-  <div class="panel"><h3>${L('rate')}</h3><div class="opts">
-    ${opt(L('slow'),cfg.rate===0.55,"setC('rate',0.55)")}${opt(L('normal'),cfg.rate===0.85,"setC('rate',0.85)")}${opt(L('fast'),cfg.rate===1.1,"setC('rate',1.1)")}</div></div>
+  ${ratePanel()}
   <div class="panel"><h3>${L('showText')}</h3><div class="opts">
     ${opt(tr('off'),!cfg.showText,"setC('showText',false)")}${opt(tr('on'),cfg.showText,"setC('showText',true)")}</div></div>
-  <button class="big" onclick="startGame()">${L('start')}</button>
-  <button class="big sec" onclick="showLB()">🏆 ${L('lbBtn')}</button>`;
+  <button class="big" onclick="startGame(stdG(),'std')">${L('start')}</button>
+  <button class="big sec" onclick="showLB()">🏆 ${L('lbBtn')}</button>
+  <button class="big sec" onclick="renderTeacher()">👩‍🏫 ${L('teacher')}</button>`;
 }
-function setC(k,v){cfg[k]=v;saveCfg();renderSetup();}
+function rerender(){
+  if(screen==='link')renderLinkStart(LINKCFG);
+  else if(screen==='teacher')renderTeacher();
+  else if(screen==='editor')renderEditor();
+  else renderSetup();
+}
+function setC(k,v){cfg[k]=v;saveCfg();rerender();}
+
+// ---- 遊戲設定物件 ----
+function stdG(){const [rows,cols]=GRIDS[cfg.grid];return {mode:cfg.mode,rows,cols,colors:SETS[cfg.set].map(id=>COLORS[id]),nums:null,range:cfg.range,hearts:5,title:''};}
+function customColor(i,o){
+  const r=parseInt(o.h.slice(1,3),16),g=parseInt(o.h.slice(3,5),16),b=parseInt(o.h.slice(5,7),16);
+  const lum=0.299*r+0.587*g+0.114*b;
+  return {id:'c'+i,zh:[o.n,o.n],q:[o.n,o.n],say:o.s||o.n,es:'',en:'',bg:o.h,fg:lum>150?'#111':'#fff'};
+}
+function normalizeCfg(c){
+  if(!c||typeof c!=='object')return null;
+  const cp=(x,n)=>[...String(x==null?'':x).trim()].slice(0,n).join('');
+  const o={name:cp(c.name,20),mode:c.mode==='B'?'B':'A'};
+  o.rows=Math.min(8,Math.max(3,parseInt(c.rows)||5));
+  o.cols=Math.min(6,Math.max(3,parseInt(c.cols)||4));
+  o.hearts=[0,3,5].includes(c.hearts)?c.hearts:5;
+  if(Array.isArray(c.custom)){
+    const cu=c.custom.slice(0,12).map(x=>({n:cp(x&&x.n,8),s:cp(x&&x.s,12),h:(x&&/^#[0-9a-fA-F]{6}$/.test(x.h))?x.h.toLowerCase():'#888888'}));
+    if(cu.length<2||cu.some(x=>!x.n))return null;
+    o.custom=cu;
+  }else{
+    const ids=Array.isArray(c.ids)?[...new Set(c.ids.filter(id=>COLORS[id]))]:[];
+    if(ids.length<2)return null;
+    o.ids=ids;
+  }
+  if(Array.isArray(c.nums)){
+    const ns=[...new Set(c.nums.map(Number).filter(n=>Number.isInteger(n)&&n>=0&&n<=9999))].slice(0,200);
+    if(!ns.length)return null;
+    o.nums=ns;
+  }else o.range=c.range===9999?9999:999;
+  return o;
+}
+function parseNumList(text){
+  const toks=String(text).split(/[\s,，、;；]+/).filter(Boolean);
+  if(!toks.length)return null;
+  const out=new Set();
+  for(const t of toks){
+    let m;
+    if((m=/^(\d{1,4})$/.exec(t)))out.add(+m[1]);
+    else if((m=/^(\d{1,4})\s*[-~–－～]\s*(\d{1,4})$/.exec(t))){
+      const a=+m[1],b=+m[2];if(a>b)return null;
+      for(let v=a;v<=b;v++){out.add(v);if(out.size>200)return null;}
+    }else return null;
+  }
+  if(out.size>200)return null;
+  return [...out];
+}
+function encodeCfg(c){
+  const j=JSON.stringify(c);const bytes=new TextEncoder().encode(j);
+  let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function decodeCfg(t){
+  try{
+    let b=String(t).replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';
+    const bin=atob(b);const u=Uint8Array.from(bin,ch=>ch.charCodeAt(0));
+    return normalizeCfg(JSON.parse(new TextDecoder().decode(u)));
+  }catch(e){return null;}
+}
+function toGame(c){
+  const colors=c.custom?c.custom.map((o,i)=>customColor(i,o)):c.ids.map(id=>COLORS[id]);
+  return {mode:c.mode,rows:c.rows,cols:c.cols,colors,nums:c.nums||null,range:c.range||999,hearts:c.hearts,title:c.name||''};
+}
+function pickFromList(N,list){
+  const out=[];
+  while(out.length<N)out.push(...shuffle(list));
+  return shuffle(out.slice(0,N));
+}
 
 // ---- 遊戲 ----
-let S=null,timerId=null;
-function buildBoard(){
-  const [rows,cols]=GRIDS[cfg.grid],N=rows*cols,ids=SETS[cfg.set];
-  const nums=pickNumbers(N,cfg.range);
-  let cs=shuffle(ids);
-  while(cs.length<N)cs.push(ids[Math.floor(Math.random()*ids.length)]);
+let S=null,timerId=null,lastRun=null;
+function buildBoard(g){
+  const N=g.rows*g.cols,cl=g.colors;
+  const nums=g.nums?pickFromList(N,g.nums):pickNumbers(N,g.range);
+  let cs=shuffle(cl.map(c=>c.id));
+  while(cs.length<N)cs.push(cl[Math.floor(Math.random()*cl.length)].id);
   cs=shuffle(cs).slice(0,N);
-  return {rows,cols,cells:nums.map((n,i)=>({n,color:cs[i],alive:true,acc:accepted(n)}))};
+  return {rows:g.rows,cols:g.cols,cells:nums.map((n,i)=>({n,color:cs[i],alive:true,acc:accepted(n)}))};
 }
-function startGame(){
+function startGame(g,ctx,name){
   loadVoice();
-  const b=buildBoard();
-  S={mode:cfg.mode,rows:b.rows,cols:b.cols,cells:b.cells,score:0,hearts:5,streak:0,t0:Date.now(),qid:0,qStart:null,busy:false,input:'',wrong:0,noScore:false,cur:null,curColor:null,ended:false,qtext:'',qspeak:'',paused:false,pauseStart:0,pendingNext:false,confirmKind:null,confirmWasPaused:false};
+  if(g)lastRun={g,ctx:ctx||'std',name:name||''};
+  if(!lastRun)lastRun={g:stdG(),ctx:'std',name:''};
+  const r=lastRun,G=r.g;
+  const b=buildBoard(G);
+  S={g:G,ctx:r.ctx,stuName:r.name,cmap:Object.fromEntries(G.colors.map(c=>[c.id,c])),mode:G.mode,rows:b.rows,cols:b.cols,cells:b.cells,score:0,hearts:G.hearts,streak:0,t0:Date.now(),qid:0,qStart:null,busy:false,input:'',wrong:0,noScore:false,cur:null,curColor:null,ended:false,qtext:'',qspeak:'',paused:false,pauseStart:0,pendingNext:false,confirmKind:null,confirmWasPaused:false};
   screen='game';
   document.getElementById('over').classList.add('hide');
   document.getElementById('confirm').classList.add('hide');
@@ -324,12 +463,26 @@ function startGame(){
   timerId=setInterval(tick,100);
   nextQ();
 }
+function restartGame(){startGame();}
+function leaveGame(){
+  clearInterval(timerId);
+  document.getElementById('over').classList.add('hide');
+  document.getElementById('confirm').classList.add('hide');
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  const ctx=S?S.ctx:'std';
+  S=null;
+  if(ctx==='teacher')renderTeacher();
+  else if(ctx==='link')renderLinkStart(LINKCFG);
+  else renderSetup();
+}
+function cLabel(c){return c.zh[cfg.simp?1:0];}
+function cAux(c){return cfg.aux==='none'?'':(c[cfg.aux]||'');}
 function renderGame(){
-  const ids=SETS[cfg.set];
-  const cols=ids.length===9?3:4;
+  const cl=S.g.colors,n=cl.length;
+  const cols=n<=3?n:(n===4?2:(n<=9?3:4));
   const controls=S.mode==='A'
    ?`<div id="tray"><div class="trayTitle">${L('pickColor')}</div>
-      <div id="colorBtns" style="grid-template-columns:repeat(${cols},1fr)">${ids.map(id=>{const c=COLORS[id];return `<div class="cbtn" style="background:${c.bg};color:${c.fg}" onclick="answerA('${id}',this)">${cname(id)}${auxColor(id)?`<small>${auxColor(id)}</small>`:''}</div>`;}).join('')}</div></div>`
+      <div id="colorBtns" style="grid-template-columns:repeat(${cols},1fr)">${cl.map(c=>`<div class="cbtn" style="background:${c.bg};color:${c.fg}" onclick="answerA('${c.id}',this)">${esc(cLabel(c))}${cAux(c)?`<small>${cAux(c)}</small>`:''}</div>`).join('')}</div></div>`
    :`<div id="tray"><div id="inbox"></div><div id="keys">${KEYS.map(k=>`<div class="key" onclick="pressKey('${k[0]}')">${k[cfg.simp?1:0]}${auxKey(k)?`<small>${auxKey(k)}</small>`:''}</div>`).join('')}
       <div class="key fn" onclick="backspace()">⌫ ${tr('back')}</div>
       <div class="key ok" onclick="submitB()">${tr('confirm')}</div></div></div>`;
@@ -347,7 +500,7 @@ function renderGame(){
   <div id="qbar"><button onclick="replay()">🔊 ${L('replay')}</button><span id="qtext"></span></div>
   <div id="boardWrap">
     <div id="board" style="grid-template-columns:repeat(${S.cols},1fr)">
-      ${S.cells.map((c,i)=>{const col=COLORS[c.color];return `<div class="cell" id="c${i}" style="background:${col.bg};color:${col.fg}">${c.n}</div>`;}).join('')}
+      ${S.cells.map((c,i)=>{const col=S.cmap[c.color];return `<div class="cell" id="c${i}" style="background:${col.bg};color:${col.fg}">${c.n}</div>`;}).join('')}
     </div>
     <div id="cover"><div>${L('paused')}</div><button onclick="togglePause()">▶ ${L('resume')}</button></div>
   </div>
@@ -356,9 +509,10 @@ function renderGame(){
   window.onresize=sizeBoard;
 }
 function sizeBoard(){const b=document.getElementById('board');if(!b||!S)return;b.style.setProperty('--cw',(b.clientWidth/S.cols)+'px');}
+function heartsTxt(){return S.g.hearts?('♥'.repeat(S.hearts)+'♡'.repeat(Math.max(0,S.g.hearts-S.hearts))):'∞';}
 function updateHud(){
   document.getElementById('sc').textContent=S.score;
-  document.getElementById('hearts').textContent='♥'.repeat(S.hearts)+'♡'.repeat(5-S.hearts);
+  document.getElementById('hearts').textContent=heartsTxt();
   if(S.mode==='B'){document.getElementById('inbox').textContent=numDisp(S.input);}
 }
 function tick(){
@@ -389,7 +543,7 @@ function resumeGame(){
 }
 function togglePause(){if(!S||S.ended)return;S.paused?resumeGame():pauseGame();}
 function askConfirm(kind){
-  if(!S||S.ended){kind==='menu'?toSetup():startGame();return;}
+  if(!S||S.ended){kind==='menu'?leaveGame():restartGame();return;}
   S.confirmWasPaused=S.paused;S.confirmKind=kind;
   pauseGame();
   document.getElementById('confirmText').innerHTML=L(kind==='menu'?'confirmMenu':'confirmRestart');
@@ -400,7 +554,7 @@ function askConfirm(kind){
 function confirmYes(){
   document.getElementById('confirm').classList.add('hide');
   const k=S&&S.confirmKind;
-  if(k==='menu')toSetup();else startGame();
+  if(k==='menu')leaveGame();else restartGame();
 }
 function confirmNo(){
   document.getElementById('confirm').classList.add('hide');
@@ -422,8 +576,9 @@ function nextQ(){
   }else{
     const cols=[...new Set(alive.map(i=>S.cells[i].color))];
     S.curColor=cols[Math.floor(Math.random()*cols.length)];
-    S.qspeak=COLORS[S.curColor].zh[0]+'色';          // 唸「紅色」
-    S.qtext=cname(S.curColor)+'色';                  // 顯示「紅色」
+    const c=S.cmap[S.curColor];
+    S.qspeak=c.say;                                  // 唸「紅色」或老師自訂的發音文字
+    S.qtext=c.q[cfg.simp?1:0];                       // 顯示「紅色」
   }
   document.getElementById('qtext').textContent=cfg.showText?S.qtext:'';
   if(S.mode==='B')updateHud();
@@ -459,11 +614,12 @@ function correct(idx){
   setTimeout(nextQ,650);
 }
 function wrong(el){
-  S.score=Math.max(0,S.score-5);S.hearts--;S.streak=0;S.wrong++;
+  S.score=Math.max(0,S.score-5);S.streak=0;S.wrong++;
+  if(S.g.hearts)S.hearts--;
   if(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');}
   toast('−5');
   updateHud();
-  if(S.hearts<=0){S.busy=true;setTimeout(()=>finish(false),600);return false;}
+  if(S.g.hearts&&S.hearts<=0){S.busy=true;setTimeout(()=>finish(false),600);return false;}
   return true;
 }
 function answerA(id,el){
@@ -494,31 +650,61 @@ function finish(cleared){
   if(S.paused){S.t0+=Date.now()-S.pauseStart;S.paused=false;}
   S.ended=true;clearInterval(timerId);
   let clearB=0,heartB=0;
-  if(cleared){clearB=50;heartB=20*S.hearts;S.score+=clearB+heartB;}
+  if(cleared){clearB=50;heartB=S.g.hearts?20*S.hearts:0;S.score+=clearB+heartB;}
   const secs=Math.floor((Date.now()-S.t0)/1000);
   S.finalSecs=Math.min(99999,secs);S.clearedFlag=!!cleared;
+  const std=S.ctx==='std';
+  const extra=std?'<div id="lbArea"></div>'
+   :`<p class="note">${L('noRecord')}</p>
+     <input id="stuNote" class="nick" placeholder="${esc(tr('noteTitle'))}" value="${esc(S.stuName||'')}" maxlength="30">
+     <button class="big" onclick="downloadResult()">⬇ ${L('download')}</button>`;
   const o=document.getElementById('over');
   o.innerHTML=`<div class="card">
     <h1>${cleared?L('cleared'):L('over')}</h1>
     <div>${L('total')}</div><div class="total">${S.score}</div>
     <table>
-      ${cleared?`<tr><td>${lab('clearBonus')}</td><td>+${clearB}</td></tr><tr><td>${lab('heartBonus')}</td><td>+${heartB}</td></tr>`:''}
+      ${cleared?`<tr><td>${lab('clearBonus')}</td><td>+${clearB}</td></tr>${S.g.hearts?`<tr><td>${lab('heartBonus')}</td><td>+${heartB}</td></tr>`:''}`:''}
       <tr><td>${lab('time')}</td><td>${fmt(secs)}</td></tr>
-      <tr><td>${lab('lives')}</td><td>${'♥'.repeat(S.hearts)||'0'}</td></tr>
+      <tr><td>${lab('lives')}</td><td>${S.g.hearts?('♥'.repeat(S.hearts)||'0'):'∞'}</td></tr>
     </table>
-    <div id="lbArea"></div>
+    ${extra}
     <button class="big" onclick="startGame()">${L('again')}</button>
-    <button class="big sec" onclick="toSetup()">${L('menu')}</button>
+    <button class="big sec" onclick="leaveGame()">${S.ctx==='teacher'?L('backTeacher'):L('menu')}</button>
   </div>`;
   o.classList.remove('hide');
-  lbAfterGame();
+  if(std)lbAfterGame();
 }
-function toSetup(){
-  clearInterval(timerId);
-  document.getElementById('over').classList.add('hide');
-  document.getElementById('confirm').classList.add('hide');
-  if('speechSynthesis' in window)speechSynthesis.cancel();
-  S=null;renderSetup();
+function toSetup(){leaveGame();}
+function downloadResult(){
+  if(!S)return;
+  const nm=[...((document.getElementById('stuNote')||{}).value||'').trim()].slice(0,30).join('');
+  S.stuName=nm;
+  const W=720,H=900,cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const x=cv.getContext('2d');
+  const F='system-ui,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);
+  x.strokeStyle='#ddd';x.lineWidth=4;x.strokeRect(14,14,W-28,H-28);
+  x.textAlign='center';
+  x.fillStyle='#222';x.font='bold 46px '+F;x.fillText(cfg.simp?'色数消消乐':'色數消消樂',W/2,95);
+  x.fillStyle='#888';x.font='26px '+F;x.fillText('Pop Colores y Números',W/2,135);
+  x.fillStyle='#222';x.font='bold 40px '+F;x.fillText(nm||'—',W/2,225);
+  if(S.g.title){x.fillStyle='#555';x.font='28px '+F;x.fillText([...S.g.title].slice(0,24).join(''),W/2,275);}
+  x.fillStyle='#222';x.font='bold 150px '+F;x.fillText(String(S.score),W/2,450);
+  x.font='28px '+F;x.fillStyle='#777';x.fillText(tr('total'),W/2,495);
+  x.fillStyle='#222';x.font='32px '+F;
+  const lines=[
+    `${tr('time')}：${fmt(S.finalSecs)}`,
+    `${tr('lives')}：${S.g.hearts?(S.hearts+' / '+S.g.hearts):'∞'}`,
+    `${S.mode==='A'?tr('A'):tr('B')} · ${S.rows}×${S.cols}`,
+    S.clearedFlag?tr('cleared'):tr('over')
+  ];
+  lines.forEach((t,i)=>x.fillText(t,W/2,580+i*56));
+  x.fillStyle='#999';x.font='24px '+F;x.fillText(new Date().toLocaleString(),W/2,H-50);
+  cv.toBlob(b=>{
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);
+    a.download='pop-colores-score.png';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  },'image/png');
 }
 
 // ---- 排行榜 ----
@@ -576,12 +762,225 @@ async function showLB(){
   catch(e){console.error(e);body.innerHTML=`<p>${L('lbError')}</p>`;}
 }
 function closeLB(){document.getElementById('lbov').classList.add('hide');}
-renderSetup();
+
+// ---- 教師版 ----
+let TS={profile:null,items:[],seq:0,err:''};
+let ED=null,ADM=[];
+function isPro(){const p=TS.profile;return !!p&&p.plan==='pro'&&!!p.expiresAt&&p.expiresAt>Date.now();}
+function limitN(){return isPro()?15:3;}
+function fdate(ms){const d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function backBtn(){return `<button class="big sec" onclick="renderSetup()">${L('menu')}</button>`;}
+function cfgSummary(c){
+  return `${c.mode==='A'?tr('A'):tr('B')} · ${c.rows}×${c.cols} · ♥${c.hearts||'∞'}${c.custom?' · '+tr('customColors'):''}${c.nums?' · '+tr('customNums'):''}`;
+}
+async function renderTeacher(){
+  screen='teacher';
+  const my=++TS.seq;
+  app.innerHTML=`${titleHtml()}<p class="sub">${L('teacher')}</p><p style="text-align:center">${L('loading')}</p>`;
+  if(!window.TA){app.innerHTML=`${titleHtml()}<p class="err">${L('lbError')}</p>${backBtn()}`;return;}
+  try{
+    await window.TA.ready();
+    if(my!==TS.seq||screen!=='teacher')return;
+    if(!window.TA.user()){
+      app.innerHTML=`${titleHtml()}<p class="sub">${L('teacher')}</p>
+        <p style="text-align:center">${L('needLogin')}</p>
+        ${TS.err?`<p class="err">${esc(TS.err)}</p>`:''}
+        <button class="big" onclick="doLogin()">${L('login')}</button>${backBtn()}`;
+      return;
+    }
+    TS.profile=await window.TA.profile();
+    TS.items=await window.TA.configs();
+    if(my!==TS.seq||screen!=='teacher')return;
+    TS.err='';
+    drawTeacher();
+  }catch(e){
+    console.error(e);
+    if(my!==TS.seq||screen!=='teacher')return;
+    app.innerHTML=`${titleHtml()}<p class="err">${L('lbError')}<br><small>${esc(e.code||e.message||'')}</small></p>
+      <button class="big" onclick="renderTeacher()">↻</button>${backBtn()}`;
+  }
+}
+async function doLogin(){
+  TS.err='';
+  try{await window.TA.login();}
+  catch(e){console.error(e);if(e&&e.code!=='auth/cancelled-popup-request'&&e.code!=='auth/popup-closed-by-user'){TS.err=e.code||e.message||'login failed';}renderTeacher();}
+}
+async function doLogout(){try{await window.TA.logout();}catch(e){console.error(e);}TS.profile=null;TS.items=[];renderTeacher();}
+function drawTeacher(){
+  const u=window.TA.user(),pro=isPro(),lim=limitN(),n=TS.items.length;
+  const items=TS.items.map((it,i)=>`<div class="cfgItem"><b>${esc(it.cfg.name||('#'+(i+1)))}</b>
+    <div class="s">${cfgSummary(it.cfg)}</div>
+    <div class="mini"><button onclick="edOpen(${i})">✏️ ${tr('edit')}</button><button onclick="tPlay(${i})">▶ ${tr('testPlay')}</button><button onclick="tLink(${i})">🔗 ${tr('copyLink')}</button><button onclick="tDel(${i})">🗑 ${tr('del')}</button></div></div>`).join('');
+  app.innerHTML=`${titleHtml()}
+  <div class="panel"><div style="word-break:break-all">${esc(u.email||'')}</div>
+    <div style="margin:6px 0">${tr('plan')}：<span class="badge ${pro?'pro':''}">${pro?tr('pro'):tr('free')}</span>${pro?` <span class="note">${tr('until')} ${fdate(TS.profile.expiresAt)}</span>`:''}</div>
+    <div class="mini"><button onclick="doLogout()">${tr('logout')}</button>${window.TA.isAdmin()?'<button onclick="renderAdmin()">⚙ 管理</button>':''}</div></div>
+  <h3>${L('myConfigs')} <span class="note">${n} / ${lim}</span></h3>
+  ${items||`<p class="note">${L('empty')}</p>`}
+  ${n>=lim?`<p class="err">${tr('limitReached')}</p>`:`<button class="big" onclick="edOpen(-1)">${L('newConfig')}</button>`}
+  ${langPanels()}${ratePanel()}
+  ${backBtn()}`;
+}
+function tPlay(i){const it=TS.items[i];if(it)startGame(toGame(it.cfg),'teacher');}
+function shareUrl(c){return location.origin+location.pathname+'?t='+encodeCfg(c);}
+function tLink(i){
+  const it=TS.items[i];if(!it)return;
+  copyText(shareUrl(it.cfg));
+}
+async function copyText(t){
+  try{await navigator.clipboard.writeText(t);toast(tr('copied'));}
+  catch(e){window.prompt('',t);}
+}
+async function tDel(i){
+  if(!confirm(tr('confirmDel')))return;
+  const items=TS.items.filter((_,k)=>k!==i);
+  try{await window.TA.saveConfigs(items);TS.items=items;drawTeacher();}
+  catch(e){console.error(e);toast(tr('lbError'));}
+}
+// ---- 編輯器 ----
+function edOpen(i){
+  const it=i>=0?TS.items[i]:null,c=it?it.cfg:null;
+  ED={idx:i,id:it?it.id:(Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
+    name:c?c.name:'',mode:c?c.mode:'A',rows:c?c.rows:5,cols:c?c.cols:4,hearts:c?c.hearts:5,
+    cmode:c&&c.custom?'custom':'preset',
+    ids:c&&c.ids?c.ids.slice():SETS.basic.slice(),
+    custom:c&&c.custom?c.custom.map(x=>({...x})):[{n:'',s:'',h:'#e53935'},{n:'',s:'',h:'#1e88e5'}],
+    nmode:c&&c.nums?'list':(c&&c.range===9999?'9999':'999'),
+    list:c&&c.nums?c.nums.join(', '):'',err:''};
+  renderEditor();
+}
+function edSet(k,v){
+  if(k==='cmode'&&v==='custom'&&!isPro()){toast(tr('proOnly'));return;}
+  if(k==='nmode'&&v==='list'&&!isPro()){toast(tr('proOnly'));return;}
+  ED[k]=v;renderEditor();
+}
+function edStep(k,d){const lim=k==='rows'?[3,8]:[3,6];ED[k]=Math.min(lim[1],Math.max(lim[0],ED[k]+d));renderEditor();}
+function edToggle(id){
+  const i=ED.ids.indexOf(id);
+  if(i>=0){if(ED.ids.length<=2){toast(tr('colorSel'));return;}ED.ids.splice(i,1);}else ED.ids.push(id);
+  renderEditor();
+}
+function edAddColor(){if(ED.custom.length>=12)return;ED.custom.push({n:'',s:'',h:'#43a047'});renderEditor();}
+function edDelColor(i){if(ED.custom.length<=2)return;ED.custom.splice(i,1);renderEditor();}
+function edListen(i){const c=ED.custom[i];const t=(c.s||c.n||'').trim();if(t)speak(t);}
+function renderEditor(){
+  screen='editor';
+  const pro=isPro(),E=ED;
+  const lockCls=pro?'':' lock';
+  const chips=Object.keys(COLORS).map(id=>{const c=COLORS[id];const on=E.ids.includes(id);
+    return `<span class="chip ${on?'':'off'}" style="background:${c.bg};color:${c.fg};border-color:${c.id==='white'?'#999':c.bg}" onclick="edToggle('${id}')">${cLabel(c)}</span>`;}).join('');
+  const crows=E.custom.map((c,i)=>`<div class="crow">
+    <input type="color" value="${c.h}" oninput="ED.custom[${i}].h=this.value">
+    <input class="txt" maxlength="8" placeholder="${esc(tr('colorName'))}" value="${esc(c.n)}" oninput="ED.custom[${i}].n=this.value" style="flex:1.2">
+    <input class="txt" maxlength="12" placeholder="${esc(tr('colorSay'))}" value="${esc(c.s)}" oninput="ED.custom[${i}].s=this.value" style="flex:1.4">
+    <button class="sbtn" onclick="edListen(${i})" title="${esc(tr('listen'))}">🔊</button>
+    <button class="sbtn" onclick="edDelColor(${i})">✕</button></div>`).join('');
+  app.innerHTML=`<h1>${L('teacher')}</h1>
+  <div class="panel"><h3>${L('cfgName')}</h3><input class="txt" maxlength="20" value="${esc(E.name)}" oninput="ED.name=this.value"></div>
+  <div class="panel"><h3>${L('pickMode')}</h3><div class="opts">
+    ${opt(L('A'),E.mode==='A',"edSet('mode','A')")}${opt(L('B'),E.mode==='B',"edSet('mode','B')")}</div></div>
+  <div class="panel"><h3>${L('grid')} <span class="note">${E.rows*E.cols}</span></h3>
+    <div class="step">${tr('rows')} <button onclick="edStep('rows',-1)">−</button><span>${E.rows}</span><button onclick="edStep('rows',1)">＋</button>
+    &nbsp; ${tr('cols')} <button onclick="edStep('cols',-1)">−</button><span>${E.cols}</span><button onclick="edStep('cols',1)">＋</button></div></div>
+  <div class="panel"><h3>${L('hearts')}</h3><div class="opts">
+    ${opt('3',E.hearts===3,"edSet('hearts',3)")}${opt('5',E.hearts===5,"edSet('hearts',5)")}${opt(tr('unlimited'),E.hearts===0,"edSet('hearts',0)")}</div></div>
+  <div class="panel"><h3>${L('colors')}</h3><div class="opts">
+    ${opt(tr('presetColors'),E.cmode==='preset',"edSet('cmode','preset')")}
+    <div class="opt ${E.cmode==='custom'?'on':''}${lockCls}" onclick="edSet('cmode','custom')">${tr('customColors')}${pro?'':' 🔒'}</div></div>
+    <div style="margin-top:8px">${E.cmode==='preset'?`<div class="note">${tr('colorSel')}</div><div class="chips">${chips}</div>`
+      :`${crows}<button class="sbtn" onclick="edAddColor()" ${E.custom.length>=12?'disabled':''}>${tr('addColor')}</button>`}</div></div>
+  <div class="panel"><h3>${L('numSel')}</h3><div class="opts">
+    ${opt('0 – 999',E.nmode==='999',"edSet('nmode','999')")}${opt('0 – 9999',E.nmode==='9999',"edSet('nmode','9999')")}
+    <div class="opt ${E.nmode==='list'?'on':''}${lockCls}" onclick="edSet('nmode','list')">${tr('customNums')}${pro?'':' 🔒'}</div></div>
+    ${E.nmode==='list'?`<textarea class="txt" style="margin-top:8px" placeholder="1, 2, 3, 10-20, 100" oninput="ED.list=this.value">${esc(E.list)}</textarea><div class="note">${tr('numHint')}</div>`:''}</div>
+  ${pro?'':`<p class="note">🔒 ${tr('proOnly')}</p>`}
+  <div id="edErr" class="err">${esc(E.err)}</div>
+  <button class="big" onclick="edSave()">${L('save')}</button>
+  <button class="big sec" onclick="edTest()">▶ ${L('testPlay')}</button>
+  <button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;
+}
+function edToCfg(){
+  const E=ED;
+  const raw={name:E.name,mode:E.mode,rows:E.rows,cols:E.cols,hearts:E.hearts};
+  if(E.cmode==='custom')raw.custom=E.custom;else raw.ids=E.ids;
+  if(E.nmode==='list'){const l=parseNumList(E.list);if(!l)return {err:tr('numHint')};raw.nums=l;}
+  else raw.range=E.nmode==='9999'?9999:999;
+  if(E.cmode==='custom'&&E.custom.some(c=>!c.n.trim()))return {err:tr('colorName')+'?'};
+  const c=normalizeCfg(raw);
+  if(!c)return {err:tr('bad')};
+  return {cfg:c};
+}
+function edTest(){
+  const r=edToCfg();
+  if(r.err){ED.err=r.err;document.getElementById('edErr').textContent=r.err;return;}
+  startGameFromEditor(r.cfg);
+}
+function startGameFromEditor(c){startGame(toGame(c),'teacher');}
+async function edSave(){
+  const r=edToCfg();
+  const errEl=document.getElementById('edErr');
+  const fail=m=>{ED.err=m;errEl.textContent=m;};
+  if(r.err)return fail(r.err);
+  const c=r.cfg;
+  if(!isPro()&&(c.custom||c.nums))return fail(tr('proOnly'));
+  if(!c.name)c.name=(ED.idx>=0?'':'#')+(TS.items.length+(ED.idx>=0?0:1));
+  const items=TS.items.slice(),entry={id:ED.id,cfg:c};
+  if(ED.idx>=0)items[ED.idx]=entry;
+  else{if(items.length>=limitN())return fail(tr('limitReached'));items.push(entry);ED.idx=items.length-1;}
+  try{await window.TA.saveConfigs(items);TS.items=items;ED.name=c.name;ED.err='';toast(tr('saved2'));}
+  catch(e){console.error(e);fail((e.code||e.message||'')+'');}
+}
+// ---- 老師的連結（學生端） ----
+function renderLinkStart(c){
+  LINKCFG=c;screen='link';
+  document.title=(cfg.simp?'色数消消乐':'色數消消樂')+' Pop Colores y Números';
+  app.innerHTML=`${titleHtml()}
+  <div id="voiceWarn">${voiceNote()}</div>
+  <div class="panel" style="text-align:center"><h3>${L('startLink')}</h3>
+    ${c.name?`<div style="font-size:1.2rem;font-weight:700">${esc(c.name)}</div>`:''}
+    <div class="note">${cfgSummary(c)}</div></div>
+  <div class="panel"><h3>${L('studentName')}</h3><input class="txt" maxlength="30" value="${esc(stuName)}" oninput="stuName=this.value"></div>
+  ${langPanels()}${ratePanel()}
+  <div class="panel"><h3>${L('showText')}</h3><div class="opts">
+    ${opt(tr('off'),!cfg.showText,"setC('showText',false)")}${opt(tr('on'),cfg.showText,"setC('showText',true)")}</div></div>
+  <button class="big" onclick="startGame(toGame(LINKCFG),'link',stuName)">${L('start')}</button>`;
+}
+// ---- 管理 ----
+async function renderAdmin(){
+  screen='admin';
+  app.innerHTML=`<h1>⚙ 管理</h1><p style="text-align:center">…</p>`;
+  try{
+    ADM=await window.TA.listTeachers();
+    ADM.sort((a,b)=>(a.email||'').localeCompare(b.email||''));
+    const now=Date.now();
+    const rows=ADM.map((t,i)=>{
+      const pro=t.plan==='pro'&&t.expiresAt&&t.expiresAt>now;
+      return `<tr><td style="word-break:break-all">${esc(t.email||'')}<br><span class="note">${esc(t.name||'')}</span></td>
+      <td><span class="badge ${pro?'pro':''}">${pro?'Pro':'Free'}</span>${t.expiresAt?`<br><span class="note">${fdate(t.expiresAt)}</span>`:''}</td>
+      <td><div class="mini"><button onclick="admSet(${i},30)">+30天</button><button onclick="admSet(${i},365)">+1年</button><button onclick="admSet(${i},0)">改免費</button></div></td></tr>`;}).join('');
+    app.innerHTML=`<h1>⚙ 管理</h1><p class="note">${ADM.length} 位老師</p><table class="adm">${rows}</table>
+      <button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;
+  }catch(e){console.error(e);app.innerHTML=`<h1>⚙ 管理</h1><p class="err">${esc(e.code||e.message||'')}</p><button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;}
+}
+async function admSet(i,days){
+  const t=ADM[i];if(!t)return;
+  try{
+    if(days===0)await window.TA.setPlan(t.uid,'free',null);
+    else{const base=Math.max(Date.now(),t.expiresAt||0);await window.TA.setPlan(t.uid,'pro',base+days*86400000);}
+    renderAdmin();
+  }catch(e){console.error(e);toast(String(e.code||e.message));}
+}
+window.onTAChange=()=>{if(screen==='teacher')renderTeacher();};
+(function init(){
+  const t=new URLSearchParams(location.search).get('t');
+  if(t){const c=decodeCfg(t);if(c){renderLinkStart(c);return;}}
+  renderSetup();
+})();
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,signInAnonymously} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,query,orderBy,limit,getDocs,doc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getAuth,signInAnonymously,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,query,orderBy,limit,getDocs,getDoc,doc,setDoc,updateDoc,serverTimestamp,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={
   apiKey:"AIzaSyC_YSDn2OH6_GKKwCq0d8QFNl3fYXzTC60",
   authDomain:"memorma-24dab.firebaseapp.com",
@@ -591,6 +990,7 @@ const firebaseConfig={
   appId:"1:806709458465:web:f0d12acb2f911f2f165560",
   measurementId:"G-RS1DJ7DH50"
 };
+const ADMIN_EMAIL='a2224907@gmail.com';
 try{
   const app=initializeApp(firebaseConfig);
   const auth=getAuth(app);
@@ -616,6 +1016,41 @@ try{
       });
     }
   };
+  const real=u=>u&&!u.isAnonymous;
+  const ms=t=>t&&t.toMillis?t.toMillis():null;
+  window.TA={
+    ready(){return auth.authStateReady();},
+    user(){const u=auth.currentUser;return real(u)?{uid:u.uid,email:u.email||'',name:u.displayName||''}:null;},
+    isAdmin(){const u=auth.currentUser;return !!(real(u)&&u.email===ADMIN_EMAIL&&u.emailVerified);},
+    async login(){await signInWithPopup(auth,new GoogleAuthProvider());},
+    async logout(){await signOut(auth);},
+    async profile(){
+      const u=auth.currentUser,ref=doc(db,'teachers',u.uid);
+      let s=await getDoc(ref);
+      if(!s.exists()){
+        await setDoc(ref,{email:u.email||'',name:u.displayName||'',plan:'free',expiresAt:null,createdAt:serverTimestamp()});
+        s=await getDoc(ref);
+      }
+      const d=s.data();
+      return {plan:d.plan,expiresAt:ms(d.expiresAt),email:d.email,name:d.name};
+    },
+    async configs(){
+      const u=auth.currentUser,s=await getDoc(doc(db,'teacher_configs',u.uid));
+      return s.exists()?(s.data().items||[]):[];
+    },
+    async saveConfigs(items){
+      const u=auth.currentUser;
+      await setDoc(doc(db,'teacher_configs',u.uid),{items,updatedAt:serverTimestamp()});
+    },
+    async listTeachers(){
+      const s=await getDocs(collection(db,'teachers'));
+      return s.docs.map(d=>{const x=d.data();return {uid:d.id,email:x.email,name:x.name,plan:x.plan,expiresAt:ms(x.expiresAt)};});
+    },
+    async setPlan(uid,plan,expMs){
+      await updateDoc(doc(db,'teachers',uid),{plan,expiresAt:expMs?Timestamp.fromMillis(expMs):null});
+    }
+  };
+  onAuthStateChanged(auth,()=>{if(window.onTAChange)window.onTAChange();});
 }catch(err){console.error('Firebase init failed',err);}
 </script>
 </body>
