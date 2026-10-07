@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>色數消消樂 Pop Colores y Números</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:#fff;color:#222;font-family:system-ui,-apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+body{display:flex;justify-content:center}
+#app{width:100%;max-width:480px;min-height:100vh;padding:12px 14px 28px}
+h1{font-size:1.5rem;margin:6px 0 2px;text-align:center}
+.sub{text-align:center;color:#777;margin:0 0 14px;font-size:.95rem}
+small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
+.panel{background:#f5f5f6;border:1px solid #e4e4e7;border-radius:14px;padding:10px 12px;margin-bottom:10px}
+.panel h3{margin:0 0 6px;font-size:.95rem}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{flex:1 1 auto;min-width:72px;padding:8px 6px;border:1.5px solid #d4d4d8;background:#fff;border-radius:10px;font-size:1rem;text-align:center;cursor:pointer;color:#222}
+.opt.on{border-color:#222;background:#222;color:#fff}
+.opt.on small{color:#ccc}
+.big{display:block;width:100%;padding:14px;border:0;border-radius:14px;background:#222;color:#fff;font-size:1.2rem;cursor:pointer;margin-top:6px}
+.big small{color:#ccc}
+.warn{background:#fff7e6;border:1px solid #f5d28a;color:#8a5a00;border-radius:10px;padding:8px 10px;font-size:.88rem;margin-bottom:10px}
+#hud{display:flex;justify-content:space-between;align-items:stretch;gap:8px;margin-bottom:8px}
+#hud div{flex:1;background:#f5f5f6;border:1px solid #e4e4e7;border-radius:10px;padding:4px 6px;text-align:center;font-weight:600}
+#hud small{font-size:.62rem}
+#hearts{letter-spacing:1px;color:#e53935}
+#ctl{display:flex;gap:6px;margin-bottom:8px}
+#ctl button{flex:1;border:1.5px solid #d4d4d8;background:#fff;border-radius:10px;padding:7px 2px;font-size:.92rem;cursor:pointer;color:#222}
+#qbar{display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;margin:4px 0 8px}
+#qbar button{border:1.5px solid #d4d4d8;background:#fff;border-radius:22px;padding:6px 16px;font-size:1rem;cursor:pointer}
+#qtext{font-size:1.4rem;font-weight:700}
+#boardWrap{position:relative;margin-bottom:18px}
+#board{display:grid;gap:5px;width:100%}
+#cover{position:absolute;inset:0;background:#fff;border:2px dashed #ccc;border-radius:12px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:3;font-size:1.4rem;font-weight:700}
+#cover.show{display:flex}
+#cover button{border:0;background:#222;color:#fff;border-radius:12px;padding:10px 28px;font-size:1.1rem;cursor:pointer}
+.cell{position:relative;aspect-ratio:1.45/1;border-radius:8px;border:1px solid #bbb;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:calc(var(--cw)*.3);user-select:none}
+.cell.empty{visibility:hidden}
+.cell.pop{animation:pop .35s ease forwards}
+.cell.shake{animation:shake .3s}
+.cell.hint{outline:4px solid #ff3d00;outline-offset:1px;animation:pulse .7s infinite alternate}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(0);opacity:0}}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes pulse{to{outline-color:#ffb300}}
+#tray{background:#ececef;border:2px solid #cfcfd6;border-radius:16px;padding:8px 8px 8px;margin-top:4px}
+.trayTitle{text-align:center;font-weight:700;font-size:.85rem;margin-bottom:6px}
+.trayTitle small{font-size:.72em}
+#colorBtns{display:grid;gap:5px}
+.cbtn{border:2px solid #222;border-radius:999px;padding:4px 3px;font-size:1.05rem;font-weight:800;cursor:pointer;text-align:center;line-height:1.2}
+.cbtn small{color:inherit;opacity:.9;font-size:.55em;font-weight:600}
+#inbox{min-height:36px;border:2px solid #cfcfd6;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;margin-bottom:6px;background:#fff;letter-spacing:2px}
+#keys{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.key{min-height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid #c8c8d0;background:#fff;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;text-align:center;color:#222}
+.key small{font-size:.55em}
+.key.fn{background:#f0f0f2;font-size:.85rem}
+.key.ok{background:#222;color:#fff;grid-column:1/-1;font-size:.95rem;min-height:34px}
+#toast{position:fixed;left:50%;top:18%;transform:translateX(-50%);background:#222;color:#fff;border-radius:12px;padding:8px 16px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:12;text-align:center;white-space:pre-line}
+#toast.show{opacity:.95}
+.overlay{position:fixed;inset:0;background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:center;z-index:9}
+.overlay .card{width:min(92vw,400px);text-align:center}
+#over .total{font-size:3rem;font-weight:800;margin:6px 0}
+#over table{margin:8px auto;border-collapse:collapse;font-size:1rem}
+#over td{padding:4px 12px;text-align:left}
+#over td:last-child{text-align:right;font-weight:700}
+#over .sec{background:#f0f0f2;color:#222}
+#confirm{background:rgba(0,0,0,.4);z-index:10}
+#confirm .card{background:#fff;border-radius:16px;padding:20px 16px}
+#confirm p{font-size:1.1rem;font-weight:600;margin:0 0 12px}
+#confirm .row{display:flex;gap:8px}
+#confirm .row button{flex:1;padding:12px;border-radius:12px;border:1.5px solid #ccc;background:#fff;font-size:1.05rem;cursor:pointer}
+#confirm .row button.y{background:#222;color:#fff;border-color:#222}
+.overlay .card{max-height:94vh;overflow:auto}
+.big.sec{background:#f0f0f2;color:#222}
+.big.sec small{color:#888}
+.lb{width:100%;border-collapse:collapse;margin:8px 0;font-size:.95rem}
+.lb td{padding:4px 6px;text-align:left;border-bottom:1px solid #eee}
+.lb td:nth-child(1){width:2em;color:#888}
+.lb td:nth-child(3),.lb td:nth-child(4){text-align:right;white-space:nowrap}
+.lb tr.me{background:#fff3cd;font-weight:700}
+.nick{width:100%;padding:10px;font-size:1rem;border:1.5px solid #ccc;border-radius:10px;margin:6px 0}
+#lbArea{margin:6px 0 4px;text-align:left}
+#lbArea p{margin:6px 0;text-align:center}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<div id="over" class="overlay hide"></div>
+<div id="lbov" class="overlay hide"></div>
+<div id="confirm" class="overlay hide"><div class="card"><p id="confirmText"></p><div class="row"><button id="cNo" onclick="confirmNo()"></button><button id="cYes" class="y" onclick="confirmYes()"></button></div></div></div>
+
+<script>
+// ==CORE==
+const DIG=['零','一','二','三','四','五','六','七','八','九'];
+function cn(n){
+  if(n===0)return '零';
+  const d=[Math.floor(n/1000)%10,Math.floor(n/100)%10,Math.floor(n/10)%10,n%10];
+  const units=['千','百','十',''];
+  let s='',zero=false;
+  for(let i=0;i<4;i++){
+    if(d[i]===0){if(s)zero=true;continue;}
+    if(zero){s+='零';zero=false;}
+    if(i===2&&d[i]===1&&s===''){s+='十';}
+    else{s+=((d[i]===2&&i<2)?'兩':DIG[d[i]])+units[i];}
+  }
+  return s;
+}
+function accepted(n){
+  const c=cn(n),set=new Set([c]);
+  if(n>=100&&!c.includes('零')&&c.length>=3){
+    const last=c[c.length-1];
+    if(last==='十'||last==='百'){
+      const unitBefore=c[c.length-3];
+      if(unitBefore==='百'||unitBefore==='千')set.add(c.slice(0,-1));
+    }
+  }
+  return set;
+}
+function digitsOf(n){return String(n).length;}
+function weightOf(n){return [0,1,1.5,2,3][digitsOf(n)];}
+function strata(range){
+  return range===999?[[0,9,.1],[10,99,.3],[100,999,.6]]:[[0,9,.1],[10,99,.2],[100,999,.3],[1000,9999,.4]];
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function pickNumbers(N,range){
+  const st=strata(range);
+  const counts=st.map(s=>Math.floor(N*s[2]));
+  let rest=N-counts.reduce((a,b)=>a+b,0);
+  const order=st.map((s,i)=>[N*s[2]-counts[i],i]).sort((a,b)=>b[0]-a[0]);
+  for(let k=0;k<rest;k++)counts[order[k%order.length][1]]++;
+  const out=[];
+  st.forEach((s,i)=>{
+    const pool=[];for(let v=s[0];v<=s[1];v++)pool.push(v);
+    out.push(...shuffle(pool).slice(0,counts[i]));
+  });
+  return shuffle(out);
+}
+const LIMIT={A:{1:3,2:4,3:5,4:7},B:{1:5,2:6,3:7,4:9}};
+function speedBonus(mode,n,t){
+  const L=LIMIT[mode][digitsOf(n)];
+  return t<=L/2?10:(t<=L?5:0);
+}
+function comboBonus(streak){return streak>=5?10:(streak>=3?5:0);}
+// ==END CORE==
+
+// 顏色：zh = [繁體, 簡體]
+const COLORS={
+ red:{zh:['紅','红'],es:'rojo',en:'red',bg:'#e53935',fg:'#fff'},
+ yellow:{zh:['黃','黄'],es:'amarillo',en:'yellow',bg:'#fdd835',fg:'#111'},
+ blue:{zh:['藍','蓝'],es:'azul',en:'blue',bg:'#1e88e5',fg:'#fff'},
+ green:{zh:['綠','绿'],es:'verde',en:'green',bg:'#2e9e4f',fg:'#fff'},
+ black:{zh:['黑','黑'],es:'negro',en:'black',bg:'#111',fg:'#fff'},
+ white:{zh:['白','白'],es:'blanco',en:'white',bg:'#fff',fg:'#111'},
+ gray:{zh:['灰','灰'],es:'gris',en:'gray',bg:'#9e9e9e',fg:'#111'},
+ orange:{zh:['橘','橘'],es:'naranja',en:'orange',bg:'#fb8c00',fg:'#111'},
+ purple:{zh:['紫','紫'],es:'morado',en:'purple',bg:'#7b1fa2',fg:'#fff'},
+ pink:{zh:['粉紅','粉红'],es:'rosa',en:'pink',bg:'#ff80ab',fg:'#111'},
+ brown:{zh:['咖啡','咖啡'],es:'café',en:'brown',bg:'#6d4c41',fg:'#fff'},
+ dgray:{zh:['深灰','深灰'],es:'gris oscuro',en:'dark gray',bg:'#555',fg:'#fff'},
+ lgray:{zh:['淺灰','浅灰'],es:'gris claro',en:'light gray',bg:'#d3d3d3',fg:'#111'},
+ dblue:{zh:['深藍','深蓝'],es:'azul oscuro',en:'dark blue',bg:'#0d2f7a',fg:'#fff'},
+ lblue:{zh:['淺藍','浅蓝'],es:'azul claro',en:'light blue',bg:'#7fd1ff',fg:'#111'},
+ dgreen:{zh:['深綠','深绿'],es:'verde oscuro',en:'dark green',bg:'#1b5e20',fg:'#fff'},
+ lgreen:{zh:['淺綠','浅绿'],es:'verde claro',en:'light green',bg:'#a5e08f',fg:'#111'}
+};
+const SETS={
+ basic:['red','yellow','blue','green','black','white','gray','orange','purple'],
+ adv:['red','yellow','orange','purple','black','white','pink','brown','dgray','lgray','dblue','lblue','dgreen','lgreen']
+};
+const GRIDS=[[5,4],[6,5],[7,6]]; // [列, 欄]
+// 數字鍵：[繁, 簡, es, en]
+const KEYS=[
+ ['零','零','cero','zero'],['一','一','uno','one'],['二','二','dos','two'],['兩','两','dos','two'],['三','三','tres','three'],
+ ['四','四','cuatro','four'],['五','五','cinco','five'],['六','六','seis','six'],['七','七','siete','seven'],['八','八','ocho','eight'],
+ ['九','九','nueve','nine'],['十','十','diez','ten'],['百','百','cien','hundred'],['千','千','mil','thousand']
+];
+// 介面文字：[繁體, 簡體, es, en]
+const T={
+ pickMode:['玩法','玩法','Modo de juego','Game mode'],
+ A:['聽數字，選顏色','听数字，选颜色','Oír número, elegir color','Hear number, pick color'],
+ B:['聽顏色，輸入數字','听颜色，输入数字','Oír color, escribir número','Hear color, type number'],
+ grid:['格數','格数','Tamaño del tablero','Board size'],
+ colors:['顏色組','颜色组','Colores','Colors'],
+ basic:['基本色（9）','基本色（9）','Básicos (9)','Basic (9)'],
+ adv:['進階色（14）','进阶色（14）','Avanzados (14)','Advanced (14)'],
+ range:['數字範圍','数字范围','Rango de números','Number range'],
+ script:['中文字形','中文字形','Escritura china','Chinese script'],
+ aux:['輔助語言','辅助语言','Idioma de apoyo','Helper language'],
+ none:['無','无','Ninguno','None'],
+ rate:['語速','语速','Velocidad de voz','Voice speed'],
+ slow:['慢','慢','Lenta','Slow'],normal:['正常','正常','Normal','Normal'],fast:['快','快','Rápida','Fast'],
+ showText:['顯示題目文字','显示题目文字','Mostrar texto de la pregunta','Show question text'],
+ on:['開','开','Sí','On'],off:['關','关','No','Off'],
+ start:['開始遊戲','开始游戏','Empezar','Start'],
+ score:['分數','分数','Puntos','Score'],time:['用時','用时','Tiempo','Time'],lives:['愛心','爱心','Vidas','Lives'],
+ pickColor:['這是什麼顏色？','这是什么颜色？','¿De qué color es?','What color is it?'],
+ total:['總分','总分','Puntaje total','Total score'],
+ cleared:['全部清除！','全部清除！','¡Tablero limpio!','Board cleared!'],
+ over:['愛心用完了','爱心用完了','Sin vidas','Out of lives'],
+ clearBonus:['清盤獎勵','清盘奖励','Bono por limpiar','Clear bonus'],
+ heartBonus:['愛心獎勵','爱心奖励','Bono por vidas','Lives bonus'],
+ combo:['連對','连对','Racha','Streak'],
+ fastTxt:['快速','快速','Rápido','Fast'],
+ hintNote:['提示：這題不給分','提示：这题不给分','Pista: esta pregunta no da puntos','Hint: no points for this one'],
+ novoice:['找不到台灣華語（zh-TW）語音，請安裝語音或換一個裝置。','找不到台湾华语（zh-TW）语音，请安装语音或换一个装置。','No se encontró voz de chino (zh-TW). Instala una o usa otro dispositivo.','No zh-TW voice found. Install one or use another device.'],
+ fallback:['找不到 zh-TW 語音，已改用其他中文語音，發音可能不同。','找不到 zh-TW 语音，已改用其他中文语音，发音可能不同。','No hay voz zh-TW; se usa otra voz china (la pronunciación puede variar).','No zh-TW voice; using another Chinese voice (pronunciation may differ).'],
+ replay:['重播','重播','Repetir','Replay'],
+ pause:['暫停','暂停','Pausa','Pause'],resume:['繼續','继续','Continuar','Resume'],
+ restart:['重新開始','重新开始','Reiniciar','Restart'],menu:['主選單','主选单','Menú principal','Main menu'],
+ paused:['已暫停','已暂停','En pausa','Paused'],cancel:['取消','取消','Cancelar','Cancel'],yes:['確定','确定','Aceptar','OK'],
+ again:['再玩一次','再玩一次','Jugar otra vez','Play again'],
+ confirmRestart:['確定要重新開始嗎？本局成績不會記錄。','确定要重新开始吗？本局成绩不会记录。','¿Reiniciar? Esta partida no se guardará.','Restart? This game will not be saved.'],
+ confirmMenu:['確定要回主選單嗎？本局成績不會記錄。','确定要回主选单吗？本局成绩不会记录。','¿Volver al menú principal? Esta partida no se guardará.','Back to the main menu? This game will not be saved.'],
+ lbBtn:['排行榜','排行榜','Ranking','Leaderboard'],
+ loading:['讀取中…','读取中…','Cargando…','Loading…'],
+ lbError:['排行榜暫時無法使用','排行榜暂时无法使用','Ranking no disponible','Leaderboard unavailable'],
+ notTop:['沒進前 10，再加油！','没进前 10，再加油！','No entraste al top 10, ¡sigue intentando!','Not in the top 10. Keep going!'],
+ notBetter:['你在這個榜已有更高的成績','你在这个榜已有更高的成绩','Ya tienes un puntaje mayor aquí','You already have a higher score here'],
+ qualify:['進榜了！輸入暱稱上傳成績','进榜了！输入昵称上传成绩','¡Entraste al ranking! Escribe tu apodo','You made the leaderboard! Enter a nickname'],
+ nickname:['暱稱（最多 12 字）','昵称（最多 12 字）','Apodo (máx. 12)','Nickname (max 12)'],
+ upload:['上傳成績','上传成绩','Subir puntaje','Submit score'],
+ saved:['已上傳！','已上传！','¡Guardado!','Saved!'],
+ empty:['還沒有成績','还没有成绩','Aún no hay puntajes','No scores yet'],
+ close:['關閉','关闭','Cerrar','Close'],
+ // 以下只顯示中文（不加外語小字）
+ confirm:['確認','确认'],back:['退格','退格']
+};
+
+let cfg={mode:'A',grid:0,set:'basic',range:999,simp:false,aux:'es',rate:0.85,showText:false};
+try{Object.assign(cfg,JSON.parse(localStorage.getItem('shushu_cfg')||'{}'));}catch(e){}
+if(!['es','en','none'].includes(cfg.aux))cfg.aux='es';
+cfg.rate=[0.55,0.85,1.1].reduce((a,b)=>Math.abs(b-cfg.rate)<Math.abs(a-cfg.rate)?b:a);
+function saveCfg(){try{localStorage.setItem('shushu_cfg',JSON.stringify(cfg));}catch(e){}}
+function tr(k){return T[k][cfg.simp?1:0];}
+function fo(k){return cfg.aux==='none'?'':T[k][cfg.aux==='es'?2:3];}
+function L(k){const f=fo(k);return tr(k)+(f?`<small>${f}</small>`:'');}     // 中文＋外語小字
+function lab(k){const f=fo(k);return tr(k)+(f?` · ${f}`:'');}               // 單行標籤
+function cname(id){return COLORS[id].zh[cfg.simp?1:0];}
+function auxColor(id){return cfg.aux==='none'?'':COLORS[id][cfg.aux];}
+function auxKey(k){return cfg.aux==='none'?'':k[cfg.aux==='es'?2:3];}
+function numDisp(s){return cfg.simp?s.replace(/兩/g,'两'):s;}
+
+// ---- 語音 ----
+let voice=null,voiceFallback=null,screen='setup';
+function loadVoice(){
+  if(!('speechSynthesis' in window))return;
+  const vs=speechSynthesis.getVoices();
+  const norm=v=>v.lang.replace('_','-').toLowerCase();
+  voice=vs.find(v=>norm(v)==='zh-tw')||null;
+  voiceFallback=vs.find(v=>norm(v).startsWith('zh'))||null;
+}
+function voiceNote(){
+  if(voice)return '';
+  const k=voiceFallback?'fallback':'novoice';
+  return `<div class="warn">${tr(k)}${fo(k)?'<br>'+fo(k):''}</div>`;
+}
+function refreshVoiceNote(){const el=document.getElementById('voiceWarn');if(el)el.innerHTML=voiceNote();}
+if('speechSynthesis' in window){
+  loadVoice();
+  speechSynthesis.onvoiceschanged=()=>{loadVoice();if(screen==='setup')refreshVoiceNote();};
+  setTimeout(()=>{loadVoice();if(screen==='setup')refreshVoiceNote();},800);
+}
+function speak(text,cb){
+  if(!('speechSynthesis' in window)){setTimeout(cb,600);return;}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='zh-TW';const v=voice||voiceFallback;if(v)u.voice=v;u.rate=cfg.rate;
+  let done=false;const fin=()=>{if(!done){done=true;cb&&cb();}};
+  u.onend=fin;u.onerror=fin;setTimeout(fin,8000);
+  setTimeout(()=>speechSynthesis.speak(u),60);
+}
+
+// ---- 設定畫面 ----
+const app=document.getElementById('app');
+function opt(label,on,fn){return `<div class="opt ${on?'on':''}" onclick="${fn}">${label}</div>`;}
+function renderSetup(){
+  screen='setup';
+  document.title=(cfg.simp?'色数消消乐':'色數消消樂')+' Pop Colores y Números';
+  app.innerHTML=`
+  <h1>${cfg.simp?'色数消消乐':'色數消消樂'}</h1><p class="sub">Pop Colores y Números</p>
+  <div id="voiceWarn">${voiceNote()}</div>
+  <div class="panel"><h3>${L('script')}</h3><div class="opts">
+    ${opt('繁體',!cfg.simp,"setC('simp',false)")}${opt('简体',cfg.simp,"setC('simp',true)")}</div></div>
+  <div class="panel"><h3>${L('aux')}</h3><div class="opts">
+    ${opt(tr('none'),cfg.aux==='none',"setC('aux','none')")}${opt('Español',cfg.aux==='es',"setC('aux','es')")}${opt('English',cfg.aux==='en',"setC('aux','en')")}</div></div>
+  <div class="panel"><h3>${L('pickMode')}</h3><div class="opts">
+    ${opt(L('A'),cfg.mode==='A',"setC('mode','A')")}${opt(L('B'),cfg.mode==='B',"setC('mode','B')")}</div></div>
+  <div class="panel"><h3>${L('grid')}</h3><div class="opts">
+    ${GRIDS.map((g,i)=>opt(`${g[0]}×${g[1]}<small>${g[0]*g[1]}</small>`,cfg.grid===i,`setC('grid',${i})`)).join('')}</div></div>
+  <div class="panel"><h3>${L('colors')}</h3><div class="opts">
+    ${opt(L('basic'),cfg.set==='basic',"setC('set','basic')")}${opt(L('adv'),cfg.set==='adv',"setC('set','adv')")}</div></div>
+  <div class="panel"><h3>${L('range')}</h3><div class="opts">
+    ${opt('0 – 999',cfg.range===999,"setC('range',999)")}${opt('0 – 9999',cfg.range===9999,"setC('range',9999)")}</div></div>
+  <div class="panel"><h3>${L('rate')}</h3><div class="opts">
+    ${opt(L('slow'),cfg.rate===0.55,"setC('rate',0.55)")}${opt(L('normal'),cfg.rate===0.85,"setC('rate',0.85)")}${opt(L('fast'),cfg.rate===1.1,"setC('rate',1.1)")}</div></div>
+  <div class="panel"><h3>${L('showText')}</h3><div class="opts">
+    ${opt(tr('off'),!cfg.showText,"setC('showText',false)")}${opt(tr('on'),cfg.showText,"setC('showText',true)")}</div></div>
+  <button class="big" onclick="startGame()">${L('start')}</button>
+  <button class="big sec" onclick="showLB()">🏆 ${L('lbBtn')}</button>`;
+}
+function setC(k,v){cfg[k]=v;saveCfg();renderSetup();}
+
+// ---- 遊戲 ----
+let S=null,timerId=null;
+function buildBoard(){
+  const [rows,cols]=GRIDS[cfg.grid],N=rows*cols,ids=SETS[cfg.set];
+  const nums=pickNumbers(N,cfg.range);
+  let cs=shuffle(ids);
+  while(cs.length<N)cs.push(ids[Math.floor(Math.random()*ids.length)]);
+  cs=shuffle(cs).slice(0,N);
+  return {rows,cols,cells:nums.map((n,i)=>({n,color:cs[i],alive:true,acc:accepted(n)}))};
+}
+function startGame(){
+  loadVoice();
+  const b=buildBoard();
+  S={mode:cfg.mode,rows:b.rows,cols:b.cols,cells:b.cells,score:0,hearts:5,streak:0,t0:Date.now(),qid:0,qStart:null,busy:false,input:'',wrong:0,noScore:false,cur:null,curColor:null,ended:false,qtext:'',qspeak:'',paused:false,pauseStart:0,pendingNext:false,confirmKind:null,confirmWasPaused:false};
+  screen='game';
+  document.getElementById('over').classList.add('hide');
+  document.getElementById('confirm').classList.add('hide');
+  renderGame();
+  clearInterval(timerId);
+  timerId=setInterval(tick,100);
+  nextQ();
+}
+function renderGame(){
+  const ids=SETS[cfg.set];
+  const cols=ids.length===9?3:4;
+  const controls=S.mode==='A'
+   ?`<div id="tray"><div class="trayTitle">${L('pickColor')}</div>
+      <div id="colorBtns" style="grid-template-columns:repeat(${cols},1fr)">${ids.map(id=>{const c=COLORS[id];return `<div class="cbtn" style="background:${c.bg};color:${c.fg}" onclick="answerA('${id}',this)">${cname(id)}${auxColor(id)?`<small>${auxColor(id)}</small>`:''}</div>`;}).join('')}</div></div>`
+   :`<div id="tray"><div id="inbox"></div><div id="keys">${KEYS.map(k=>`<div class="key" onclick="pressKey('${k[0]}')">${k[cfg.simp?1:0]}${auxKey(k)?`<small>${auxKey(k)}</small>`:''}</div>`).join('')}
+      <div class="key fn" onclick="backspace()">⌫ ${tr('back')}</div>
+      <div class="key ok" onclick="submitB()">${tr('confirm')}</div></div></div>`;
+  app.innerHTML=`
+  <div id="hud">
+    <div><small>${lab('score')}</small><span id="sc">0</span></div>
+    <div><small>${lab('time')}</small><span id="tm">0:00</span></div>
+    <div><small>${lab('lives')}</small><span id="hearts"></span></div>
+  </div>
+  <div id="ctl">
+    <button id="pbtn" onclick="togglePause()">${pauseLabel(false)}</button>
+    <button onclick="askConfirm('restart')">↻ ${L('restart')}</button>
+    <button onclick="askConfirm('menu')">⌂ ${L('menu')}</button>
+  </div>
+  <div id="qbar"><button onclick="replay()">🔊 ${L('replay')}</button><span id="qtext"></span></div>
+  <div id="boardWrap">
+    <div id="board" style="grid-template-columns:repeat(${S.cols},1fr)">
+      ${S.cells.map((c,i)=>{const col=COLORS[c.color];return `<div class="cell" id="c${i}" style="background:${col.bg};color:${col.fg}">${c.n}</div>`;}).join('')}
+    </div>
+    <div id="cover"><div>${L('paused')}</div><button onclick="togglePause()">▶ ${L('resume')}</button></div>
+  </div>
+  ${controls}`;
+  sizeBoard();updateHud();
+  window.onresize=sizeBoard;
+}
+function sizeBoard(){const b=document.getElementById('board');if(!b||!S)return;b.style.setProperty('--cw',(b.clientWidth/S.cols)+'px');}
+function updateHud(){
+  document.getElementById('sc').textContent=S.score;
+  document.getElementById('hearts').textContent='♥'.repeat(S.hearts)+'♡'.repeat(5-S.hearts);
+  if(S.mode==='B'){document.getElementById('inbox').textContent=numDisp(S.input);}
+}
+function tick(){
+  if(!S||S.ended||S.paused)return;
+  const s=Math.floor((Date.now()-S.t0)/1000);
+  const el=document.getElementById('tm');if(el)el.textContent=fmt(s);
+}
+function fmt(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),1100);}
+
+// ---- 暫停 / 確認 ----
+function pauseGame(){
+  if(!S||S.ended||S.paused)return;
+  S.paused=true;S.pauseStart=Date.now();
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  document.getElementById('cover').classList.add('show');
+  document.getElementById('pbtn').innerHTML=pauseLabel(true);
+}
+function pauseLabel(paused){return (paused?'▶ ':'⏸ ')+L(paused?'resume':'pause');}
+function resumeGame(){
+  if(!S||S.ended||!S.paused)return;
+  S.t0+=Date.now()-S.pauseStart;   // 暫停期間不計時
+  S.paused=false;
+  document.getElementById('cover').classList.remove('show');
+  document.getElementById('pbtn').innerHTML=pauseLabel(false);
+  if(S.pendingNext){S.pendingNext=false;nextQ();}
+  else{S.qStart=null;playQ();}      // 繼續後重播題目，速度加成重新計時
+}
+function togglePause(){if(!S||S.ended)return;S.paused?resumeGame():pauseGame();}
+function askConfirm(kind){
+  if(!S||S.ended){kind==='menu'?toSetup():startGame();return;}
+  S.confirmWasPaused=S.paused;S.confirmKind=kind;
+  pauseGame();
+  document.getElementById('confirmText').innerHTML=L(kind==='menu'?'confirmMenu':'confirmRestart');
+  document.getElementById('cNo').innerHTML=L('cancel');
+  document.getElementById('cYes').innerHTML=L('yes');
+  document.getElementById('confirm').classList.remove('hide');
+}
+function confirmYes(){
+  document.getElementById('confirm').classList.add('hide');
+  const k=S&&S.confirmKind;
+  if(k==='menu')toSetup();else startGame();
+}
+function confirmNo(){
+  document.getElementById('confirm').classList.add('hide');
+  if(S&&!S.confirmWasPaused)resumeGame();
+}
+
+// ---- 出題 ----
+function nextQ(){
+  if(S.paused){S.pendingNext=true;return;}
+  S.busy=false;S.input='';S.wrong=0;S.noScore=false;S.qStart=null;
+  document.querySelectorAll('.cell.hint').forEach(e=>e.classList.remove('hint'));
+  const alive=S.cells.map((c,i)=>c.alive?i:-1).filter(i=>i>=0);
+  if(!alive.length){finish(true);return;}
+  S.qid++;
+  if(S.mode==='A'){
+    S.cur=alive[Math.floor(Math.random()*alive.length)];
+    S.qspeak=cn(S.cells[S.cur].n);
+    S.qtext=numDisp(S.qspeak);
+  }else{
+    const cols=[...new Set(alive.map(i=>S.cells[i].color))];
+    S.curColor=cols[Math.floor(Math.random()*cols.length)];
+    S.qspeak=COLORS[S.curColor].zh[0]+'色';          // 唸「紅色」
+    S.qtext=cname(S.curColor)+'色';                  // 顯示「紅色」
+  }
+  document.getElementById('qtext').textContent=cfg.showText?S.qtext:'';
+  if(S.mode==='B')updateHud();
+  playQ();
+}
+function playQ(){
+  const id=S.qid;
+  speak(S.qspeak,()=>{if(S&&S.qid===id&&!S.paused&&S.qStart===null)S.qStart=Date.now();});
+}
+function replay(){if(S&&!S.ended&&!S.busy&&!S.paused)playQ();}
+function elapsedQ(){return S.qStart===null?0:(Date.now()-S.qStart)/1000;}
+
+function award(n){
+  let pts=0,parts=[];
+  if(!S.noScore){
+    S.streak++;
+    pts+=10*weightOf(n);
+    const cb=comboBonus(S.streak);if(cb){pts+=cb;parts.push(`${tr('combo')} ×${S.streak} +${cb}`);}
+    const sb=speedBonus(S.mode,n,elapsedQ());if(sb){pts+=sb;parts.push(`${tr('fastTxt')} +${sb}`);}
+  }
+  S.score+=pts;
+  toast(`+${pts}${parts.length?'\n'+parts.join('  '):''}`);
+}
+function correct(idx){
+  S.busy=true;
+  const c=S.cells[idx];
+  award(c.n);
+  c.alive=false;
+  const el=document.getElementById('c'+idx);
+  el.classList.remove('hint');el.classList.add('pop');
+  setTimeout(()=>{el.classList.add('empty');},330);
+  updateHud();
+  setTimeout(nextQ,650);
+}
+function wrong(el){
+  S.score=Math.max(0,S.score-5);S.hearts--;S.streak=0;S.wrong++;
+  if(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');}
+  toast('−5');
+  updateHud();
+  if(S.hearts<=0){S.busy=true;setTimeout(()=>finish(false),600);return false;}
+  return true;
+}
+function answerA(id,el){
+  if(!S||S.busy||S.ended||S.paused||S.mode!=='A')return;
+  const cell=S.cells[S.cur];
+  if(cell.color===id){correct(S.cur);}
+  else{
+    const alive=wrong(el);
+    if(alive&&S.wrong>=3&&!S.noScore){
+      S.noScore=true;
+      document.getElementById('c'+S.cur).classList.add('hint');
+      toast(tr('hintNote')+(fo('hintNote')?'\n'+fo('hintNote'):''));
+    }
+  }
+}
+function pressKey(k){if(!S||S.busy||S.ended||S.paused||S.mode!=='B')return;if(S.input.length<10){S.input+=k;updateHud();}}
+function backspace(){if(!S||S.busy||S.ended||S.paused)return;S.input=S.input.slice(0,-1);updateHud();}
+function submitB(){
+  if(!S||S.busy||S.ended||S.paused||S.mode!=='B'||!S.input)return;
+  const idx=S.cells.findIndex(c=>c.alive&&c.color===S.curColor&&c.acc.has(S.input));
+  if(idx>=0){correct(idx);}
+  else{
+    const box=document.getElementById('inbox');
+    wrong(box);S.input='';updateHud();
+  }
+}
+function finish(cleared){
+  if(S.paused){S.t0+=Date.now()-S.pauseStart;S.paused=false;}
+  S.ended=true;clearInterval(timerId);
+  let clearB=0,heartB=0;
+  if(cleared){clearB=50;heartB=20*S.hearts;S.score+=clearB+heartB;}
+  const secs=Math.floor((Date.now()-S.t0)/1000);
+  S.finalSecs=Math.min(99999,secs);S.clearedFlag=!!cleared;
+  const o=document.getElementById('over');
+  o.innerHTML=`<div class="card">
+    <h1>${cleared?L('cleared'):L('over')}</h1>
+    <div>${L('total')}</div><div class="total">${S.score}</div>
+    <table>
+      ${cleared?`<tr><td>${lab('clearBonus')}</td><td>+${clearB}</td></tr><tr><td>${lab('heartBonus')}</td><td>+${heartB}</td></tr>`:''}
+      <tr><td>${lab('time')}</td><td>${fmt(secs)}</td></tr>
+      <tr><td>${lab('lives')}</td><td>${'♥'.repeat(S.hearts)||'0'}</td></tr>
+    </table>
+    <div id="lbArea"></div>
+    <button class="big" onclick="startGame()">${L('again')}</button>
+    <button class="big sec" onclick="toSetup()">${L('menu')}</button>
+  </div>`;
+  o.classList.remove('hide');
+  lbAfterGame();
+}
+function toSetup(){
+  clearInterval(timerId);
+  document.getElementById('over').classList.add('hide');
+  document.getElementById('confirm').classList.add('hide');
+  if('speechSynthesis' in window)speechSynthesis.cancel();
+  S=null;renderSetup();
+}
+
+// ---- 排行榜 ----
+function esc(x){return String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function boardId(mode){const g=GRIDS[cfg.grid];return `${mode}_${g[0]*g[1]}_${cfg.set}_${cfg.range}`;}
+function boardLabel(){const g=GRIDS[cfg.grid];return `${tr('pickMode')} ${cfg.mode} · ${g[0]}×${g[1]} · ${tr(cfg.set==='basic'?'basic':'adv')} · 0–${cfg.range}`;}
+function lbTable(list,myUid){
+  if(!list.length)return `<p>${L('empty')}</p>`;
+  return '<table class="lb">'+list.map((e,i)=>`<tr class="${e.uid===myUid?'me':''}"><td>${i+1}</td><td>${esc(e.name)}</td><td>${e.score}</td><td>${fmt(e.secs)}</td></tr>`).join('')+'</table>';
+}
+async function lbAfterGame(){
+  const area=document.getElementById('lbArea');
+  if(!area||!S)return;
+  const board=boardId(S.mode);
+  area.innerHTML=`<p>${L('loading')}</p>`;
+  if(!window.LB){area.innerHTML=`<p>${L('lbError')}</p>`;return;}
+  try{
+    const res=await window.LB.top(board);
+    const list=res.list;
+    const rank=S.score*100000+(99999-S.finalSecs);
+    const me=list.find(e=>e.uid===res.uid);
+    const tenth=list.length>=10?list[9].rank:-1;
+    S.lb={board,rank};
+    if(S.score<=0){area.innerHTML=`<p>${L('notTop')}</p>`+lbTable(list,res.uid);return;}
+    if(me&&me.rank>=rank){area.innerHTML=`<p>${L('notBetter')}</p>`+lbTable(list,res.uid);return;}
+    const qualifies=list.length<10||rank>tenth||(me&&rank>me.rank);
+    if(!qualifies){area.innerHTML=`<p>${L('notTop')}</p>`+lbTable(list,res.uid);return;}
+    let last='';try{last=localStorage.getItem('shushu_nick')||'';}catch(e){}
+    area.innerHTML=`<p><b>${L('qualify')}</b></p>
+      <input id="nick" class="nick" placeholder="${esc(tr('nickname'))}" value="${esc(last)}" oninput="clampNick(this)">
+      <button class="big" id="upBtn" onclick="uploadScore()">${L('upload')}</button>`+lbTable(list,res.uid);
+  }catch(e){console.error(e);area.innerHTML=`<p>${L('lbError')}</p>`;}
+}
+function clampNick(el){const a=[...el.value];if(a.length>12)el.value=a.slice(0,12).join('');}
+async function uploadScore(){
+  const inp=document.getElementById('nick');
+  const name=[...inp.value.trim()].slice(0,12).join('');
+  if(!name){inp.focus();return;}
+  const btn=document.getElementById('upBtn');btn.disabled=true;
+  const area=document.getElementById('lbArea');
+  try{
+    try{localStorage.setItem('shushu_nick',name);}catch(e){}
+    await window.LB.submit(S.lb.board,{name,score:S.score,secs:S.finalSecs,hearts:S.hearts,cleared:S.clearedFlag});
+    const res=await window.LB.top(S.lb.board);
+    area.innerHTML=`<p><b>${L('saved')}</b></p>`+lbTable(res.list,res.uid);
+  }catch(e){console.error(e);area.innerHTML=`<p>${L('lbError')}</p>`;}
+}
+async function showLB(){
+  const o=document.getElementById('lbov');
+  o.innerHTML=`<div class="card"><h2>🏆 ${L('lbBtn')}</h2><p class="sub">${boardLabel()}</p><div id="lbBody"><p>${L('loading')}</p></div><button class="big sec" onclick="closeLB()">${L('close')}</button></div>`;
+  o.classList.remove('hide');
+  const body=document.getElementById('lbBody');
+  if(!window.LB){body.innerHTML=`<p>${L('lbError')}</p>`;return;}
+  try{const res=await window.LB.top(boardId(cfg.mode));body.innerHTML=lbTable(res.list,res.uid);}
+  catch(e){console.error(e);body.innerHTML=`<p>${L('lbError')}</p>`;}
+}
+function closeLB(){document.getElementById('lbov').classList.add('hide');}
+renderSetup();
+</script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,signInAnonymously} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,query,orderBy,limit,getDocs,doc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig={
+  apiKey:"AIzaSyC_YSDn2OH6_GKKwCq0d8QFNl3fYXzTC60",
+  authDomain:"memorma-24dab.firebaseapp.com",
+  projectId:"memorma-24dab",
+  storageBucket:"memorma-24dab.firebasestorage.app",
+  messagingSenderId:"806709458465",
+  appId:"1:806709458465:web:f0d12acb2f911f2f165560",
+  measurementId:"G-RS1DJ7DH50"
+};
+try{
+  const app=initializeApp(firebaseConfig);
+  const auth=getAuth(app);
+  const db=getFirestore(app);
+  async function ensureUid(){
+    await auth.authStateReady();
+    if(auth.currentUser)return auth.currentUser.uid;
+    const c=await signInAnonymously(auth);
+    return c.user.uid;
+  }
+  window.LB={
+    async top(board){
+      const uid=await ensureUid();
+      const q=query(collection(db,'colorgame_boards',board,'entries'),orderBy('rank','desc'),limit(10));
+      const snap=await getDocs(q);
+      return {uid,list:snap.docs.map(d=>({uid:d.id,...d.data()}))};
+    },
+    async submit(board,e){
+      const uid=await ensureUid();
+      const rank=e.score*100000+(99999-e.secs);
+      await setDoc(doc(db,'colorgame_boards',board,'entries',uid),{
+        name:e.name,score:e.score,secs:e.secs,hearts:e.hearts,cleared:e.cleared,rank,updatedAt:serverTimestamp()
+      });
+    }
+  };
+}catch(err){console.error('Firebase init failed',err);}
+</script>
+</body>
+</html>
