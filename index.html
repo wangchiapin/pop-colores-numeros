@@ -280,6 +280,7 @@ const T={
  saved2:['已儲存','已保存','Guardado','Saved'],
  confirmDel:['確定要刪除這個設定嗎？','确定要删除这个设置吗？','¿Borrar esta configuración?','Delete this configuration?'],
  bad:['設定有問題','设置有问题','Revisa la configuración','Check the configuration'],
+ all:['全部','全部','Todos','All'],
  listen:['聽聽看','听听看','Escuchar','Listen'],
  // 以下只顯示中文（不加外語小字）
  confirm:['確認','确认'],back:['退格','退格']
@@ -316,8 +317,9 @@ function voiceNote(){
 function refreshVoiceNote(){const el=document.getElementById('voiceWarn');if(el)el.innerHTML=voiceNote();}
 if('speechSynthesis' in window){
   loadVoice();
-  speechSynthesis.onvoiceschanged=()=>{loadVoice();if(screen==='setup')refreshVoiceNote();};
-  setTimeout(()=>{loadVoice();if(screen==='setup')refreshVoiceNote();},800);
+  speechSynthesis.onvoiceschanged=()=>{loadVoice();refreshVoiceNote();};
+  setTimeout(()=>{loadVoice();refreshVoiceNote();},800);
+  setTimeout(()=>{loadVoice();refreshVoiceNote();},2500);
 }
 function speak(text,cb){
   if(!('speechSynthesis' in window)){setTimeout(cb,600);return;}
@@ -385,15 +387,12 @@ function normalizeCfg(c){
   o.rows=Math.min(8,Math.max(3,parseInt(c.rows)||5));
   o.cols=Math.min(6,Math.max(3,parseInt(c.cols)||4));
   o.hearts=[0,3,5].includes(c.hearts)?c.hearts:5;
-  if(Array.isArray(c.custom)){
-    const cu=c.custom.slice(0,12).map(x=>({n:cp(x&&x.n,8),s:cp(x&&x.s,12),h:(x&&/^#[0-9a-fA-F]{6}$/.test(x.h))?x.h.toLowerCase():'#888888'}));
-    if(cu.length<2||cu.some(x=>!x.n))return null;
-    o.custom=cu;
-  }else{
-    const ids=Array.isArray(c.ids)?[...new Set(c.ids.filter(id=>COLORS[id]))]:[];
-    if(ids.length<2)return null;
-    o.ids=ids;
-  }
+  const cu=Array.isArray(c.custom)?c.custom.slice(0,12).map(x=>({n:cp(x&&x.n,8),s:cp(x&&x.s,12),h:(x&&/^#[0-9a-fA-F]{6}$/.test(x.h))?x.h.toLowerCase():'#888888'})):[];
+  if(cu.some(x=>!x.n))return null;
+  const ids=Array.isArray(c.ids)?[...new Set(c.ids.filter(id=>COLORS[id]))]:[];
+  if(ids.length+cu.length<2)return null;
+  if(ids.length)o.ids=ids;
+  if(cu.length)o.custom=cu;
   if(Array.isArray(c.nums)){
     const ns=[...new Set(c.nums.map(Number).filter(n=>Number.isInteger(n)&&n>=0&&n<=9999))].slice(0,200);
     if(!ns.length)return null;
@@ -429,7 +428,7 @@ function decodeCfg(t){
   }catch(e){return null;}
 }
 function toGame(c){
-  const colors=c.custom?c.custom.map((o,i)=>customColor(i,o)):c.ids.map(id=>COLORS[id]);
+  const colors=[...(c.ids||[]).map(id=>COLORS[id]),...(c.custom||[]).map((o,i)=>customColor(i,o))];
   return {mode:c.mode,rows:c.rows,cols:c.cols,colors,nums:c.nums||null,range:c.range||999,hearts:c.hearts,title:c.name||''};
 }
 function pickFromList(N,list){
@@ -842,26 +841,25 @@ function edOpen(i){
   const it=i>=0?TS.items[i]:null,c=it?it.cfg:null;
   ED={idx:i,id:it?it.id:(Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
     name:c?c.name:'',mode:c?c.mode:'A',rows:c?c.rows:5,cols:c?c.cols:4,hearts:c?c.hearts:5,
-    cmode:c&&c.custom?'custom':'preset',
-    ids:c&&c.ids?c.ids.slice():SETS.basic.slice(),
-    custom:c&&c.custom?c.custom.map(x=>({...x})):[{n:'',s:'',h:'#e53935'},{n:'',s:'',h:'#1e88e5'}],
+    ids:c?(c.ids?c.ids.slice():[]):SETS.basic.slice(),
+    custom:c&&c.custom?c.custom.map(x=>({...x})):[],
     nmode:c&&c.nums?'list':(c&&c.range===9999?'9999':'999'),
     list:c&&c.nums?c.nums.join(', '):'',err:''};
   renderEditor();
 }
 function edSet(k,v){
-  if(k==='cmode'&&v==='custom'&&!isPro()){toast(tr('proOnly'));return;}
   if(k==='nmode'&&v==='list'&&!isPro()){toast(tr('proOnly'));return;}
   ED[k]=v;renderEditor();
 }
 function edStep(k,d){const lim=k==='rows'?[3,8]:[3,6];ED[k]=Math.min(lim[1],Math.max(lim[0],ED[k]+d));renderEditor();}
 function edToggle(id){
   const i=ED.ids.indexOf(id);
-  if(i>=0){if(ED.ids.length<=2){toast(tr('colorSel'));return;}ED.ids.splice(i,1);}else ED.ids.push(id);
+  if(i>=0)ED.ids.splice(i,1);else ED.ids.push(id);
   renderEditor();
 }
-function edAddColor(){if(ED.custom.length>=12)return;ED.custom.push({n:'',s:'',h:'#43a047'});renderEditor();}
-function edDelColor(i){if(ED.custom.length<=2)return;ED.custom.splice(i,1);renderEditor();}
+function edQuick(w){ED.ids=w==='basic'?SETS.basic.slice():(w==='adv'?SETS.adv.slice():(w==='all'?Object.keys(COLORS):[]));renderEditor();}
+function edAddColor(){if(!isPro()){toast(tr('proOnly'));return;}if(ED.custom.length>=12)return;ED.custom.push({n:'',s:'',h:'#43a047'});renderEditor();}
+function edDelColor(i){ED.custom.splice(i,1);renderEditor();}
 function edListen(i){const c=ED.custom[i];const t=(c.s||c.n||'').trim();if(t)speak(t);}
 function renderEditor(){
   screen='editor';
@@ -884,11 +882,11 @@ function renderEditor(){
     &nbsp; ${tr('cols')} <button onclick="edStep('cols',-1)">−</button><span>${E.cols}</span><button onclick="edStep('cols',1)">＋</button></div></div>
   <div class="panel"><h3>${L('hearts')}</h3><div class="opts">
     ${opt('3',E.hearts===3,"edSet('hearts',3)")}${opt('5',E.hearts===5,"edSet('hearts',5)")}${opt(tr('unlimited'),E.hearts===0,"edSet('hearts',0)")}</div></div>
-  <div class="panel"><h3>${L('colors')}</h3><div class="opts">
-    ${opt(tr('presetColors'),E.cmode==='preset',"edSet('cmode','preset')")}
-    <div class="opt ${E.cmode==='custom'?'on':''}${lockCls}" onclick="edSet('cmode','custom')">${tr('customColors')}${pro?'':' 🔒'}</div></div>
-    <div style="margin-top:8px">${E.cmode==='preset'?`<div class="note">${tr('colorSel')}</div><div class="chips">${chips}</div>`
-      :`${crows}<button class="sbtn" onclick="edAddColor()" ${E.custom.length>=12?'disabled':''}>${tr('addColor')}</button>`}</div></div>
+  <div class="panel"><h3>${L('presetColors')} <span class="note">${tr('colorSel')}</span></h3>
+    <div class="opts" style="margin-bottom:8px">${opt(L('basic'),false,"edQuick('basic')")}${opt(L('adv'),false,"edQuick('adv')")}${opt(tr('all'),false,"edQuick('all')")}${opt(tr('none'),false,"edQuick('none')")}</div>
+    <div class="chips">${chips}</div></div>
+  <div class="panel${lockCls}"><h3>${L('customColors')}${pro?'':' 🔒'}</h3>${crows}
+    <button class="sbtn" onclick="edAddColor()" ${E.custom.length>=12?'disabled':''}>${tr('addColor')}</button></div>
   <div class="panel"><h3>${L('numSel')}</h3><div class="opts">
     ${opt('0 – 999',E.nmode==='999',"edSet('nmode','999')")}${opt('0 – 9999',E.nmode==='9999',"edSet('nmode','9999')")}
     <div class="opt ${E.nmode==='list'?'on':''}${lockCls}" onclick="edSet('nmode','list')">${tr('customNums')}${pro?'':' 🔒'}</div></div>
@@ -902,10 +900,11 @@ function renderEditor(){
 function edToCfg(){
   const E=ED;
   const raw={name:E.name,mode:E.mode,rows:E.rows,cols:E.cols,hearts:E.hearts};
-  if(E.cmode==='custom')raw.custom=E.custom;else raw.ids=E.ids;
+  raw.ids=E.ids;raw.custom=E.custom;
+  if(E.ids.length+E.custom.length<2)return {err:tr('colorSel')};
   if(E.nmode==='list'){const l=parseNumList(E.list);if(!l)return {err:tr('numHint')};raw.nums=l;}
   else raw.range=E.nmode==='9999'?9999:999;
-  if(E.cmode==='custom'&&E.custom.some(c=>!c.n.trim()))return {err:tr('colorName')+'?'};
+  if(E.custom.some(c=>!c.n.trim()))return {err:tr('colorName')+'?'};
   const c=normalizeCfg(raw);
   if(!c)return {err:tr('bad')};
   return {cfg:c};
