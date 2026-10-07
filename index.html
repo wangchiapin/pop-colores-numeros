@@ -280,6 +280,7 @@ const T={
  saved2:['已儲存','已保存','Guardado','Saved'],
  confirmDel:['確定要刪除這個設定嗎？','确定要删除这个设置吗？','¿Borrar esta configuración?','Delete this configuration?'],
  bad:['設定有問題','设置有问题','Revisa la configuración','Check the configuration'],
+ planMonth:['月訂','月订','Mensual','Monthly'],planYear:['年訂','年订','Anual','Yearly'],
  all:['全部','全部','Todos','All'],
  listen:['聽聽看','听听看','Escuchar','Listen'],
  // 以下只顯示中文（不加外語小字）
@@ -765,7 +766,16 @@ function closeLB(){document.getElementById('lbov').classList.add('hide');}
 // ---- 教師版 ----
 let TS={profile:null,items:[],seq:0,err:''};
 let ED=null,ADM=[];
-function isPro(){const p=TS.profile;return !!p&&p.plan==='pro'&&!!p.expiresAt&&p.expiresAt>Date.now();}
+function isPro(){const p=TS.profile;return !!p&&p.plan!=='free'&&!!p.expiresAt&&p.expiresAt>Date.now();}
+function planName(p){return p==='month'?tr('planMonth'):(p==='year'?tr('planYear'):(p==='pro'?tr('planYear'):tr('free')));}
+function today(){return fdate(Date.now());}
+function addMonthsEnd(str,months){
+  const [y,m,d]=str.split('-').map(Number);
+  const t=(m-1)+months,yy=y+Math.floor(t/12),mm=((t%12)+12)%12;
+  const last=new Date(yy,mm+1,0).getDate();
+  return new Date(yy,mm,Math.min(d,last),23,59,59).getTime();
+}
+function calcExpires(plan,startStr,periods){return addMonthsEnd(startStr,(plan==='month'?1:12)*((periods||0)+1));}
 function limitN(){return isPro()?15:3;}
 function fdate(ms){const d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function backBtn(){return `<button class="big sec" onclick="renderSetup()">${L('menu')}</button>`;}
@@ -812,7 +822,7 @@ function drawTeacher(){
     <div class="mini"><button onclick="edOpen(${i})">✏️ ${tr('edit')}</button><button onclick="tPlay(${i})">▶ ${tr('testPlay')}</button><button onclick="tLink(${i})">🔗 ${tr('copyLink')}</button><button onclick="tDel(${i})">🗑 ${tr('del')}</button></div></div>`).join('');
   app.innerHTML=`${titleHtml()}
   <div class="panel"><div style="word-break:break-all">${esc(u.email||'')}</div>
-    <div style="margin:6px 0">${tr('plan')}：<span class="badge ${pro?'pro':''}">${pro?tr('pro'):tr('free')}</span>${pro?` <span class="note">${tr('until')} ${fdate(TS.profile.expiresAt)}</span>`:''}</div>
+    <div style="margin:6px 0">${tr('plan')}：<span class="badge ${pro?'pro':''}">${pro?planName(TS.profile.plan):tr('free')}</span>${TS.profile.expiresAt?` <span class="note">${tr('until')} ${fdate(TS.profile.expiresAt)}</span>`:''}</div>
     <div class="mini"><button onclick="doLogout()">${tr('logout')}</button>${window.TA.isAdmin()?'<button onclick="renderAdmin()">⚙ 管理</button>':''}</div></div>
   <h3>${L('myConfigs')} <span class="note">${n} / ${lim}</span></h3>
   ${items||`<p class="note">${L('empty')}</p>`}
@@ -951,23 +961,54 @@ async function renderAdmin(){
   try{
     ADM=await window.TA.listTeachers();
     ADM.sort((a,b)=>(a.email||'').localeCompare(b.email||''));
-    const now=Date.now();
-    const rows=ADM.map((t,i)=>{
-      const pro=t.plan==='pro'&&t.expiresAt&&t.expiresAt>now;
-      return `<tr><td style="word-break:break-all">${esc(t.email||'')}<br><span class="note">${esc(t.name||'')}</span></td>
-      <td><span class="badge ${pro?'pro':''}">${pro?'Pro':'Free'}</span>${t.expiresAt?`<br><span class="note">${fdate(t.expiresAt)}</span>`:''}</td>
-      <td><div class="mini"><button onclick="admSet(${i},30)">+30天</button><button onclick="admSet(${i},365)">+1年</button><button onclick="admSet(${i},0)">改免費</button></div></td></tr>`;}).join('');
-    app.innerHTML=`<h1>⚙ 管理</h1><p class="note">${ADM.length} 位老師</p><table class="adm">${rows}</table>
-      <button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;
+    drawAdmin();
   }catch(e){console.error(e);app.innerHTML=`<h1>⚙ 管理</h1><p class="err">${esc(e.code||e.message||'')}</p><button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;}
 }
-async function admSet(i,days){
-  const t=ADM[i];if(!t)return;
-  try{
-    if(days===0)await window.TA.setPlan(t.uid,'free',null);
-    else{const base=Math.max(Date.now(),t.expiresAt||0);await window.TA.setPlan(t.uid,'pro',base+days*86400000);}
-    renderAdmin();
-  }catch(e){console.error(e);toast(String(e.code||e.message));}
+function admStatus(t){
+  if(t.plan==='free'||!t.expiresAt)return '';
+  const left=t.expiresAt-Date.now();
+  if(left<=0)return '<span class="badge" style="background:#ddd;color:#555">已到期</span>';
+  if(left<=7*86400000)return '<span class="badge" style="background:#ffcc80;color:#6a3a00">7 天內到期</span>';
+  return '<span class="badge pro">使用中</span>';
+}
+function drawAdmin(){
+  const rows=ADM.map((t,i)=>{
+    const paid=t.plan!=='free';
+    const legacy=t.plan==='pro';
+    return `<div class="cfgItem"><b style="word-break:break-all">${esc(t.email||'')}</b> <span class="note">${esc(t.name||'')}</span>
+      <div class="crow" style="margin-top:6px"><select class="txt" style="flex:1" onchange="admPlan(${i},this.value)">
+        ${legacy?'<option value="pro" selected>舊版 Pro（請重新選方案）</option>':''}
+        <option value="free" ${t.plan==='free'?'selected':''}>免費</option>
+        <option value="month" ${t.plan==='month'?'selected':''}>月訂</option>
+        <option value="year" ${t.plan==='year'?'selected':''}>年訂</option></select>${admStatus(t)}</div>
+      ${paid?`<div class="crow"><span class="note" style="flex:none">開始</span><input type="date" class="txt" style="flex:1" value="${t.startAt?fdate(t.startAt):''}" onchange="admStart(${i},this.value)">
+        <span class="note" style="flex:none">到期</span><b style="flex:none">${t.expiresAt?fdate(t.expiresAt):'—'}</b></div>
+      <div class="crow"><span class="note" style="flex:none">續訂 ×${t.periods||0}</span>
+        <button class="sbtn" onclick="admRenew(${i},1)" ${legacy||!t.startAt?'disabled':''}>＋ 續訂</button>
+        <button class="sbtn" onclick="admRenew(${i},-1)" ${(t.periods||0)<=0?'disabled':''}>－ 撤銷</button></div>`:''}</div>`;}).join('');
+  app.innerHTML=`<h1>⚙ 管理</h1><p class="note">${ADM.length} 位老師</p>${rows}
+    <button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;
+}
+async function admSave(i,fields){
+  const t=ADM[i];
+  try{await window.TA.setPlan(t.uid,fields);Object.assign(t,fields);drawAdmin();}
+  catch(e){console.error(e);toast(String(e.code||e.message));drawAdmin();}
+}
+function admPlan(i,v){
+  const t=ADM[i];if(!t||v==='pro')return;
+  if(v==='free')return admSave(i,{plan:'free',startAt:null,periods:0,expiresAt:null});
+  const startStr=t.startAt&&t.plan!=='pro'?fdate(t.startAt):today();
+  const per=t.plan==='free'||t.plan==='pro'?0:(t.periods||0);
+  admSave(i,{plan:v,startAt:new Date(startStr+'T00:00:00').getTime(),periods:per,expiresAt:calcExpires(v,startStr,per)});
+}
+function admStart(i,v){
+  const t=ADM[i];if(!t||!v||t.plan==='free'||t.plan==='pro')return;
+  admSave(i,{startAt:new Date(v+'T00:00:00').getTime(),expiresAt:calcExpires(t.plan,v,t.periods||0)});
+}
+function admRenew(i,d){
+  const t=ADM[i];if(!t||!t.startAt||t.plan==='free'||t.plan==='pro')return;
+  const per=Math.max(0,(t.periods||0)+d);
+  admSave(i,{periods:per,expiresAt:calcExpires(t.plan,fdate(t.startAt),per)});
 }
 window.onTAChange=()=>{if(screen==='teacher')renderTeacher();};
 (function init(){
@@ -1031,7 +1072,7 @@ try{
         s=await getDoc(ref);
       }
       const d=s.data();
-      return {plan:d.plan,expiresAt:ms(d.expiresAt),email:d.email,name:d.name};
+      return {plan:d.plan,expiresAt:ms(d.expiresAt),startAt:ms(d.startAt),periods:d.periods||0,email:d.email,name:d.name};
     },
     async configs(){
       const u=auth.currentUser,s=await getDoc(doc(db,'teacher_configs',u.uid));
@@ -1043,10 +1084,15 @@ try{
     },
     async listTeachers(){
       const s=await getDocs(collection(db,'teachers'));
-      return s.docs.map(d=>{const x=d.data();return {uid:d.id,email:x.email,name:x.name,plan:x.plan,expiresAt:ms(x.expiresAt)};});
+      return s.docs.map(d=>{const x=d.data();return {uid:d.id,email:x.email,name:x.name,plan:x.plan,expiresAt:ms(x.expiresAt),startAt:ms(x.startAt),periods:x.periods||0};});
     },
-    async setPlan(uid,plan,expMs){
-      await updateDoc(doc(db,'teachers',uid),{plan,expiresAt:expMs?Timestamp.fromMillis(expMs):null});
+    async setPlan(uid,f){
+      const o={};
+      if('plan' in f)o.plan=f.plan;
+      if('periods' in f)o.periods=f.periods;
+      if('startAt' in f)o.startAt=f.startAt?Timestamp.fromMillis(f.startAt):null;
+      if('expiresAt' in f)o.expiresAt=f.expiresAt?Timestamp.fromMillis(f.expiresAt):null;
+      await updateDoc(doc(db,'teachers',uid),o);
     }
   };
   onAuthStateChanged(auth,()=>{if(window.onTAChange)window.onTAChange();});
