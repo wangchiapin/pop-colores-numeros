@@ -286,7 +286,7 @@ const T={
  saved2:['已儲存','已保存','Guardado','Saved'],
  confirmDel:['確定要刪除這個設定嗎？','确定要删除这个设置吗？','¿Borrar esta configuración?','Delete this configuration?'],
  bad:['設定有問題','设置有问题','Revisa la configuración','Check the configuration'],
- planMonth:['月訂','月订','Mensual','Monthly'],planYear:['年訂','年订','Anual','Yearly'],
+ planTrial:['試用','试用','Prueba','Trial'],planMonth:['月訂','月订','Mensual','Monthly'],planYear:['年訂','年订','Anual','Yearly'],
  all:['全部','全部','Todos','All'],
  listen:['聽聽看','听听看','Escuchar','Listen'],
  // 以下只顯示中文（不加外語小字）
@@ -774,8 +774,9 @@ function closeLB(){document.getElementById('lbov').classList.add('hide');}
 // ---- 教師版 ----
 let TS={profile:null,items:[],seq:0,err:''};
 let ED=null,ADM=[];
+const TRIAL_DAYS=7;   // 免費試用天數（管理員在管理頁手動發放）
 function isPro(){const p=TS.profile;return !!p&&p.plan!=='free'&&!!p.expiresAt&&p.expiresAt>Date.now();}
-function planName(p){return p==='month'?tr('planMonth'):(p==='year'?tr('planYear'):(p==='pro'?tr('planYear'):tr('free')));}
+function planName(p){return p==='trial'?tr('planTrial'):p==='month'?tr('planMonth'):(p==='year'?tr('planYear'):(p==='pro'?tr('planYear'):tr('free')));}
 function today(){return fdate(Date.now());}
 function addMonthsEnd(str,months){
   const [y,m,d]=str.split('-').map(Number);
@@ -1010,12 +1011,13 @@ function drawAdmin(){
       <div class="crow" style="margin-top:6px"><select class="txt" style="flex:1" onchange="admPlan(${i},this.value)">
         ${legacy?'<option value="pro" selected>舊版 Pro（請重新選方案）</option>':''}
         <option value="free" ${t.plan==='free'?'selected':''}>免費</option>
+        <option value="trial" ${t.plan==='trial'?'selected':''}>試用（${TRIAL_DAYS} 天）${t.trialUsed&&t.plan!=='trial'?'・已試用過':''}</option>
         <option value="month" ${t.plan==='month'?'selected':''}>月訂</option>
         <option value="year" ${t.plan==='year'?'selected':''}>年訂</option></select>${admStatus(t)}</div>
-      ${paid?`<div class="crow"><span class="note" style="flex:none">開始</span><input type="date" class="txt" style="flex:1" value="${t.startAt?fdate(t.startAt):''}" onchange="admStart(${i},this.value)">
+      ${paid?`<div class="crow"><span class="note" style="flex:none">開始</span><input type="date" class="txt" style="flex:1" ${t.plan==='trial'?'disabled':''} value="${t.startAt?fdate(t.startAt):''}" onchange="admStart(${i},this.value)">
         <span class="note" style="flex:none">到期</span><b style="flex:none">${t.expiresAt?fdate(t.expiresAt):'—'}</b></div>
       <div class="crow"><span class="note" style="flex:none">續訂 ×${t.periods||0}</span>
-        <button class="sbtn" onclick="admRenew(${i},1)" ${legacy||!t.startAt?'disabled':''}>＋ 續訂</button>
+        <button class="sbtn" onclick="admRenew(${i},1)" ${legacy||t.plan==='trial'||!t.startAt?'disabled':''}>＋ 續訂</button>
         <button class="sbtn" onclick="admRenew(${i},-1)" ${(t.periods||0)<=0?'disabled':''}>－ 撤銷</button></div>`:''}</div>`;}).join('');
   app.innerHTML=`<h1>⚙ 管理</h1><p class="note">${ADM.length} 位老師</p>${rows}
     <button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;
@@ -1028,16 +1030,22 @@ async function admSave(i,fields){
 function admPlan(i,v){
   const t=ADM[i];if(!t||v==='pro')return;
   if(v==='free')return admSave(i,{plan:'free',startAt:null,periods:0,expiresAt:null});
-  const startStr=t.startAt&&t.plan!=='pro'?fdate(t.startAt):today();
-  const per=t.plan==='free'||t.plan==='pro'?0:(t.periods||0);
+  if(v==='trial'){
+    if(t.plan==='trial')return;
+    if(t.trialUsed&&!confirm('這位老師已經試用過了，要再開一次嗎？')){drawAdmin();return;}
+    const now=Date.now();
+    return admSave(i,{plan:'trial',startAt:now,periods:0,expiresAt:now+TRIAL_DAYS*86400000,trialUsed:true});
+  }
+  const startStr=t.startAt&&t.plan!=='pro'&&t.plan!=='trial'?fdate(t.startAt):today();
+  const per=t.plan==='free'||t.plan==='pro'||t.plan==='trial'?0:(t.periods||0);
   admSave(i,{plan:v,startAt:new Date(startStr+'T00:00:00').getTime(),periods:per,expiresAt:calcExpires(v,startStr,per)});
 }
 function admStart(i,v){
-  const t=ADM[i];if(!t||!v||t.plan==='free'||t.plan==='pro')return;
+  const t=ADM[i];if(!t||!v||t.plan==='free'||t.plan==='pro'||t.plan==='trial')return;
   admSave(i,{startAt:new Date(v+'T00:00:00').getTime(),expiresAt:calcExpires(t.plan,v,t.periods||0)});
 }
 function admRenew(i,d){
-  const t=ADM[i];if(!t||!t.startAt||t.plan==='free'||t.plan==='pro')return;
+  const t=ADM[i];if(!t||!t.startAt||t.plan==='free'||t.plan==='pro'||t.plan==='trial')return;
   const per=Math.max(0,(t.periods||0)+d);
   admSave(i,{periods:per,expiresAt:calcExpires(t.plan,fdate(t.startAt),per)});
 }
@@ -1079,14 +1087,13 @@ const firebaseConfig={
   measurementId:"G-RS1DJ7DH50"
 };
 // 中心專案 subscription-48d3c：教師登入、方案（sub_plans）、教師設定、學生分享連結都在這裡。
-// TODO(Ben)：到 Firebase 控制台 → subscription-48d3c → 專案設定 → 你的應用程式，把 Web 設定貼到下面（apiKey 不是機密）。
 const centralConfig={
-  apiKey:"PASTE_SUBSCRIPTION_48D3C_API_KEY",
+  apiKey:"AIzaSyCHZz8Hh7m45bJfZC9aK_f_NvUD-aUeuzU",
   authDomain:"subscription-48d3c.firebaseapp.com",
   projectId:"subscription-48d3c",
   storageBucket:"subscription-48d3c.firebasestorage.app",
-  messagingSenderId:"PASTE_MESSAGING_SENDER_ID",
-  appId:"PASTE_APP_ID"
+  messagingSenderId:"276281656991",
+  appId:"1:276281656991:web:de242ba22373816c3044aa"
 };
 const ADMIN_EMAIL='a2224907@gmail.com';
 try{
@@ -1169,12 +1176,13 @@ try{
       const [ms_,ps]=await Promise.all([getDocs(collection(cdb,'sub_members')),getDocs(collection(cdb,'sub_plans'))]);
       const plans={};ps.docs.forEach(d=>{plans[d.id]=d.data();});
       return ms_.docs.map(d=>{const x=d.data(),p=plans[d.id]||{};
-        return {uid:d.id,email:x.email,name:x.name,plan:p.plan||'free',expiresAt:ms(p.expiresAt),startAt:ms(p.startAt),periods:p.periods||0};});
+        return {uid:d.id,email:x.email,name:x.name,plan:p.plan||'free',expiresAt:ms(p.expiresAt),startAt:ms(p.startAt),periods:p.periods||0,trialUsed:!!p.trialUsed};});
     },
     async setPlan(uid,f){
       const o={};
       if('plan' in f)o.plan=f.plan;
       if('periods' in f)o.periods=f.periods;
+      if('trialUsed' in f)o.trialUsed=!!f.trialUsed;
       if('startAt' in f)o.startAt=f.startAt?Timestamp.fromMillis(f.startAt):null;
       if('expiresAt' in f)o.expiresAt=f.expiresAt?Timestamp.fromMillis(f.expiresAt):null;
       // sub_plans 文件可能還不存在（新會員），所以用 merge 寫入
