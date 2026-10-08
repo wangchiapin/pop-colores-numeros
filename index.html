@@ -1086,7 +1086,7 @@ const firebaseConfig={
   appId:"1:806709458465:web:f0d12acb2f911f2f165560",
   measurementId:"G-RS1DJ7DH50"
 };
-// 中心專案 subscription-48d3c：教師登入、方案（sub_plans）、教師設定、學生分享連結都在這裡。
+// 中心專案 subscription-48d3c：教師登入、方案（site_plans）、教師設定、學生分享連結都在這裡。
 const centralConfig={
   apiKey:"AIzaSyCHZz8Hh7m45bJfZC9aK_f_NvUD-aUeuzU",
   authDomain:"subscription-48d3c.firebaseapp.com",
@@ -1141,15 +1141,15 @@ try{
     async login(){await signInWithPopup(cauth,new GoogleAuthProvider());},
     async logout(){await signOut(cauth);},
     async profile(){
-      // 會員資料 sub_members/{uid}（首次登入自動建立）；方案 sub_plans/{uid} 只有管理員能寫，沒有文件就是免費
-      const u=cauth.currentUser,mref=doc(cdb,'sub_members',u.uid);
+      // 會員資料 site_members/{uid}（首次登入自動建立）；方案 site_plans/{uid} 只有管理員能寫，沒有文件就是免費
+      const u=cauth.currentUser,mref=doc(cdb,'site_members',u.uid);
       let m=await getDoc(mref);
       if(!m.exists()){
         await setDoc(mref,{email:u.email||'',name:u.displayName||'',createdAt:serverTimestamp()});
         m=await getDoc(mref);
       }
       const md=m.data();
-      const p=await getDoc(doc(cdb,'sub_plans',u.uid));
+      const p=await getDoc(doc(cdb,'site_plans',u.uid));
       const d=p.exists()?p.data():{};
       return {plan:d.plan||'free',expiresAt:ms(d.expiresAt),startAt:ms(d.startAt),periods:d.periods||0,email:md.email,name:md.name};
     },
@@ -1172,8 +1172,8 @@ try{
       return s.exists()?s.data().cfg:null;
     },
     async listTeachers(){
-      // 管理頁：會員清單（sub_members）合併方案（sub_plans）
-      const [ms_,ps]=await Promise.all([getDocs(collection(cdb,'sub_members')),getDocs(collection(cdb,'sub_plans'))]);
+      // 管理頁：會員清單（site_members）合併方案（site_plans）
+      const [ms_,ps]=await Promise.all([getDocs(collection(cdb,'site_members')),getDocs(collection(cdb,'site_plans'))]);
       const plans={};ps.docs.forEach(d=>{plans[d.id]=d.data();});
       return ms_.docs.map(d=>{const x=d.data(),p=plans[d.id]||{};
         return {uid:d.id,email:x.email,name:x.name,plan:p.plan||'free',expiresAt:ms(p.expiresAt),startAt:ms(p.startAt),periods:p.periods||0,trialUsed:!!p.trialUsed};});
@@ -1185,8 +1185,8 @@ try{
       if('trialUsed' in f)o.trialUsed=!!f.trialUsed;
       if('startAt' in f)o.startAt=f.startAt?Timestamp.fromMillis(f.startAt):null;
       if('expiresAt' in f)o.expiresAt=f.expiresAt?Timestamp.fromMillis(f.expiresAt):null;
-      // sub_plans 文件可能還不存在（新會員），所以用 merge 寫入
-      await setDoc(doc(cdb,'sub_plans',uid),o,{merge:true});
+      // site_plans 文件可能還不存在（新會員），所以用 merge 寫入
+      await setDoc(doc(cdb,'site_plans',uid),o,{merge:true});
     }
   };
   onAuthStateChanged(cauth,()=>{if(window.onTAChange)window.onTAChange();});
