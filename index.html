@@ -278,6 +278,13 @@ const T={
  plan:['方案','方案','Plan','Plan'],free:['免費','免费','Gratis','Free'],pro:['訂閱','订阅','Pro','Pro'],until:['到期','到期','Vence','Until'],
  limitReached:['已達設定數量上限','已达设置数量上限','Límite alcanzado','Limit reached'],
  noteTitle:['學生姓名／備註','学生姓名／备注','Nombre / nota','Student name / note'],
+ classNick:['你的暱稱（老師要求的暱稱）','你的昵称（老师要求的昵称）','Tu apodo (el que pidió tu profesor)','Your nickname (the one your teacher asked for)'],
+ classNeed:['請先輸入暱稱','请先输入昵称','Escribe tu apodo primero','Type your nickname first'],
+ classSending:['成績回傳中…','成绩回传中…','Enviando resultado…','Sending result…'],
+ classSent:['✅ 成績已回傳給老師','✅ 成绩已回传给老师','✅ Resultado enviado a tu profesor','✅ Result sent to your teacher'],
+ classFail:['成績回傳失敗','成绩回传失败','No se pudo enviar el resultado','Could not send the result'],
+ classRetry:['重試','重试','Reintentar','Retry'],
+ classBoard:['班級排行榜','班级排行榜','Clasificación de la clase','Class leaderboard'],
  noRecord:['這個成績不會上傳排行榜，請自行記錄，或下載成績圖片。','这个成绩不会上传排行榜，请自行记录，或下载成绩图片。','Este resultado no se sube al ranking. Anótalo o descarga la imagen.','This result is not uploaded. Write it down or download the image.'],
  download:['下載成績圖片','下载成绩图片','Descargar imagen','Download image'],
  backTeacher:['回教師區','回教师区','Volver al área docente','Back to teacher area'],
@@ -455,6 +462,37 @@ function buildBoard(g){
   while(cs.length<N)cs.push(cl[Math.floor(Math.random()*cl.length)].id);
   cs=shuffle(cs).slice(0,N);
   return {rows:g.rows,cols:g.cols,cells:nums.map((n,i)=>({n,color:cs[i],alive:true,acc:accepted(n)}))};
+}
+let CLASSID='',CLASS=null;   // 班級模式：成績自動回傳給老師（?class=班級碼）
+function startLink(){
+  if(CLASS&&!String(stuName||'').trim()){toast(tr('classNeed'));return;}
+  startGame(toGame(LINKCFG),'link',stuName);
+}
+async function prepClass(){
+  if(!CLASSID)return true;
+  try{
+    for(let i=0;i<100&&!window.TA;i++)await new Promise(r=>setTimeout(r,100));
+    if(!window.TA)throw {code:'unavailable'};
+    CLASS=await window.TA.classGet(CLASSID);
+    if(!CLASS){linkMsg('linkGone');return false;}
+    return true;
+  }catch(e){console.error(e);linkMsg('lbError');return false;}
+}
+async function sendClassResult(){
+  const el=document.getElementById('classArea');if(!el||!CLASS||!S)return;
+  const nick=[...String(S.stuName||'').trim()].slice(0,16).join('');
+  el.innerHTML=`<p class="note">${tr('classSending')}</p>`;
+  try{
+    await window.TA.classSubmit(CLASSID,CLASS.owner,{nick,score:Math.max(0,Math.min(1000000,S.score|0)),extra:{secs:S.finalSecs,cleared:S.clearedFlag?1:0}});
+    el.innerHTML=`<p class="note">${tr('classSent')}</p>`;
+    if(CLASS.showBoard){
+      const rows=await window.TA.classBoard(CLASSID);
+      el.innerHTML+=`<h3>${tr('classBoard')}</h3><table>${rows.map((r,i)=>`<tr><td>${i+1}. ${esc(r.nick)}</td><td>${r.best}</td></tr>`).join('')}</table>`;
+    }
+  }catch(e){
+    console.error(e);
+    el.innerHTML=`<p class="err">${tr('classFail')}</p><button class="big sec" onclick="sendClassResult()">${tr('classRetry')}</button>`;
+  }
 }
 function startGame(g,ctx,name){
   loadVoice();
@@ -662,7 +700,9 @@ function finish(cleared){
   const secs=Math.floor((Date.now()-S.t0)/1000);
   S.finalSecs=Math.min(99999,secs);S.clearedFlag=!!cleared;
   const std=S.ctx==='std';
+  const cm=!std&&S.ctx==='link'&&!!CLASS;
   const extra=std?'<div id="lbArea"></div>'
+   :cm?`<div id="classArea"></div><button class="big" onclick="downloadResult()">⬇ ${L('download')}</button>`
    :`<p class="note">${L('noRecord')}</p>
      <input id="stuNote" class="nick" placeholder="${esc(tr('noteTitle'))}" value="${esc(S.stuName||'')}" maxlength="30">
      <button class="big" onclick="downloadResult()">⬇ ${L('download')}</button>`;
@@ -681,11 +721,12 @@ function finish(cleared){
   </div>`;
   o.classList.remove('hide');
   if(std)lbAfterGame();
+  if(cm)sendClassResult();
 }
 function toSetup(){leaveGame();}
 function downloadResult(){
   if(!S)return;
-  const nm=[...((document.getElementById('stuNote')||{}).value||'').trim()].slice(0,30).join('');
+  const nm=[...((document.getElementById('stuNote')||{value:S.stuName||''}).value||'').trim()].slice(0,30).join('');
   S.stuName=nm;
   const W=720,H=900,cv=document.createElement('canvas');cv.width=W;cv.height=H;
   const x=cv.getContext('2d');
@@ -980,11 +1021,12 @@ function renderLinkStart(c){
   <div class="panel" style="text-align:center"><h3>${L('startLink')}</h3>
     ${c.name?`<div style="font-size:1.2rem;font-weight:700">${esc(c.name)}</div>`:''}
     <div class="note">${cfgSummary(c)}</div></div>
-  <div class="panel"><h3>${L('studentName')}</h3><input class="txt" maxlength="30" value="${esc(stuName)}" oninput="stuName=this.value"></div>
+  ${CLASS?`<div class="panel" style="text-align:center"><div style="font-size:1.1rem;font-weight:700">🏫 ${esc(String(CLASS.name||'').slice(0,40))}</div></div>`:''}
+  <div class="panel"><h3>${CLASS?tr('classNick'):L('studentName')}</h3><input class="txt" maxlength="${CLASS?16:30}" value="${esc(stuName)}" oninput="stuName=this.value"></div>
   ${langPanels()}${ratePanel()}
   <div class="panel"><h3>${L('showText')}</h3><div class="opts">
     ${opt(tr('off'),!cfg.showText,"setC('showText',false)")}${opt(tr('on'),cfg.showText,"setC('showText',true)")}</div></div>
-  <button class="big" onclick="startGame(toGame(LINKCFG),'link',stuName)">${L('start')}</button>`;
+  <button class="big" onclick="startLink()">${L('start')}</button>`;
 }
 // ---- 管理 ----
 async function renderAdmin(){
@@ -1059,6 +1101,7 @@ async function loadShared(id){
     if(!r)return linkMsg('linkGone');
     const c=normalizeCfg(r);
     if(!c)return linkMsg('linkGone');
+    if(!(await prepClass()))return;
     renderLinkStart(c);
   }catch(e){
     console.error(e);
@@ -1067,16 +1110,17 @@ async function loadShared(id){
 }
 window.onTAChange=()=>{if(screen==='teacher')renderTeacher();};
 (function init(){
-  const q=new URLSearchParams(location.search),t=q.get('t'),id=q.get('c');
+  const q=new URLSearchParams(location.search),t=q.get('t'),id=q.get('c'),cl=String(q.get('class')||'').toLowerCase();
+  if(/^[a-z0-9]{8,32}$/.test(cl))CLASSID=cl;
   if(id&&/^[a-z0-9]{8,32}$/.test(id)){loadShared(id);return;}
-  if(t){const c=decodeCfg(t);if(c){renderLinkStart(c);return;}linkMsg('linkGone');return;}
+  if(t){const c=decodeCfg(t);if(c){prepClass().then(ok=>{if(ok)renderLinkStart(c);});return;}linkMsg('linkGone');return;}
   renderSetup();
 })();
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInAnonymously,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,query,orderBy,limit,getDocs,getDoc,doc,setDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,query,orderBy,limit,getDocs,getDoc,where,doc,setDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={
   apiKey:"AIzaSyC_YSDn2OH6_GKKwCq0d8QFNl3fYXzTC60",
   authDomain:"memorma-24dab.firebaseapp.com",
@@ -1164,6 +1208,40 @@ try{
     async shareSave(id,c,pro){
       const u=cauth.currentUser;
       await setDoc(doc(cdb,'shared_configs',id),{owner:u.uid,cfg:c,pro:!!pro,updatedAt:serverTimestamp()});
+    },
+    async classGet(cid){
+      await ensureCUid();
+      const s=await getDoc(doc(cdb,'classes',cid));
+      return s.exists()?s.data():null;
+    },
+    async nickHash(nick){
+      const norm=String(nick).normalize('NFKC').trim().toLowerCase().replace(/\s+/g,' ');
+      try{
+        const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(norm));
+        return Array.from(new Uint8Array(buf)).slice(0,8).map(b=>b.toString(16).padStart(2,'0')).join('');
+      }catch(e){
+        let h1=0x811c9dc5,h2=0x01000193;
+        for(const ch of norm){const c=ch.codePointAt(0);h1=Math.imul(h1^c,16777619)>>>0;h2=Math.imul(h2+c,2246822519)>>>0;}
+        return h1.toString(16).padStart(8,'0')+h2.toString(16).padStart(8,'0');
+      }
+    },
+    async classSubmit(cid,owner,e){
+      await ensureCUid();
+      const h=await window.TA.nickHash(e.nick);
+      const ref=doc(cdb,'class_scores',cid+'_colores_'+h);
+      const old=await getDoc(ref);
+      if(!old.exists()){
+        await setDoc(ref,{cid,owner,game:'colores',h,nick:e.nick,best:e.score,plays:1,lastAt:serverTimestamp(),extra:e.extra});
+      }else{
+        const o=old.data(),upd={nick:e.nick,plays:(o.plays||0)+1,lastAt:serverTimestamp(),best:Math.max(o.best||0,e.score)};
+        if(e.score>(o.best||0))upd.extra=e.extra;
+        await updateDoc(ref,upd);
+      }
+    },
+    async classBoard(cid){
+      await ensureCUid();
+      const snap=await getDocs(query(collection(cdb,'class_scores'),where('cid','==',cid),limit(300)));
+      return snap.docs.map(d=>d.data()).filter(r=>r.game==='colores').sort((a,b)=>b.best-a.best).slice(0,10);
     },
     async shareDelete(id){await deleteDoc(doc(cdb,'shared_configs',id));},
     async shareGet(id){
