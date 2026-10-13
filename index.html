@@ -100,6 +100,8 @@ textarea.txt{min-height:70px;resize:vertical}
 .crow .txt{padding:7px;min-width:0}
 .lock{opacity:.55}
 .note{color:#777;font-size:.85rem;margin:4px 0}
+.rules{margin:4px 0 0;padding-left:20px;font-size:.85rem;color:#555;line-height:1.45}
+.rules li{margin-bottom:8px}
 .err{color:#c62828;font-size:.9rem;margin:6px 0}
 .step{display:flex;align-items:center;gap:8px}
 .step button{width:36px;height:36px;border-radius:50%;border:1.5px solid #ccc;background:#fff;font-size:1.2rem;cursor:pointer}
@@ -298,6 +300,13 @@ const T={
  proOnly:['訂閱版功能','订阅版功能','Solo Pro','Pro only'],
  plan:['方案','方案','Plan','Plan'],free:['免費','免费','Gratis','Free'],pro:['訂閱','订阅','Pro','Pro'],until:['到期','到期','Vence','Until'],
  limitReached:['已達設定數量上限','已达设置数量上限','Límite alcanzado','Limit reached'],
+ rulesTitle:['訂閱規則說明','订阅规则说明','Reglas de la suscripción','Subscription rules'],
+ rules1:['免費：最多 3 組設定，使用內建的顏色與數字。','免费：最多 3 组设置，使用内置的颜色与数字。','Gratis: hasta 3 configuraciones, con los colores y números incluidos.','Free: up to 3 configurations, using the built-in colors and numbers.'],
+ rules2:['訂閱：最多 15 組設定；可自訂顏色（最多 12 個）與自訂數字清單；可建立班級成績冊（最多 3 個班級，人數不限）。','订阅：最多 15 组设置；可自定义颜色（最多 12 个）与自定义数字清单；可创建班级成绩册（最多 3 个班级，人数不限）。','Suscripción: hasta 15 configuraciones; colores propios (hasta 12) y lista de números propia; libro de notas de clase (hasta 3 clases, sin límite de alumnos).','Subscriber: up to 15 configurations; custom colors (up to 12) and a custom number list; class gradebook (up to 3 classes, no student limit).'],
+ rules3:['訂閱到期不會刪除任何設定。用到訂閱功能（自訂顏色或自訂數字）的設定，學生連結會暫停；其餘設定不受影響。','订阅到期不会删除任何设置。用到订阅功能（自定义颜色或自定义数字）的设置，学生链接会暂停；其余设置不受影响。','Al vencer la suscripción no se borra ninguna configuración. Los enlaces de las que usan funciones de suscripción (colores o números propios) quedan en pausa; las demás no se ven afectadas.','When a subscription ends no configuration is deleted. Links of configurations that use subscriber features (custom colors or numbers) are paused; the others are not affected.'],
+ rules4:['到期後不能再新增班級，也不能把設定改成用訂閱功能；超過 3 組的設定會保留，刪到 3 組以內才能再新增。','到期后不能再新增班级，也不能把设置改成用订阅功能；超过 3 组的设置会保留，删到 3 组以内才能再新增。','Tras el vencimiento no se pueden crear clases ni usar funciones de suscripción en una configuración; las que superan 3 se conservan, y hay que dejar 3 o menos para añadir nuevas.','After expiry you cannot create classes or switch a configuration to subscriber features; configurations beyond 3 are kept, but you must get down to 3 or fewer to add new ones.'],
+ rules5:['班級成績冊：到期後學生無法再回傳新成績，但你仍可查看、匯出與刪除。','班级成绩册：到期后学生无法再回传新成绩，但你仍可查看、导出与删除。','Libro de notas: al vencer, los alumnos ya no pueden enviar resultados nuevos, pero tú puedes verlos, exportarlos y borrarlos.','Gradebook: after expiry students can no longer send new results, but you can still view, export and delete them.'],
+ rules6:['續訂後，暫停的連結就會恢復。','续订后，暂停的链接就会恢复。','Al renovar, los enlaces en pausa vuelven a funcionar.','Once you renew, paused links work again.'],
  noteTitle:['學生姓名／備註','学生姓名／备注','Nombre / nota','Student name / note'],
  classNick:['你的暱稱（老師要求的暱稱）','你的昵称（老师要求的昵称）','Tu apodo (el que pidió tu profesor)','Your nickname (the one your teacher asked for)'],
  classNeed:['請先輸入暱稱','请先输入昵称','Escribe tu apodo primero','Type your nickname first'],
@@ -896,6 +905,7 @@ function drawTeacher(){
   <div class="panel"><div style="word-break:break-all">${esc(u.email||'')}</div>
     <div style="margin:6px 0">${tr('plan')}：<span class="badge ${pro?'pro':''}">${pro?planName(TS.profile.plan):tr('free')}</span>${TS.profile.expiresAt?` <span class="note">${tr('until')} ${fdate(TS.profile.expiresAt)}</span>`:''}</div>
     <div class="mini"><button onclick="doLogout()">${tr('logout')}</button>${window.TA.isAdmin()?'<button onclick="renderAdmin()">⚙ 管理</button>':''}</div></div>
+  <div class="panel"><h3>${L('rulesTitle')}</h3><ul class="rules">${[1,2,3,4,5,6].map(i=>`<li>${L('rules'+i)}</li>`).join('')}</ul></div>
   <h3>${L('myConfigs')} <span class="note">${n} / ${lim}</span></h3>
   ${items||`<p class="note">${L('empty')}</p>`}
   ${n>=lim?`<p class="err">${tr('limitReached')}</p>`:`<button class="big" onclick="edOpen(-1)">${L('newConfig')}</button>`}
