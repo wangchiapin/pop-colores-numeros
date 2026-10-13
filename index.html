@@ -253,6 +253,27 @@ const T={
  login:['用 Google 登入','用 Google 登录','Entrar con Google','Sign in with Google'],
  logout:['登出','登出','Salir','Sign out'],
  needLogin:['教師版需要登入，用來儲存你的設定清單。','教师版需要登录，用来保存你的设置清单。','Inicia sesión para guardar tus configuraciones.','Sign in to save your configurations.'],
+ clsTitle:['班級成績冊','班级成绩册','Libro de notas de clase','Class gradebook'],
+ clsNotReady:['班級功能尚未啟用（規則還沒更新）','班级功能尚未启用（规则还没更新）','Las clases aún no están activadas (faltan las reglas)','Classes are not enabled yet (rules not updated)'],
+ clsHint:['班級和「跑吧！漢字」共用；成績冊各遊戲獨立，這裡只看色數消消樂的成績。','班级和“跑吧！汉字”共用；成绩册各游戏独立，这里只看色数消消乐的成绩。','Las clases se comparten con «跑吧！漢字»; cada juego tiene su propio libro de notas y aquí solo ves el de este juego.','Classes are shared with 跑吧！漢字; each game has its own gradebook, and here you only see this game\'s.'],
+ clsName:['班級名稱','班级名称','Nombre de la clase','Class name'],
+ clsCreate:['建立班級','创建班级','Crear clase','Create class'],
+ clsNeedSub:['建立班級需要訂閱','创建班级需要订阅','Crear clases requiere suscripción','Creating classes needs a subscription'],
+ clsNone:['還沒有班級','还没有班级','Aún no hay clases','No classes yet'],
+ clsLink:['複製班級連結','复制班级链接','Copiar enlace de clase','Copy class link'],
+ clsPickCfg:['請先建立一個設定','请先创建一个设置','Crea primero una configuración','Create a configuration first'],
+ clsBook:['成績冊','成绩册','Notas','Gradebook'],
+ boardOn:['排行榜：開','排行榜：开','Clasificación: sí','Leaderboard: on'],
+ boardOff:['排行榜：關','排行榜：关','Clasificación: no','Leaderboard: off'],
+ boardToggle:['切換排行榜','切换排行榜','Cambiar clasificación','Toggle leaderboard'],
+ bkNick:['暱稱','昵称','Apodo','Nickname'],bkBest:['最高分','最高分','Mejor','Best'],bkPlays:['次數','次数','Partidas','Plays'],bkTime:['秒數','秒数','Segundos','Seconds'],bkLast:['最近','最近','Última','Last'],
+ bkEmpty:['色數消消樂還沒有成績。把班級連結發給學生就會出現。','色数消消乐还没有成绩。把班级链接发给学生就会出现。','Aún no hay resultados de este juego. Aparecerán cuando tus alumnos usen el enlace de clase.','No results for this game yet. They appear once students use the class link.'],
+ bkRefresh:['重新整理','刷新','Actualizar','Refresh'],bkCsv:['匯出 CSV','导出 CSV','Exportar CSV','Export CSV'],
+ bkReset:['清空色數成績','清空色数成绩','Borrar notas de este juego','Clear this game\'s grades'],
+ bkDelClass:['刪除班級','删除班级','Eliminar clase','Delete class'],
+ bkConfirmReset:['確定清空這個班級的色數消消樂成績嗎？無法復原。','确定清空这个班级的色数消消乐成绩吗？无法恢复。','¿Borrar las notas de este juego en esta clase? No se puede deshacer.','Clear this game\'s grades for the class? This cannot be undone.'],
+ bkConfirmDel:['刪除班級會連「跑吧！漢字」的成績一起刪掉，無法復原。確定嗎？','删除班级会连“跑吧！汉字”的成绩一起删掉，无法恢复。确定吗？','Eliminar la clase borra también las notas de «跑吧！漢字». No se puede deshacer. ¿Seguro?','Deleting the class also deletes its 跑吧！漢字 grades. This cannot be undone. Sure?'],
+ bkConfirmRow:['刪除這位學生的成績？','删除这位学生的成绩？','¿Borrar las notas de este alumno?','Delete this student\'s grades?'],
  myConfigs:['我的設定','我的设置','Mis configuraciones','My configurations'],
  newConfig:['＋ 新增設定','＋ 新增设置','＋ Nueva','＋ New'],
  edit:['編輯','编辑','Editar','Edit'],del:['刪除','删除','Borrar','Delete'],
@@ -813,7 +834,7 @@ async function showLB(){
 function closeLB(){document.getElementById('lbov').classList.add('hide');}
 
 // ---- 教師版 ----
-let TS={profile:null,items:[],seq:0,err:''};
+let TS={profile:null,items:[],seq:0,err:'',classes:null,cslots:{}};
 let ED=null,ADM=[];
 const TRIAL_DAYS=7;   // 免費試用天數（管理員在管理頁手動發放）
 function isPro(){const p=TS.profile;return !!p&&p.plan!=='free'&&!!p.expiresAt&&p.expiresAt>Date.now();}
@@ -849,6 +870,7 @@ async function renderTeacher(){
     }
     TS.profile=await window.TA.profile();
     TS.items=await window.TA.configs();
+    await loadClasses();
     if(my!==TS.seq||screen!=='teacher')return;
     TS.err='';
     drawTeacher();
@@ -877,8 +899,95 @@ function drawTeacher(){
   <h3>${L('myConfigs')} <span class="note">${n} / ${lim}</span></h3>
   ${items||`<p class="note">${L('empty')}</p>`}
   ${n>=lim?`<p class="err">${tr('limitReached')}</p>`:`<button class="big" onclick="edOpen(-1)">${L('newConfig')}</button>`}
+  ${classSection()}
   ${langPanels()}${ratePanel()}
   ${backBtn()}`;
+}
+async function loadClasses(){
+  try{const r=await window.TA.classes();TS.classes=r.list;TS.cslots=r.slots;}
+  catch(e){console.error(e);TS.classes=null;TS.cslots={};}
+}
+function classSection(){
+  if(TS.classes===null)return `<h3>${L('clsTitle')}</h3><p class="note">${tr('clsNotReady')}</p>`;
+  const opts=TS.items.map((it,i)=>`<option value="${i}">${esc(it.cfg.name||('#'+(i+1)))}</option>`).join('');
+  const list=TS.classes.map((c,k)=>`<div class="cfgItem"><b>🏫 ${esc(c.name)}</b>
+    <div class="s">${c.showBoard?tr('boardOn'):tr('boardOff')}</div>
+    <div class="mini"><select id="cs${k}">${opts}</select>
+    <button onclick="tClassLink(${k})">🔗 ${tr('clsLink')}</button><button onclick="cbOpen(${k})">📒 ${tr('clsBook')}</button></div></div>`).join('');
+  const free=[0,1,2].find(i=>!TS.cslots[String(i)]);
+  const create=free===undefined?'':(isPro()
+    ?`<div class="mini"><input class="txt" id="clsNew" maxlength="40" placeholder="${esc(tr('clsName'))}" style="flex:1;min-width:120px"><button onclick="clsCreate(${free})">＋ ${tr('clsCreate')}</button></div>`
+    :`<p class="note">${tr('clsNeedSub')}</p>`);
+  return `<h3>${L('clsTitle')} <span class="note">${TS.classes.length} / 3</span></h3><p class="note">${tr('clsHint')}</p>
+    ${list||`<p class="note">${tr('clsNone')}</p>`}${create}`;
+}
+async function clsCreate(slot){
+  const name=(document.getElementById('clsNew').value||'').trim();
+  if(!name){toast(tr('clsName'));return;}
+  try{await window.TA.classCreate(newSid(),slot,name,TS.cslots);await loadClasses();drawTeacher();}
+  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
+}
+async function ensureSid(i){
+  const it=TS.items[i];if(!it)return null;
+  if(it.sid){await window.TA.shareSave(it.sid,it.cfg,usesPro(it.cfg));return it.sid;}
+  const items=TS.items.map((x,k)=>k===i?{...x,sid:newSid()}:x);
+  await window.TA.shareSave(items[i].sid,items[i].cfg,usesPro(items[i].cfg));
+  await window.TA.saveConfigs(items);TS.items=items;
+  return items[i].sid;
+}
+async function tClassLink(k){
+  const c=TS.classes[k],sel=document.getElementById('cs'+k);
+  if(!c||!sel||sel.value===''){toast(tr('clsPickCfg'));return;}
+  try{const sid=await ensureSid(+sel.value);copyText(shareUrl(sid)+'&class='+c.cid);}
+  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
+}
+// ---- 色數成績冊（只顯示色數的成績）----
+let CB={k:-1,rows:[],err:''};
+async function cbOpen(k){CB={k,rows:[],err:''};screen='classbook';cbDraw(true);await cbLoad();}
+async function cbLoad(){
+  const c=TS.classes[CB.k];if(!c)return;
+  try{CB.rows=(await window.TA.classScores(c.cid)).filter(r=>r.game==='colores');CB.err='';}
+  catch(e){console.error(e);CB.rows=[];CB.err=e.code||'error';}
+  cbDraw();
+}
+function cbDraw(loading){
+  const c=TS.classes[CB.k];if(!c){renderTeacher();return;}
+  const rows=CB.rows.slice().sort((a,b)=>b.best-a.best).map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.nick)}</td><td>${r.best}</td><td>${r.plays}</td><td>${r.extra&&r.extra.secs!=null?r.extra.secs:''}</td><td>${r.lastAt?esc(fdate(r.lastAt)):''}</td><td><button onclick="cbDelRow('${esc(r.id)}')">✕</button></td></tr>`).join('');
+  app.innerHTML=`${titleHtml()}<h3>🏫 ${esc(c.name)} · ${L('clsBook')}</h3>
+  <div class="mini"><button onclick="cbToggle()">${c.showBoard?tr('boardOn'):tr('boardOff')} · ${tr('boardToggle')}</button>
+    <button onclick="cbLoad()">${tr('bkRefresh')}</button><button onclick="cbCsv()">${tr('bkCsv')}</button>
+    <button onclick="cbReset()">${tr('bkReset')}</button><button onclick="cbDelClass()">${tr('bkDelClass')}</button></div>
+  ${CB.err?`<p class="err">${esc(CB.err)}</p>`:''}
+  ${loading?`<p class="note">${L('loading')}</p>`:(rows?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.9rem"><tr><th>#</th><th>${tr('bkNick')}</th><th>${tr('bkBest')}</th><th>${tr('bkPlays')}</th><th>${tr('bkTime')}</th><th>${tr('bkLast')}</th><th></th></tr>${rows}</table></div>`:`<p class="note">${tr('bkEmpty')}</p>`)}
+  <button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;
+}
+async function cbToggle(){
+  const c=TS.classes[CB.k];
+  try{await window.TA.classUpdate(c,{showBoard:!c.showBoard});c.showBoard=!c.showBoard;cbDraw();}
+  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
+}
+async function cbDelRow(id){
+  if(!confirm(tr('bkConfirmRow')))return;
+  try{await window.TA.classScoreDelete([id]);CB.rows=CB.rows.filter(r=>r.id!==id);cbDraw();}
+  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
+}
+async function cbReset(){
+  if(!confirm(tr('bkConfirmReset')))return;
+  try{await window.TA.classScoreDelete(CB.rows.map(r=>r.id));CB.rows=[];cbDraw();}
+  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
+}
+async function cbDelClass(){
+  if(!confirm(tr('bkConfirmDel')))return;
+  const c=TS.classes[CB.k];
+  try{await window.TA.classDelete(c,TS.cslots);await loadClasses();renderTeacher();}
+  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
+}
+function cbCsv(){
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const lines=[['nickname','best','plays','seconds','last'].map(q).join(',')];
+  CB.rows.slice().sort((a,b)=>b.best-a.best).forEach(r=>lines.push([r.nick,r.best,r.plays,r.extra&&r.extra.secs,r.lastAt?new Date(r.lastAt).toISOString():''].map(q).join(',')));
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}));
+  a.download='colores-'+TS.classes[CB.k].name.replace(/[\\/:*?"<>|\s]+/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove();
 }
 function tPlay(i){const it=TS.items[i];if(it)startGame(toGame(it.cfg),'teacher');}
 function newSid(){const a=new Uint8Array(12);crypto.getRandomValues(a);return [...a].map(x=>(x%36).toString(36)).join('');}
@@ -1120,7 +1229,7 @@ window.onTAChange=()=>{if(screen==='teacher')renderTeacher();};
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInAnonymously,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,query,orderBy,limit,getDocs,getDoc,where,doc,setDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,query,orderBy,limit,getDocs,getDoc,where,writeBatch,doc,setDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={
   apiKey:"AIzaSyC_YSDn2OH6_GKKwCq0d8QFNl3fYXzTC60",
   authDomain:"memorma-24dab.firebaseapp.com",
@@ -1242,6 +1351,43 @@ try{
       await ensureCUid();
       const snap=await getDocs(query(collection(cdb,'class_scores'),where('cid','==',cid),limit(300)));
       return snap.docs.map(d=>d.data()).filter(r=>r.game==='colores').sort((a,b)=>b.best-a.best).slice(0,10);
+    },
+    async classes(){
+      const u=cauth.currentUser,ix=await getDoc(doc(cdb,'teacher_classes',u.uid));
+      const slots=ix.exists()?(ix.data().slots||{}):{};
+      const list=[];
+      await Promise.all(Object.keys(slots).map(async k=>{
+        try{const s=await getDoc(doc(cdb,'classes',slots[k]));if(s.exists())list.push({cid:s.id,slot:+k,...s.data()});}catch(e){console.error(e);}
+      }));
+      list.sort((a,b)=>a.slot-b.slot);
+      return {list,slots};
+    },
+    async classCreate(cid,slot,name,slots){
+      const u=cauth.currentUser,b=writeBatch(cdb),ts=serverTimestamp();
+      b.set(doc(cdb,'teacher_classes',u.uid),{slots:{...slots,[String(slot)]:cid},updatedAt:ts});
+      b.set(doc(cdb,'classes',cid),{owner:u.uid,slot,name,showBoard:false,updatedAt:ts});
+      await b.commit();
+    },
+    async classUpdate(c,patch){
+      await setDoc(doc(cdb,'classes',c.cid),{owner:c.owner,slot:c.slot,name:patch.name||c.name,showBoard:'showBoard' in patch?patch.showBoard:c.showBoard,updatedAt:serverTimestamp()});
+    },
+    async classScores(cid){
+      const u=cauth.currentUser;
+      const snap=await getDocs(query(collection(cdb,'class_scores'),where('owner','==',u.uid),where('cid','==',cid),limit(2000)));
+      return snap.docs.map(d=>{const x=d.data();return {id:d.id,...x,lastAt:ms(x.lastAt)};});
+    },
+    async classScoreDelete(ids){
+      for(let i=0;i<ids.length;i+=400){const b=writeBatch(cdb);ids.slice(i,i+400).forEach(id=>b.delete(doc(cdb,'class_scores',id)));await b.commit();}
+    },
+    async classDelete(c,slots){
+      const u=cauth.currentUser;
+      const all=await getDocs(query(collection(cdb,'class_scores'),where('owner','==',u.uid),where('cid','==',c.cid),limit(2000)));
+      await window.TA.classScoreDelete(all.docs.map(d=>d.id));
+      const ns={...slots};delete ns[String(c.slot)];
+      const b=writeBatch(cdb);
+      b.delete(doc(cdb,'classes',c.cid));
+      b.set(doc(cdb,'teacher_classes',u.uid),{slots:ns,updatedAt:serverTimestamp()});
+      await b.commit();
     },
     async shareDelete(id){await deleteDoc(doc(cdb,'shared_configs',id));},
     async shareGet(id){
