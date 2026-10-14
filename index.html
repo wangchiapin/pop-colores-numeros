@@ -8,17 +8,19 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:#fff;color:#222;font-family:system-ui,-apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
 body{display:flex;justify-content:center}
-#app{width:100%;max-width:480px;min-height:100vh;padding:12px 14px 28px}
+#app{position:relative;width:100%;max-width:480px;min-height:100vh;padding:12px 14px 28px}
 h1{font-size:1.5rem;margin:6px 0 2px;text-align:center}
 .sub{text-align:center;color:#777;margin:0 0 14px;font-size:.95rem}
 small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 .panel{background:#f5f5f6;border:1px solid #e4e4e7;border-radius:14px;padding:10px 12px;margin-bottom:10px}
 .panel h3{margin:0 0 6px;font-size:.95rem}
 .opts{display:flex;flex-wrap:wrap;gap:6px}
-.opt{flex:1 1 auto;min-width:72px;padding:8px 6px;border:1.5px solid #d4d4d8;background:#fff;border-radius:10px;font-size:1rem;text-align:center;cursor:pointer;color:#222}
+/* 統一按鈕（三款遊戲同一規格）：膠囊形；選項按鈕高 46px、主要按鈕滿寬高 54px */
+.opt{flex:1 1 0;min-width:0;min-height:46px;padding:5px 8px;border:1.5px solid #d4d4d8;background:#fff;border-radius:999px;font-size:1rem;text-align:center;cursor:pointer;color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2}
+.opts.two .opt{flex:1 1 40%}
 .opt.on{border-color:#222;background:#222;color:#fff}
 .opt.on small{color:#ccc}
-.big{display:block;width:100%;padding:14px;border:0;border-radius:14px;background:#222;color:#fff;font-size:1.2rem;cursor:pointer;margin-top:6px}
+.big{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:54px;padding:6px 14px;border:0;border-radius:999px;background:#222;color:#fff;font-size:1.15rem;cursor:pointer;margin-top:8px;text-decoration:none;line-height:1.2;font-family:inherit}
 .big small{color:#ccc}
 .warn{background:#fff7e6;border:1px solid #f5d28a;color:#8a5a00;border-radius:10px;padding:8px 10px;font-size:.88rem;margin-bottom:10px}
 #hud{display:flex;justify-content:space-between;align-items:stretch;gap:8px;margin-bottom:8px}
@@ -26,7 +28,7 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 #hud small{font-size:.62rem}
 #hearts{letter-spacing:1px;color:#e53935}
 #ctl{display:flex;gap:6px;margin-bottom:8px}
-#ctl button{flex:1;border:1.5px solid #d4d4d8;background:#fff;border-radius:10px;padding:7px 2px;font-size:.92rem;cursor:pointer;color:#222}
+#ctl button{flex:1;min-height:46px;border:1.5px solid #d4d4d8;background:#fff;border-radius:999px;padding:4px 2px;font-size:.92rem;cursor:pointer;color:#222;line-height:1.2}
 #qbar{display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;margin:4px 0 8px}
 #qbar button{border:1.5px solid #d4d4d8;background:#fff;border-radius:22px;padding:6px 16px;font-size:1rem;cursor:pointer}
 #qtext{font-size:1.4rem;font-weight:700}
@@ -34,7 +36,7 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 #board{display:grid;gap:5px;width:100%}
 #cover{position:absolute;inset:0;background:#fff;border:2px dashed #ccc;border-radius:12px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:3;font-size:1.4rem;font-weight:700}
 #cover.show{display:flex}
-#cover button{border:0;background:#222;color:#fff;border-radius:12px;padding:10px 28px;font-size:1.1rem;cursor:pointer}
+#cover button{border:0;background:#222;color:#fff;border-radius:999px;min-height:54px;padding:6px 28px;font-size:1.1rem;cursor:pointer;line-height:1.2}
 .cell{position:relative;aspect-ratio:1.45/1;border-radius:8px;border:1px solid #bbb;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:min(calc(var(--cw)*.3),34px);user-select:none}
 .cell.empty{visibility:hidden}
 .cell.pop{animation:pop .35s ease forwards}
@@ -68,7 +70,7 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 #confirm .card{background:#fff;border-radius:16px;padding:20px 16px}
 #confirm p{font-size:1.1rem;font-weight:600;margin:0 0 12px}
 #confirm .row{display:flex;gap:8px}
-#confirm .row button{flex:1;padding:12px;border-radius:12px;border:1.5px solid #ccc;background:#fff;font-size:1.05rem;cursor:pointer}
+#confirm .row button{flex:1;min-height:54px;padding:6px 12px;border-radius:999px;border:1.5px solid #ccc;background:#fff;font-size:1.05rem;cursor:pointer;line-height:1.2}
 #confirm .row button.y{background:#222;color:#fff;border-color:#222}
 .overlay .card{max-height:94vh;overflow:auto}
 .big.sec{background:#f0f0f2;color:#222}
@@ -82,6 +84,22 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 #lbArea{margin:6px 0 4px;text-align:left}
 #lbArea p{margin:6px 0;text-align:center}
 .hide{display:none!important}
+/* ⚙️：右上角；遊戲中放在分數那一排最右邊 */
+.gear{position:absolute;top:10px;right:12px;width:42px;height:42px;border-radius:999px;border:1.5px solid #d4d4d8;background:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2}
+#hud .gear.inhud{position:static;flex:0 0 42px;align-self:center;padding:0}
+#setov .setcard{background:#fff;border:1.5px solid #e4e4e7;border-radius:20px;padding:14px 12px;box-shadow:0 6px 30px rgba(0,0,0,.15)}
+#setov{background:rgba(0,0,0,.35);z-index:11}
+#setov h2{margin:0 0 10px}
+/* 拼音／注音：放在字的上面 */
+.ph{display:block;font-size:.5em;font-weight:500;line-height:1.1;opacity:.9;letter-spacing:0}
+.ph.zy{font-size:.48em}
+.cbtn .ph{font-size:.55em}
+#qtext .ph{font-size:.55em;font-weight:500;text-align:center}
+#qtext{display:flex;flex-direction:column;align-items:center}
+.zh{display:block}
+.comment{font-size:1.3rem;font-weight:800;margin:10px 0 6px;color:#2e7d32}
+.comment small{color:#4c8a50}
+.ver{text-align:center;color:#bbb;font-size:.75rem;margin-top:16px}
 .txt{width:100%;padding:9px;font-size:1rem;border:1.5px solid #ccc;border-radius:10px;font-family:inherit;background:#fff}
 textarea.txt{min-height:70px;resize:vertical}
 .chips{display:flex;flex-wrap:wrap;gap:5px}
@@ -115,6 +133,7 @@ table.adm td{padding:5px 3px;border-bottom:1px solid #eee;vertical-align:top}
 <div id="toast"></div>
 <div id="over" class="overlay hide"></div>
 <div id="lbov" class="overlay hide"></div>
+<div id="setov" class="overlay hide" onclick="if(event.target===this)closeSet()"></div>
 <div id="confirm" class="overlay hide"><div class="card"><p id="confirmText"></p><div class="row"><button id="cNo" onclick="confirmNo()"></button><button id="cYes" class="y" onclick="confirmYes()"></button></div></div></div>
 
 <script>
@@ -214,7 +233,6 @@ const T={
  adv:['進階色（14）','进阶色（14）','Avanzados (14)','Advanced (14)'],
  range:['數字範圍','数字范围','Rango de números','Number range'],
  script:['中文字形','中文字形','Escritura china','Chinese script'],
- aux:['輔助語言','辅助语言','Idioma de apoyo','Helper language'],
  none:['無','无','Ninguno','None'],
  rate:['語速','语速','Velocidad de voz','Voice speed'],
  slow:['慢','慢','Lenta','Slow'],normal:['正常','正常','Normal','Normal'],fast:['快','快','Rápida','Fast'],
@@ -251,90 +269,79 @@ const T={
  saved:['已上傳！','已上传！','¡Guardado!','Saved!'],
  empty:['還沒有成績','还没有成绩','Aún no hay puntajes','No scores yet'],
  close:['關閉','关闭','Cerrar','Close'],
- teacher:['教師版','教师版','Versión docente','Teacher'],
- login:['用 Google 登入','用 Google 登录','Entrar con Google','Sign in with Google'],
- logout:['登出','登出','Salir','Sign out'],
- needLogin:['教師版需要登入，用來儲存你的設定清單。','教师版需要登录，用来保存你的设置清单。','Inicia sesión para guardar tus configuraciones.','Sign in to save your configurations.'],
- clsTitle:['班級成績冊','班级成绩册','Libro de notas de clase','Class gradebook'],
- clsNotReady:['班級功能尚未啟用（規則還沒更新）','班级功能尚未启用（规则还没更新）','Las clases aún no están activadas (faltan las reglas)','Classes are not enabled yet (rules not updated)'],
- clsHint:['班級和「跑吧！漢字」共用；成績冊各遊戲獨立，這裡只看色數消消樂的成績。','班级和“跑吧！汉字”共用；成绩册各游戏独立，这里只看色数消消乐的成绩。','Las clases se comparten con «跑吧！漢字»; cada juego tiene su propio libro de notas y aquí solo ves el de este juego.','Classes are shared with 跑吧！漢字; each game has its own gradebook, and here you only see this game\'s.'],
- clsName:['班級名稱','班级名称','Nombre de la clase','Class name'],
- clsCreate:['建立班級','创建班级','Crear clase','Create class'],
- clsNeedSub:['建立班級需要訂閱','创建班级需要订阅','Crear clases requiere suscripción','Creating classes needs a subscription'],
- clsNone:['還沒有班級','还没有班级','Aún no hay clases','No classes yet'],
- clsLink:['複製班級連結','复制班级链接','Copiar enlace de clase','Copy class link'],
- clsPickCfg:['請先建立一個設定','请先创建一个设置','Crea primero una configuración','Create a configuration first'],
- clsBook:['成績冊','成绩册','Notas','Gradebook'],
- boardOn:['排行榜：開','排行榜：开','Clasificación: sí','Leaderboard: on'],
- boardOff:['排行榜：關','排行榜：关','Clasificación: no','Leaderboard: off'],
- boardToggle:['切換排行榜','切换排行榜','Cambiar clasificación','Toggle leaderboard'],
- bkNick:['暱稱','昵称','Apodo','Nickname'],bkBest:['最高分','最高分','Mejor','Best'],bkPlays:['次數','次数','Partidas','Plays'],bkTime:['秒數','秒数','Segundos','Seconds'],bkLast:['最近','最近','Última','Last'],
- bkEmpty:['色數消消樂還沒有成績。把班級連結發給學生就會出現。','色数消消乐还没有成绩。把班级链接发给学生就会出现。','Aún no hay resultados de este juego. Aparecerán cuando tus alumnos usen el enlace de clase.','No results for this game yet. They appear once students use the class link.'],
- bkRefresh:['重新整理','刷新','Actualizar','Refresh'],bkCsv:['匯出 CSV','导出 CSV','Exportar CSV','Export CSV'],
- bkReset:['清空色數成績','清空色数成绩','Borrar notas de este juego','Clear this game\'s grades'],
- bkDelClass:['刪除班級','删除班级','Eliminar clase','Delete class'],
- bkConfirmReset:['確定清空這個班級的色數消消樂成績嗎？無法復原。','确定清空这个班级的色数消消乐成绩吗？无法恢复。','¿Borrar las notas de este juego en esta clase? No se puede deshacer.','Clear this game\'s grades for the class? This cannot be undone.'],
- bkConfirmDel:['刪除班級會連「跑吧！漢字」的成績一起刪掉，無法復原。確定嗎？','删除班级会连“跑吧！汉字”的成绩一起删掉，无法恢复。确定吗？','Eliminar la clase borra también las notas de «跑吧！漢字». No se puede deshacer. ¿Seguro?','Deleting the class also deletes its 跑吧！漢字 grades. This cannot be undone. Sure?'],
- bkConfirmRow:['刪除這位學生的成績？','删除这位学生的成绩？','¿Borrar las notas de este alumno?','Delete this student\'s grades?'],
- myConfigs:['我的設定','我的设置','Mis configuraciones','My configurations'],
- newConfig:['＋ 新增設定','＋ 新增设置','＋ Nueva','＋ New'],
- edit:['編輯','编辑','Editar','Edit'],del:['刪除','删除','Borrar','Delete'],
- testPlay:['試玩','试玩','Probar','Try'],copyLink:['複製連結','复制链接','Copiar enlace','Copy link'],
- linkOff:['停用連結','停用链接','Desactivar enlace','Disable link'],
- confirmOff:['停用後，已發出的連結會立刻失效（可再重新複製新連結）。確定嗎？','停用后，已发出的链接会立刻失效（可再重新复制新链接）。确定吗？','El enlace dejará de funcionar de inmediato (puedes crear otro). ¿Seguro?','The shared link stops working immediately (you can make a new one). Sure?'],
- linkOffDone:['連結已停用','链接已停用','Enlace desactivado','Link disabled'],
+ teacher:['老師管理中心','老师管理中心','Centro para profesores','Teacher center'],
  linkGone:['這個連結已失效（老師已停用或刪除）','这个链接已失效（老师已停用或删除）','Este enlace ya no es válido (el profesor lo desactivó o borró)','This link is no longer valid (disabled or deleted by the teacher)'],
  linkExpired:['這個連結暫時無法使用（老師的訂閱已到期）','这个链接暂时无法使用（老师的订阅已到期）','Este enlace no está disponible (la suscripción del profesor venció)','This link is unavailable (the teacher\'s subscription has expired)'],
  linkLoading:['載入中…','载入中…','Cargando…','Loading…'],
- copied:['已複製連結','已复制链接','Enlace copiado','Link copied'],
- save:['儲存','保存','Guardar','Save'],cfgName:['設定名稱','设置名称','Nombre','Name'],
- rows:['列數','行数','Filas','Rows'],cols:['欄數','列数','Columnas','Columns'],
- hearts:['愛心數','爱心数','Vidas','Lives'],unlimited:['不限','不限','Sin límite','Unlimited'],
- colorSel:['選擇顏色（至少 2 個）','选择颜色（至少 2 个）','Elige colores (mín. 2)','Choose colors (min. 2)'],
- presetColors:['內建顏色','内建颜色','Colores del juego','Built-in colors'],
+ hearts:['愛心數','爱心数','Vidas','Lives'],
  customColors:['自訂顏色','自定义颜色','Colores propios','Custom colors'],
- colorName:['顏色名稱','颜色名称','Nombre','Name'],colorSay:['發音文字','发音文字','Texto a decir','Spoken text'],
- addColor:['＋ 新增顏色','＋ 新增颜色','＋ Añadir color','＋ Add color'],
- numSel:['數字','数字','Números','Numbers'],customNums:['自訂數字清單','自定义数字清单','Lista propia','Custom list'],
- numHint:['用逗號或空白分隔，可用 10-20 表示範圍；數字限 0–9999，最多 200 個。','用逗号或空白分隔，可用 10-20 表示范围；数字限 0–9999，最多 200 个。','Separa con comas o espacios; usa 10-20 para rangos (0–9999, máx. 200).','Separate with commas or spaces; use 10-20 for ranges (0–9999, max 200).'],
- proOnly:['訂閱版功能','订阅版功能','Solo Pro','Pro only'],
- plan:['方案','方案','Plan','Plan'],free:['免費','免费','Gratis','Free'],pro:['訂閱','订阅','Pro','Pro'],until:['到期','到期','Vence','Until'],
- limitReached:['已達設定數量上限','已达设置数量上限','Límite alcanzado','Limit reached'],
- rulesTitle:['訂閱規則說明','订阅规则说明','Reglas de la suscripción','Subscription rules'],
- rules1:['免費：最多 3 組設定，使用內建的顏色與數字。','免费：最多 3 组设置，使用内置的颜色与数字。','Gratis: hasta 3 configuraciones, con los colores y números incluidos.','Free: up to 3 configurations, using the built-in colors and numbers.'],
- rules2:['訂閱：最多 15 組設定；可自訂顏色（最多 12 個）與自訂數字清單；可建立班級成績冊（最多 3 個班級，人數不限）。','订阅：最多 15 组设置；可自定义颜色（最多 12 个）与自定义数字清单；可创建班级成绩册（最多 3 个班级，人数不限）。','Suscripción: hasta 15 configuraciones; colores propios (hasta 12) y lista de números propia; libro de notas de clase (hasta 3 clases, sin límite de alumnos).','Subscriber: up to 15 configurations; custom colors (up to 12) and a custom number list; class gradebook (up to 3 classes, no student limit).'],
- rules3:['訂閱到期不會刪除任何設定。用到訂閱功能（自訂顏色或自訂數字）的設定，學生連結會暫停；其餘設定不受影響。','订阅到期不会删除任何设置。用到订阅功能（自定义颜色或自定义数字）的设置，学生链接会暂停；其余设置不受影响。','Al vencer la suscripción no se borra ninguna configuración. Los enlaces de las que usan funciones de suscripción (colores o números propios) quedan en pausa; las demás no se ven afectadas.','When a subscription ends no configuration is deleted. Links of configurations that use subscriber features (custom colors or numbers) are paused; the others are not affected.'],
- rules4:['到期後不能再新增班級，也不能把設定改成用訂閱功能；超過 3 組的設定會保留，刪到 3 組以內才能再新增。','到期后不能再新增班级，也不能把设置改成用订阅功能；超过 3 组的设置会保留，删到 3 组以内才能再新增。','Tras el vencimiento no se pueden crear clases ni usar funciones de suscripción en una configuración; las que superan 3 se conservan, y hay que dejar 3 o menos para añadir nuevas.','After expiry you cannot create classes or switch a configuration to subscriber features; configurations beyond 3 are kept, but you must get down to 3 or fewer to add new ones.'],
- rules5:['班級成績冊：到期後學生無法再回傳新成績，但你仍可查看、匯出與刪除。','班级成绩册：到期后学生无法再回传新成绩，但你仍可查看、导出与删除。','Libro de notas: al vencer, los alumnos ya no pueden enviar resultados nuevos, pero tú puedes verlos, exportarlos y borrarlos.','Gradebook: after expiry students can no longer send new results, but you can still view, export and delete them.'],
- rules6:['續訂後，暫停的連結就會恢復。','续订后，暂停的链接就会恢复。','Al renovar, los enlaces en pausa vuelven a funcionar.','Once you renew, paused links work again.'],
+ customNums:['自訂數字清單','自定义数字清单','Lista propia','Custom list'],
  noteTitle:['學生姓名／備註','学生姓名／备注','Nombre / nota','Student name / note'],
  classNick:['你的暱稱（老師要求的暱稱）','你的昵称（老师要求的昵称）','Tu apodo (el que pidió tu profesor)','Your nickname (the one your teacher asked for)'],
  classNeed:['請先輸入暱稱','请先输入昵称','Escribe tu apodo primero','Type your nickname first'],
  classSending:['成績回傳中…','成绩回传中…','Enviando resultado…','Sending result…'],
- classSent:['✅ 成績已回傳給老師','✅ 成绩已回传给老师','✅ Resultado enviado a tu profesor','✅ Result sent to your teacher'],
+ classSent:['✅ 成績已回傳給老師','✅ 成绩已回传给老师','Resultado enviado a tu profesor','Result sent to your teacher'],
  classFail:['成績回傳失敗','成绩回传失败','No se pudo enviar el resultado','Could not send the result'],
  classRetry:['重試','重试','Reintentar','Retry'],
  classBoard:['班級排行榜','班级排行榜','Clasificación de la clase','Class leaderboard'],
  noRecord:['這個成績不會上傳排行榜，請自行記錄，或下載成績圖片。','这个成绩不会上传排行榜，请自行记录，或下载成绩图片。','Este resultado no se sube al ranking. Anótalo o descarga la imagen.','This result is not uploaded. Write it down or download the image.'],
  download:['下載成績圖片','下载成绩图片','Descargar imagen','Download image'],
- backTeacher:['回教師區','回教师区','Volver al área docente','Back to teacher area'],
  startLink:['老師出的題目','老师出的题目','Reto del profesor','Teacher\'s challenge'],
  studentName:['你的名字（會印在成績圖片上）','你的名字（会印在成绩图片上）','Tu nombre (saldrá en la imagen)','Your name (shown on the image)'],
- saved2:['已儲存','已保存','Guardado','Saved'],
- confirmDel:['確定要刪除這個設定嗎？','确定要删除这个设置吗？','¿Borrar esta configuración?','Delete this configuration?'],
- bad:['設定有問題','设置有问题','Revisa la configuración','Check the configuration'],
- planTrial:['試用','试用','Prueba','Trial'],planMonth:['月訂','月订','Mensual','Monthly'],planYear:['年訂','年订','Anual','Yearly'],
- all:['全部','全部','Todos','All'],
- listen:['聽聽看','听听看','Escuchar','Listen'],
+ settings:['設定','设置','Ajustes','Settings'],langLbl:['語言','语言','Idioma','Language'],
+ phon:['拼音／注音','拼音／注音','Pinyin / Zhuyin','Pinyin / Zhuyin'],pinyin:['拼音','拼音','Pinyin','Pinyin'],zhuyin:['注音','注音','Zhuyin','Zhuyin'],
+ both:['兩個都顯示','两个都显示','Ambos','Both'],phOff:['關','关','Ocultar','Off'],done:['完成','完成','Listo','Done'],
+ // 結果畫面評語（依清掉幾成）
+ k0:['沒關係，再試一次！','没关系，再试一次！','¡No pasa nada, inténtalo otra vez!','No worries, try again!'],
+ k1:['不錯的開始！','不错的开始！','¡Buen comienzo!','Good start!'],
+ k2:['很好，差一點就清完了！','很好，差一点就清完了！','¡Muy bien, ya casi lo logras!','Very good, almost there!'],
+ k3:['全部清完，太厲害了！','全部清完，太厉害了！','¡Tablero limpio, increíble!','Board cleared, amazing!'],
+ k4:['完美！你是數字高手！','完美！你是数字高手！','¡Perfecto! ¡Eres un maestro de los números!','Perfect! You\'re a numbers master!'],
  // 以下只顯示中文（不加外語小字）
  confirm:['確認','确认'],back:['退格','退格']
 };
 
-let cfg={mode:'A',grid:0,set:'basic',range:999,simp:false,aux:'es',rate:0.85,showText:false};
-try{Object.assign(cfg,JSON.parse(localStorage.getItem('shushu_cfg')||'{}'));}catch(e){}
-if(!['es','en','none'].includes(cfg.aux))cfg.aux='es';
-cfg.rate=[0.55,0.85,1.1].reduce((a,b)=>Math.abs(b-cfg.rate)<Math.abs(a-cfg.rate)?b:a);
-function saveCfg(){try{localStorage.setItem('shushu_cfg',JSON.stringify(cfg));}catch(e){}}
+// 玩法設定（只有色數用）：玩法、格數、顏色組、數字範圍、顯示題目文字
+let cfg={mode:'A',grid:0,set:'basic',range:999,showText:false};
+let oldCfg={};
+try{oldCfg=JSON.parse(localStorage.getItem('shushu_cfg')||'{}')||{};}catch(e){}
+['mode','grid','set','range','showText'].forEach(k=>{if(k in oldCfg)cfg[k]=oldCfg[k];});
+function saveCfg(){try{localStorage.setItem('shushu_cfg',JSON.stringify({mode:cfg.mode,grid:cfg.grid,set:cfg.set,range:cfg.range,showText:cfg.showText}));}catch(e){}}
+
+// ===== 三款遊戲共用的基本設定（⚙️）：localStorage 'hanziGames.settings'，格式見 corre/README.md =====
+//   { v:1, script:'trad'|'simp', lang:'es'|'en'|'zh', phon:'pinyin'|'zhuyin'|'both'|'off', rate:'slow'|'normal'|'fast' }
+const SETTINGS_KEY='hanziGames.settings';
+const SET_OPTS={script:['trad','simp'],lang:['es','en','zh'],phon:['pinyin','zhuyin','both','off'],rate:['slow','normal','fast']};
+const RATE_VALUE={slow:0.55,normal:0.85,fast:1.1};   // 色數念的是數字，速度照原本調好的
+function readSettings(){
+  const out={v:1,script:'trad',lang:'es',phon:'pinyin',rate:'normal'};
+  let saved=null;
+  try{saved=JSON.parse(localStorage.getItem(SETTINGS_KEY)||'null');}catch(e){}
+  if(saved&&typeof saved==='object'){
+    Object.keys(SET_OPTS).forEach(k=>{if(SET_OPTS[k].includes(saved[k]))out[k]=saved[k];});
+  }else{
+    // 第一次：從色數舊的設定搬過來（simp、aux：es/en/none、rate：0.55/0.85/1.1）
+    if(oldCfg.simp===true)out.script='simp';
+    if(oldCfg.aux==='en')out.lang='en';else if(oldCfg.aux==='none')out.lang='zh';
+    if(typeof oldCfg.rate==='number')out.rate=oldCfg.rate<0.7?'slow':(oldCfg.rate>1?'fast':'normal');
+    writeSettings(out);
+  }
+  return out;
+}
+function writeSettings(o){
+  try{
+    let cur={};try{cur=JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}')||{};}catch(e){}
+    localStorage.setItem(SETTINGS_KEY,JSON.stringify(Object.assign(cur,{v:1,script:o.script,lang:o.lang,phon:o.phon,rate:o.rate})));
+  }catch(e){}
+}
+const SETTINGS=readSettings();
+// 舊程式用的 cfg.simp／cfg.aux／cfg.rate 由共用設定算出來
+function syncFromSettings(){
+  cfg.simp=SETTINGS.script==='simp';
+  cfg.aux=SETTINGS.lang==='zh'?'none':SETTINGS.lang;
+  cfg.rate=RATE_VALUE[SETTINGS.rate]||0.85;
+}
+syncFromSettings();
 function tr(k){return T[k][cfg.simp?1:0];}
 function fo(k){return cfg.aux==='none'?'':T[k][cfg.aux==='es'?2:3];}
 function L(k){const f=fo(k);return tr(k)+(f?`<small>${f}</small>`:'');}     // 中文＋外語小字
@@ -343,6 +350,57 @@ function cname(id){return COLORS[id].zh[cfg.simp?1:0];}
 function auxColor(id){return cfg.aux==='none'?'':COLORS[id][cfg.aux];}
 function auxKey(k){return cfg.aux==='none'?'':k[cfg.aux==='es'?2:3];}
 function numDisp(s){return cfg.simp?s.replace(/兩/g,'两'):s;}
+
+// ===== 拼音／注音（台灣讀音）：顏色與數字用到的字 =====
+const PY={'零':'líng','一':'yī','二':'èr','兩':'liǎng','两':'liǎng','三':'sān','四':'sì','五':'wǔ','六':'liù','七':'qī','八':'bā','九':'jiǔ','十':'shí','百':'bǎi','千':'qiān',
+ '紅':'hóng','红':'hóng','黃':'huáng','黄':'huáng','藍':'lán','蓝':'lán','綠':'lǜ','绿':'lǜ','黑':'hēi','白':'bái','灰':'huī','橘':'jú','紫':'zǐ','粉':'fěn',
+ '咖':'kā','啡':'fēi','深':'shēn','淺':'qiǎn','浅':'qiǎn','色':'sè'};
+// 一串字 → 拼音（每字一個音節，空白分開）；有不認得的字就回傳空字串
+function pyOf(text){
+  const cs=[...String(text)];
+  const out=cs.map((c,i)=>{
+    if(c==='一'&&i<cs.length-1&&/[十百千]/.test(cs[i+1]))return 'yì';   // 一百、一千、一十：變調唸 yì
+    return PY[c];
+  });
+  return out.every(Boolean)?out.join(' '):'';
+}
+/* 拼音（帶聲調符號）→ 注音（與跑吧！漢字同一份轉換器） */
+const ZY=(function(){
+  var INI={b:'ㄅ',p:'ㄆ',m:'ㄇ',f:'ㄈ',d:'ㄉ',t:'ㄊ',n:'ㄋ',l:'ㄌ',g:'ㄍ',k:'ㄎ',h:'ㄏ',j:'ㄐ',q:'ㄑ',x:'ㄒ',zh:'ㄓ',ch:'ㄔ',sh:'ㄕ',r:'ㄖ',z:'ㄗ',c:'ㄘ',s:'ㄙ'};
+  var FIN={a:'ㄚ',o:'ㄛ',e:'ㄜ',ê:'ㄝ',ai:'ㄞ',ei:'ㄟ',ao:'ㄠ',ou:'ㄡ',an:'ㄢ',en:'ㄣ',ang:'ㄤ',eng:'ㄥ',er:'ㄦ',
+    i:'ㄧ',ia:'ㄧㄚ',io:'ㄧㄛ',ie:'ㄧㄝ',iao:'ㄧㄠ',iu:'ㄧㄡ',iou:'ㄧㄡ',ian:'ㄧㄢ',in:'ㄧㄣ',iang:'ㄧㄤ',ing:'ㄧㄥ',
+    u:'ㄨ',ua:'ㄨㄚ',uo:'ㄨㄛ',uai:'ㄨㄞ',ui:'ㄨㄟ',uei:'ㄨㄟ',uan:'ㄨㄢ',un:'ㄨㄣ',uen:'ㄨㄣ',uang:'ㄨㄤ',ong:'ㄨㄥ',ueng:'ㄨㄥ',
+    v:'ㄩ',ve:'ㄩㄝ',van:'ㄩㄢ',vn:'ㄩㄣ',iong:'ㄩㄥ'};
+  var MARK=['','','ˊ','ˇ','ˋ'];
+  function one(syl){
+    var s=syl.normalize('NFD'),tone=5;
+    if(/̄/.test(s))tone=1;else if(/́/.test(s))tone=2;else if(/̌/.test(s))tone=3;else if(/̀/.test(s))tone=4;
+    s=s.replace(/ü/g,'v').replace(/ü/g,'v').replace(/Ü/g,'v').replace(/[̀-ͯ]/g,'').toLowerCase();
+    if(!/^[a-zê]+$/.test(s))return syl;
+    var ini='',rest=s,m;
+    if(s==='n'||s==='m'){var zz=s==='n'?'ㄣ':'ㄇㄨ';return tone===5?'˙'+zz:zz+MARK[tone];}
+    if(s==='er'||s==='r'){rest='er';}
+    else if((m=s.match(/^(zh|ch|sh|[bpmfdtnlgkhjqxrzcs])/))){ini=m[1];rest=s.slice(ini.length);}
+    else if(s[0]==='y'){rest=s.slice(1);if(/^u/.test(rest))rest=rest.replace(/^u/,'v');else if(!(rest==='i'||rest==='in'||rest==='ing'))rest='i'+rest;}
+    else if(s[0]==='w'){rest=s.slice(1);rest=(rest==='u')?'u':'u'+rest;}
+    if(ini&&/^[jqx]$/.test(ini))rest=rest.replace(/^u/,'v');
+    if(/^(zh|ch|sh|r|z|c|s)$/.test(ini)&&rest==='i')rest='';
+    var f=rest===''?'':FIN[rest];
+    if(f===undefined)return syl;
+    var z=(ini?INI[ini]:'')+f;
+    return tone===5?'˙'+z:z+MARK[tone];
+  }
+  function conv(py){return String(py||'').trim().split(/\s+/).filter(Boolean).map(one).join(' ');}
+  return {one:one,conv:conv};
+})();
+// 依 ⚙️ 的拼音／注音設定，產生放在字「上面」的小字（off 或沒有拼音時回傳空字串）
+function phHtml(py){
+  if(!py||SETTINGS.phon==='off')return '';
+  const k=SETTINGS.phon;
+  if(k==='pinyin')return `<span class="ph">${esc(py)}</span>`;
+  if(k==='zhuyin')return `<span class="ph zy">${esc(ZY.conv(py))}</span>`;
+  return `<span class="ph">${esc(py)}</span><span class="ph zy">${esc(ZY.conv(py))}</span>`;
+}
 
 // ---- 語音 ----
 let voice=null,voiceFallback=null,screen='setup';
@@ -379,21 +437,15 @@ function speak(text,cb){
 const app=document.getElementById('app');
 let LINKCFG=null,stuName='';
 function opt(label,on,fn){return `<div class="opt ${on?'on':''}" onclick="${fn}">${label}</div>`;}
-function titleHtml(){return `<h1>${cfg.simp?'色数消消乐':'色數消消樂'}</h1><p class="sub">Pop Colores y Números</p>`;}
-function langPanels(){return `
-  <div class="panel"><h3>${L('script')}</h3><div class="opts">
-    ${opt('繁體',!cfg.simp,"setC('simp',false)")}${opt('简体',cfg.simp,"setC('simp',true)")}</div></div>
-  <div class="panel"><h3>${L('aux')}</h3><div class="opts">
-    ${opt(tr('none'),cfg.aux==='none',"setC('aux','none')")}${opt('Español',cfg.aux==='es',"setC('aux','es')")}${opt('English',cfg.aux==='en',"setC('aux','en')")}</div></div>`;}
-function ratePanel(){return `
-  <div class="panel"><h3>${L('rate')}</h3><div class="opts">
-    ${opt(L('slow'),cfg.rate===0.55,"setC('rate',0.55)")}${opt(L('normal'),cfg.rate===0.85,"setC('rate',0.85)")}${opt(L('fast'),cfg.rate===1.1,"setC('rate',1.1)")}</div></div>`;}
+const CENTER_URL='https://wangchiapin.github.io/profesor/#/settings';
+function gearBtn(){return `<button class="gear" onclick="openSet()" title="${esc(lab('settings'))}" aria-label="${esc(lab('settings'))}">⚙️</button>`;}
+function titleHtml(){return `${gearBtn()}<h1>${cfg.simp?'色数消消乐':'色數消消樂'}</h1><p class="sub">Pop Colores y Números</p>`;}
+function verHtml(){return '<p class="ver">v5-3</p>';}
 function renderSetup(){
   screen='setup';
   document.title=(cfg.simp?'色数消消乐':'色數消消樂')+' Pop Colores y Números';
   app.innerHTML=`${titleHtml()}
   <div id="voiceWarn">${voiceNote()}</div>
-  ${langPanels()}
   <div class="panel"><h3>${L('pickMode')}</h3><div class="opts">
     ${opt(L('A'),cfg.mode==='A',"setC('mode','A')")}${opt(L('B'),cfg.mode==='B',"setC('mode','B')")}</div></div>
   <div class="panel"><h3>${L('grid')}</h3><div class="opts">
@@ -402,27 +454,67 @@ function renderSetup(){
     ${opt(L('basic'),cfg.set==='basic',"setC('set','basic')")}${opt(L('adv'),cfg.set==='adv',"setC('set','adv')")}</div></div>
   <div class="panel"><h3>${L('range')}</h3><div class="opts">
     ${opt('0 – 999',cfg.range===999,"setC('range',999)")}${opt('0 – 9999',cfg.range===9999,"setC('range',9999)")}</div></div>
-  ${ratePanel()}
   <div class="panel"><h3>${L('showText')}</h3><div class="opts">
-    ${opt(tr('off'),!cfg.showText,"setC('showText',false)")}${opt(tr('on'),cfg.showText,"setC('showText',true)")}</div></div>
+    ${opt(L('off'),!cfg.showText,"setC('showText',false)")}${opt(L('on'),cfg.showText,"setC('showText',true)")}</div></div>
   <button class="big" onclick="startGame(stdG(),'std')">${L('start')}</button>
   <button class="big sec" onclick="showLB()">🏆 ${L('lbBtn')}</button>
-  <button class="big sec" onclick="renderTeacher()">👩‍🏫 ${L('teacher')}</button>`;
+  <a class="big sec" href="${CENTER_URL}">👩‍🏫 ${L('teacher')}</a>
+  ${verHtml()}`;
 }
 function rerender(){
   if(screen==='link')renderLinkStart(LINKCFG);
-  else if(screen==='teacher')renderTeacher();
-  else if(screen==='editor')renderEditor();
+  else if(screen==='game'){
+    // 遊戲中改了設定：重畫按鈕（保留盤面與分數）
+    if(S&&!S.ended){renderGame(true);if(S.paused){document.getElementById('cover').classList.add('show');document.getElementById('pbtn').innerHTML=pauseLabel(true);}}
+  }
+  else if(screen==='linkmsg'){}
   else renderSetup();
 }
 function setC(k,v){cfg[k]=v;saveCfg();rerender();}
+
+// ===== ⚙️ 設定視窗 =====
+let setPausedByMe=false;
+function openSet(){
+  if(screen==='game'&&S&&!S.ended&&!S.paused){pauseGame();setPausedByMe=true;}
+  drawSet();
+  document.getElementById('setov').classList.remove('hide');
+}
+function closeSet(){
+  document.getElementById('setov').classList.add('hide');
+  if(setPausedByMe){setPausedByMe=false;resumeGame();}
+}
+function setS(k,v){
+  SETTINGS[k]=v;writeSettings(SETTINGS);syncFromSettings();
+  drawSet();rerender();
+  if(k==='rate')speak(cfg.simp?'三百五十':'三百五十',()=>{});   // 試聽一下速度
+}
+function drawSet(){
+  const o=document.getElementById('setov');
+  const lo=(v,label)=>opt(label,SETTINGS.lang===v,`setS('lang','${v}')`);
+  o.innerHTML=`<div class="card setcard">
+    <h2>${L('settings')}</h2>
+    <div class="panel"><h3>${L('script')}</h3><div class="opts">
+      ${opt('繁體',SETTINGS.script==='trad',"setS('script','trad')")}${opt('简体',SETTINGS.script==='simp',"setS('script','simp')")}</div></div>
+    <div class="panel"><h3>${L('langLbl')}</h3><div class="opts">
+      ${lo('es','中文＋<small>Español</small>')}${lo('en','中文＋<small>English</small>')}${lo('zh',cfg.simp?'只有中文':'只有中文')}</div></div>
+    <div class="panel"><h3>${L('phon')}</h3><div class="opts two">
+      ${['pinyin','zhuyin','both','phOff'].map(k=>{const v=k==='phOff'?'off':k;return opt(L(k),SETTINGS.phon===v,`setS('phon','${v}')`);}).join('')}</div></div>
+    <div class="panel"><h3>${L('rate')}</h3><div class="opts">
+      ${opt(L('slow'),SETTINGS.rate==='slow',"setS('rate','slow')")}${opt(L('normal'),SETTINGS.rate==='normal',"setS('rate','normal')")}${opt(L('fast'),SETTINGS.rate==='fast',"setS('rate','fast')")}</div></div>
+    <button class="big" onclick="closeSet()">${L('done')}</button></div>`;
+}
+// 另一個分頁（例如跑吧）改了共用設定 → 這裡跟著更新（遊戲進行中先不理）
+window.addEventListener('storage',e=>{
+  if(e.key!==SETTINGS_KEY||(screen==='game'&&S&&!S.ended&&!S.paused))return;
+  Object.assign(SETTINGS,readSettings());syncFromSettings();rerender();
+});
 
 // ---- 遊戲設定物件 ----
 function stdG(){const [rows,cols]=GRIDS[cfg.grid];return {mode:cfg.mode,rows,cols,colors:SETS[cfg.set].map(id=>COLORS[id]),nums:null,range:cfg.range,hearts:5,title:''};}
 function customColor(i,o){
   const r=parseInt(o.h.slice(1,3),16),g=parseInt(o.h.slice(3,5),16),b=parseInt(o.h.slice(5,7),16);
   const lum=0.299*r+0.587*g+0.114*b;
-  return {id:'c'+i,zh:[o.n,o.n],q:[o.n,o.n],say:o.s||o.n,es:'',en:'',bg:o.h,fg:lum>150?'#111':'#fff'};
+  return {id:'c'+i,zh:[o.n,o.n],q:[o.n,o.n],say:o.s||o.n,p:o.p||'',es:'',en:'',bg:o.h,fg:lum>150?'#111':'#fff'};
 }
 function normalizeCfg(c){
   if(!c||typeof c!=='object')return null;
@@ -431,7 +523,8 @@ function normalizeCfg(c){
   o.rows=Math.min(8,Math.max(3,parseInt(c.rows)||5));
   o.cols=Math.min(6,Math.max(3,parseInt(c.cols)||4));
   o.hearts=[0,3,5].includes(c.hearts)?c.hearts:5;
-  const cu=Array.isArray(c.custom)?c.custom.slice(0,12).map(x=>({n:cp(x&&x.n,8),s:cp(x&&x.s,12),h:(x&&/^#[0-9a-fA-F]{6}$/.test(x.h))?x.h.toLowerCase():'#888888'})):[];
+  // 自訂顏色：n 名稱、s 發音文字、h 顏色、p 拼音（選填；老師在中心編輯時自動帶出，可手改）
+  const cu=Array.isArray(c.custom)?c.custom.slice(0,12).map(x=>{const o={n:cp(x&&x.n,8),s:cp(x&&x.s,12),h:(x&&/^#[0-9a-fA-F]{6}$/.test(x.h))?x.h.toLowerCase():'#888888'};const py=cp(x&&x.p,40);if(py)o.p=py;return o;}):[];
   if(cu.some(x=>!x.n))return null;
   const ids=Array.isArray(c.ids)?[...new Set(c.ids.filter(id=>COLORS[id]))]:[];
   if(ids.length+cu.length<2)return null;
@@ -511,17 +604,17 @@ async function prepClass(){
 async function sendClassResult(){
   const el=document.getElementById('classArea');if(!el||!CLASS||!S)return;
   const nick=[...String(S.stuName||'').trim()].slice(0,16).join('');
-  el.innerHTML=`<p class="note">${tr('classSending')}</p>`;
+  el.innerHTML=`<p class="note">${L('classSending')}</p>`;
   try{
     await window.TA.classSubmit(CLASSID,CLASS.owner,{nick,score:Math.max(0,Math.min(1000000,S.score|0)),extra:{secs:S.finalSecs,cleared:S.clearedFlag?1:0}});
-    el.innerHTML=`<p class="note">${tr('classSent')}</p>`;
+    el.innerHTML=`<p class="note">${L('classSent')}</p>`;
     if(CLASS.showBoard){
       const rows=await window.TA.classBoard(CLASSID);
-      el.innerHTML+=`<h3>${tr('classBoard')}</h3><table>${rows.map((r,i)=>`<tr><td>${i+1}. ${esc(r.nick)}</td><td>${r.best}</td></tr>`).join('')}</table>`;
+      el.innerHTML+=`<h3>${L('classBoard')}</h3><table>${rows.map((r,i)=>`<tr><td>${i+1}. ${esc(r.nick)}</td><td>${r.best}</td></tr>`).join('')}</table>`;
     }
   }catch(e){
     console.error(e);
-    el.innerHTML=`<p class="err">${tr('classFail')}</p><button class="big sec" onclick="sendClassResult()">${tr('classRetry')}</button>`;
+    el.innerHTML=`<p class="err">${L('classFail')}</p><button class="big sec" onclick="sendClassResult()">${L('classRetry')}</button>`;
   }
 }
 function startGame(g,ctx,name){
@@ -547,8 +640,7 @@ function leaveGame(){
   if('speechSynthesis' in window)speechSynthesis.cancel();
   const ctx=S?S.ctx:'std';
   S=null;
-  if(ctx==='teacher')renderTeacher();
-  else if(ctx==='link')renderLinkStart(LINKCFG);
+  if(ctx==='link')renderLinkStart(LINKCFG);
   else renderSetup();
 }
 function cLabel(c){return c.zh[cfg.simp?1:0];}
@@ -558,15 +650,16 @@ function renderGame(){
   const cols=n<=3?n:(n===4?2:(n<=9?3:4));
   const controls=S.mode==='A'
    ?`<div id="tray"><div class="trayTitle">${L('pickColor')}</div>
-      <div id="colorBtns" style="grid-template-columns:repeat(${cols},1fr)">${cl.map(c=>`<div class="cbtn" style="background:${c.bg};color:${c.fg}" onclick="answerA('${c.id}',this)">${esc(cLabel(c))}${cAux(c)?`<small>${cAux(c)}</small>`:''}</div>`).join('')}</div></div>`
-   :`<div id="tray"><div id="inbox"></div><div id="keys">${KEYS.map(k=>`<div class="key" onclick="pressKey('${k[0]}')">${k[cfg.simp?1:0]}${auxKey(k)?`<small>${auxKey(k)}</small>`:''}</div>`).join('')}
+      <div id="colorBtns" style="grid-template-columns:repeat(${cols},1fr)">${cl.map(c=>`<div class="cbtn" style="background:${c.bg};color:${c.fg}" onclick="answerA('${c.id}',this)">${phHtml(cPy(c))}<span class="zh">${esc(cLabel(c))}</span>${cAux(c)?`<small>${cAux(c)}</small>`:''}</div>`).join('')}</div></div>`
+   :`<div id="tray"><div id="inbox"></div><div id="keys">${KEYS.map(k=>`<div class="key" onclick="pressKey('${k[0]}')">${phHtml(PY[k[0]])}<span class="zh">${k[cfg.simp?1:0]}</span>${auxKey(k)?`<small>${auxKey(k)}</small>`:''}</div>`).join('')}
       <div class="key fn" onclick="backspace()">⌫ ${tr('back')}</div>
-      <div class="key ok" onclick="submitB()">${tr('confirm')}</div></div></div>`;
+      <div class="key ok" onclick="submitB()">${L('confirm')}</div></div></div>`;
   app.innerHTML=`
   <div id="hud">
     <div><small>${lab('score')}</small><span id="sc">0</span></div>
     <div><small>${lab('time')}</small><span id="tm">0:00</span></div>
     <div><small>${lab('lives')}</small><span id="hearts"></span></div>
+    ${gearBtn().replace('class="gear"','class="gear inhud"')}
   </div>
   <div id="ctl">
     <button id="pbtn" onclick="togglePause()">${pauseLabel(false)}</button>
@@ -576,14 +669,22 @@ function renderGame(){
   <div id="qbar"><button onclick="replay()">🔊 ${L('replay')}</button><span id="qtext"></span></div>
   <div id="boardWrap">
     <div id="board" style="grid-template-columns:repeat(${S.cols},1fr)">
-      ${S.cells.map((c,i)=>{const col=S.cmap[c.color];return `<div class="cell" id="c${i}" style="background:${col.bg};color:${col.fg}">${c.n}</div>`;}).join('')}
+      ${S.cells.map((c,i)=>{const col=S.cmap[c.color];return `<div class="cell${c.alive?'':' empty'}" id="c${i}" style="background:${col.bg};color:${col.fg}">${c.n}</div>`;}).join('')}
     </div>
     <div id="cover"><div>${L('paused')}</div><button onclick="togglePause()">▶ ${L('resume')}</button></div>
   </div>
   ${controls}`;
-  sizeBoard();updateHud();
+  sizeBoard();updateHud();showQText();
+  if(S.mode==='A'&&S.noScore&&S.cur!=null){const h=document.getElementById('c'+S.cur);if(h)h.classList.add('hint');}
   window.onresize=sizeBoard;
 }
+// 題目文字（開啟「顯示題目文字」時）：上面拼音／注音，下面中文
+function showQText(){
+  const el=document.getElementById('qtext');if(!el||!S)return;
+  if(!cfg.showText||!S.qtext){el.innerHTML='';return;}
+  el.innerHTML=`${phHtml(S.qpy)}<span class="zh">${esc(S.qtext)}</span>`;
+}
+function cPy(c){return c.p||pyOf(c.zh[0]);}   // 按鈕上的字（紅、深藍…）的拼音；自訂顏色用老師的 p
 function sizeBoard(){const b=document.getElementById('board');if(!b||!S)return;b.style.setProperty('--cw',(b.clientWidth/S.cols)+'px');}
 function heartsTxt(){return S.g.hearts?('♥'.repeat(S.hearts)+'♡'.repeat(Math.max(0,S.g.hearts-S.hearts))):'∞';}
 function updateHud(){
@@ -649,14 +750,16 @@ function nextQ(){
     S.cur=alive[Math.floor(Math.random()*alive.length)];
     S.qspeak=cn(S.cells[S.cur].n);
     S.qtext=numDisp(S.qspeak);
+    S.qpy=pyOf(S.qspeak);
   }else{
     const cols=[...new Set(alive.map(i=>S.cells[i].color))];
     S.curColor=cols[Math.floor(Math.random()*cols.length)];
     const c=S.cmap[S.curColor];
     S.qspeak=c.say;                                  // 唸「紅色」或老師自訂的發音文字
     S.qtext=c.q[cfg.simp?1:0];                       // 顯示「紅色」
+    S.qpy=c.p?c.p:pyOf(c.q[0]);
   }
-  document.getElementById('qtext').textContent=cfg.showText?S.qtext:'';
+  showQText();
   if(S.mode==='B')updateHud();
   playQ();
 }
@@ -731,11 +834,12 @@ function finish(cleared){
   S.finalSecs=Math.min(99999,secs);S.clearedFlag=!!cleared;
   const std=S.ctx==='std';
   const cm=!std&&S.ctx==='link'&&!!CLASS;
+  // 結果畫面順序（三款統一）：分數 → 評語 → 成績已回傳給老師（班級連結）→ 排行榜／下載 → 再玩一次 → 主選單
   const extra=std?'<div id="lbArea"></div>'
-   :cm?`<div id="classArea"></div><button class="big" onclick="downloadResult()">⬇ ${L('download')}</button>`
+   :cm?`<div id="classArea"></div><button class="big sec" onclick="downloadResult()">⬇ ${L('download')}</button>`
    :`<p class="note">${L('noRecord')}</p>
      <input id="stuNote" class="nick" placeholder="${esc(tr('noteTitle'))}" value="${esc(S.stuName||'')}" maxlength="30">
-     <button class="big" onclick="downloadResult()">⬇ ${L('download')}</button>`;
+     <button class="big sec" onclick="downloadResult()">⬇ ${L('download')}</button>`;
   const o=document.getElementById('over');
   o.innerHTML=`<div class="card">
     <h1>${cleared?L('cleared'):L('over')}</h1>
@@ -745,15 +849,22 @@ function finish(cleared){
       <tr><td>${lab('time')}</td><td>${fmt(secs)}</td></tr>
       <tr><td>${lab('lives')}</td><td>${S.g.hearts?('♥'.repeat(S.hearts)||'0'):'∞'}</td></tr>
     </table>
+    <div class="comment" id="commentLine">${L(commentKey(cleared))}</div>
     ${extra}
     <button class="big" onclick="startGame()">${L('again')}</button>
-    <button class="big sec" onclick="leaveGame()">${S.ctx==='teacher'?L('backTeacher'):L('menu')}</button>
+    <button class="big sec" onclick="leaveGame()">${L('menu')}</button>
   </div>`;
   o.classList.remove('hide');
   if(std)lbAfterGame();
   if(cm)sendClassResult();
 }
 function toSetup(){leaveGame();}
+// 評語：清掉幾成（全清且愛心沒少 → 完美）
+function commentKey(cleared){
+  const tot=S.cells.length,done=S.cells.filter(c=>!c.alive).length,r=tot?done/tot:0;
+  if(cleared||r>=1)return (S.g.hearts&&S.hearts>=S.g.hearts)?'k4':'k3';
+  return r<0.25?'k0':(r<0.5?'k1':'k2');
+}
 function downloadResult(){
   if(!S)return;
   const nm=[...((document.getElementById('stuNote')||{value:S.stuName||''}).value||'').trim()].slice(0,30).join('');
@@ -842,294 +953,8 @@ async function showLB(){
 }
 function closeLB(){document.getElementById('lbov').classList.add('hide');}
 
-// ---- 教師版 ----
-let TS={profile:null,items:[],seq:0,err:'',classes:null,cslots:{}};
-let ED=null,ADM=[];
-const TRIAL_DAYS=7;   // 免費試用天數（管理員在管理頁手動發放）
-function isPro(){const p=TS.profile;return !!p&&p.plan!=='free'&&!!p.expiresAt&&p.expiresAt>Date.now();}
-function planName(p){return p==='trial'?tr('planTrial'):p==='month'?tr('planMonth'):(p==='year'?tr('planYear'):(p==='pro'?tr('planYear'):tr('free')));}
-function today(){return fdate(Date.now());}
-function addMonthsEnd(str,months){
-  const [y,m,d]=str.split('-').map(Number);
-  const t=(m-1)+months,yy=y+Math.floor(t/12),mm=((t%12)+12)%12;
-  const last=new Date(yy,mm+1,0).getDate();
-  return new Date(yy,mm,Math.min(d,last),23,59,59).getTime();
-}
-function calcExpires(plan,startStr,periods){return addMonthsEnd(startStr,(plan==='month'?1:12)*((periods||0)+1));}
-function limitN(){return isPro()?15:3;}
-function fdate(ms){const d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function backBtn(){return `<button class="big sec" onclick="renderSetup()">${L('menu')}</button>`;}
 function cfgSummary(c){
   return `${c.mode==='A'?tr('A'):tr('B')} · ${c.rows}×${c.cols} · ♥${c.hearts||'∞'}${c.custom?' · '+tr('customColors'):''}${c.nums?' · '+tr('customNums'):''}`;
-}
-async function renderTeacher(){
-  screen='teacher';
-  const my=++TS.seq;
-  app.innerHTML=`${titleHtml()}<p class="sub">${L('teacher')}</p><p style="text-align:center">${L('loading')}</p>`;
-  if(!window.TA){app.innerHTML=`${titleHtml()}<p class="err">${L('lbError')}</p>${backBtn()}`;return;}
-  try{
-    await window.TA.ready();
-    if(my!==TS.seq||screen!=='teacher')return;
-    if(!window.TA.user()){
-      app.innerHTML=`${titleHtml()}<p class="sub">${L('teacher')}</p>
-        <p style="text-align:center">${L('needLogin')}</p>
-        ${TS.err?`<p class="err">${esc(TS.err)}</p>`:''}
-        <button class="big" onclick="doLogin()">${L('login')}</button>${backBtn()}`;
-      return;
-    }
-    TS.profile=await window.TA.profile();
-    TS.items=await window.TA.configs();
-    await loadClasses();
-    if(my!==TS.seq||screen!=='teacher')return;
-    TS.err='';
-    drawTeacher();
-  }catch(e){
-    console.error(e);
-    if(my!==TS.seq||screen!=='teacher')return;
-    app.innerHTML=`${titleHtml()}<p class="err">${L('lbError')}<br><small>${esc(e.code||e.message||'')}</small></p>
-      <button class="big" onclick="renderTeacher()">↻</button>${backBtn()}`;
-  }
-}
-async function doLogin(){
-  TS.err='';
-  try{await window.TA.login();}
-  catch(e){console.error(e);if(e&&e.code!=='auth/cancelled-popup-request'&&e.code!=='auth/popup-closed-by-user'){TS.err=e.code||e.message||'login failed';}renderTeacher();}
-}
-async function doLogout(){try{await window.TA.logout();}catch(e){console.error(e);}TS.profile=null;TS.items=[];renderTeacher();}
-function drawTeacher(){
-  const u=window.TA.user(),pro=isPro(),lim=limitN(),n=TS.items.length;
-  const items=TS.items.map((it,i)=>`<div class="cfgItem"><b>${esc(it.cfg.name||('#'+(i+1)))}</b>
-    <div class="s">${cfgSummary(it.cfg)}</div>
-    <div class="mini"><button onclick="edOpen(${i})">✏️ ${tr('edit')}</button><button onclick="tPlay(${i})">▶ ${tr('testPlay')}</button><button onclick="tLink(${i})">🔗 ${tr('copyLink')}</button>${it.sid?`<button onclick="tLinkOff(${i})">🚫 ${tr('linkOff')}</button>`:''}<button onclick="tDel(${i})">🗑 ${tr('del')}</button></div></div>`).join('');
-  app.innerHTML=`${titleHtml()}
-  <div class="panel"><div style="word-break:break-all">${esc(u.email||'')}</div>
-    <div style="margin:6px 0">${tr('plan')}：<span class="badge ${pro?'pro':''}">${pro?planName(TS.profile.plan):tr('free')}</span>${TS.profile.expiresAt?` <span class="note">${tr('until')} ${fdate(TS.profile.expiresAt)}</span>`:''}</div>
-    <div class="mini"><button onclick="doLogout()">${tr('logout')}</button>${window.TA.isAdmin()?'<button onclick="renderAdmin()">⚙ 管理</button>':''}</div></div>
-  <div class="panel"><h3>${L('rulesTitle')}</h3><ul class="rules">${[1,2,3,4,5,6].map(i=>`<li>${L('rules'+i)}</li>`).join('')}</ul></div>
-  <h3>${L('myConfigs')} <span class="note">${n} / ${lim}</span></h3>
-  ${items||`<p class="note">${L('empty')}</p>`}
-  ${n>=lim?`<p class="err">${tr('limitReached')}</p>`:`<button class="big" onclick="edOpen(-1)">${L('newConfig')}</button>`}
-  ${classSection()}
-  ${langPanels()}${ratePanel()}
-  ${backBtn()}`;
-}
-async function loadClasses(){
-  try{const r=await window.TA.classes();TS.classes=r.list;TS.cslots=r.slots;}
-  catch(e){console.error(e);TS.classes=null;TS.cslots={};}
-}
-function classSection(){
-  if(TS.classes===null)return `<h3>${L('clsTitle')}</h3><p class="note">${tr('clsNotReady')}</p>`;
-  const opts=TS.items.map((it,i)=>`<option value="${i}">${esc(it.cfg.name||('#'+(i+1)))}</option>`).join('');
-  const list=TS.classes.map((c,k)=>`<div class="cfgItem"><b>🏫 ${esc(c.name)}</b>
-    <div class="s">${c.showBoard?tr('boardOn'):tr('boardOff')}</div>
-    <div class="mini"><select id="cs${k}">${opts}</select>
-    <button onclick="tClassLink(${k})">🔗 ${tr('clsLink')}</button><button onclick="cbOpen(${k})">📒 ${tr('clsBook')}</button></div></div>`).join('');
-  const free=[0,1,2].find(i=>!TS.cslots[String(i)]);
-  const create=free===undefined?'':(isPro()
-    ?`<div class="mini"><input class="txt" id="clsNew" maxlength="40" placeholder="${esc(tr('clsName'))}" style="flex:1;min-width:120px"><button onclick="clsCreate(${free})">＋ ${tr('clsCreate')}</button></div>`
-    :`<p class="note">${tr('clsNeedSub')}</p>`);
-  return `<h3>${L('clsTitle')} <span class="note">${TS.classes.length} / 3</span></h3><p class="note">${tr('clsHint')}</p>
-    ${list||`<p class="note">${tr('clsNone')}</p>`}${create}`;
-}
-async function clsCreate(slot){
-  const name=(document.getElementById('clsNew').value||'').trim();
-  if(!name){toast(tr('clsName'));return;}
-  try{await window.TA.classCreate(newSid(),slot,name,TS.cslots);await loadClasses();drawTeacher();}
-  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
-}
-async function ensureSid(i){
-  const it=TS.items[i];if(!it)return null;
-  if(it.sid){await window.TA.shareSave(it.sid,it.cfg,usesPro(it.cfg));return it.sid;}
-  const items=TS.items.map((x,k)=>k===i?{...x,sid:newSid()}:x);
-  await window.TA.shareSave(items[i].sid,items[i].cfg,usesPro(items[i].cfg));
-  await window.TA.saveConfigs(items);TS.items=items;
-  return items[i].sid;
-}
-async function tClassLink(k){
-  const c=TS.classes[k],sel=document.getElementById('cs'+k);
-  if(!c||!sel||sel.value===''){toast(tr('clsPickCfg'));return;}
-  try{const sid=await ensureSid(+sel.value);copyText(shareUrl(sid)+'&class='+c.cid);}
-  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
-}
-// ---- 色數成績冊（只顯示色數的成績）----
-let CB={k:-1,rows:[],err:''};
-async function cbOpen(k){CB={k,rows:[],err:''};screen='classbook';cbDraw(true);await cbLoad();}
-async function cbLoad(){
-  const c=TS.classes[CB.k];if(!c)return;
-  try{CB.rows=(await window.TA.classScores(c.cid)).filter(r=>r.game==='colores');CB.err='';}
-  catch(e){console.error(e);CB.rows=[];CB.err=e.code||'error';}
-  cbDraw();
-}
-function cbDraw(loading){
-  const c=TS.classes[CB.k];if(!c){renderTeacher();return;}
-  const rows=CB.rows.slice().sort((a,b)=>b.best-a.best).map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.nick)}</td><td>${r.best}</td><td>${r.plays}</td><td>${r.extra&&r.extra.secs!=null?r.extra.secs:''}</td><td>${r.lastAt?esc(fdate(r.lastAt)):''}</td><td><button onclick="cbDelRow('${esc(r.id)}')">✕</button></td></tr>`).join('');
-  app.innerHTML=`${titleHtml()}<h3>🏫 ${esc(c.name)} · ${L('clsBook')}</h3>
-  <div class="mini"><button onclick="cbToggle()">${c.showBoard?tr('boardOn'):tr('boardOff')} · ${tr('boardToggle')}</button>
-    <button onclick="cbLoad()">${tr('bkRefresh')}</button><button onclick="cbCsv()">${tr('bkCsv')}</button>
-    <button onclick="cbReset()">${tr('bkReset')}</button><button onclick="cbDelClass()">${tr('bkDelClass')}</button></div>
-  ${CB.err?`<p class="err">${esc(CB.err)}</p>`:''}
-  ${loading?`<p class="note">${L('loading')}</p>`:(rows?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.9rem"><tr><th>#</th><th>${tr('bkNick')}</th><th>${tr('bkBest')}</th><th>${tr('bkPlays')}</th><th>${tr('bkTime')}</th><th>${tr('bkLast')}</th><th></th></tr>${rows}</table></div>`:`<p class="note">${tr('bkEmpty')}</p>`)}
-  <button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;
-}
-async function cbToggle(){
-  const c=TS.classes[CB.k];
-  try{await window.TA.classUpdate(c,{showBoard:!c.showBoard});c.showBoard=!c.showBoard;cbDraw();}
-  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
-}
-async function cbDelRow(id){
-  if(!confirm(tr('bkConfirmRow')))return;
-  try{await window.TA.classScoreDelete([id]);CB.rows=CB.rows.filter(r=>r.id!==id);cbDraw();}
-  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
-}
-async function cbReset(){
-  if(!confirm(tr('bkConfirmReset')))return;
-  try{await window.TA.classScoreDelete(CB.rows.map(r=>r.id));CB.rows=[];cbDraw();}
-  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
-}
-async function cbDelClass(){
-  if(!confirm(tr('bkConfirmDel')))return;
-  const c=TS.classes[CB.k];
-  try{await window.TA.classDelete(c,TS.cslots);await loadClasses();renderTeacher();}
-  catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
-}
-function cbCsv(){
-  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
-  const lines=[['nickname','best','plays','seconds','last'].map(q).join(',')];
-  CB.rows.slice().sort((a,b)=>b.best-a.best).forEach(r=>lines.push([r.nick,r.best,r.plays,r.extra&&r.extra.secs,r.lastAt?new Date(r.lastAt).toISOString():''].map(q).join(',')));
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'}));
-  a.download='colores-'+TS.classes[CB.k].name.replace(/[\\/:*?"<>|\s]+/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove();
-}
-function tPlay(i){const it=TS.items[i];if(it)startGame(toGame(it.cfg),'teacher');}
-function newSid(){const a=new Uint8Array(12);crypto.getRandomValues(a);return [...a].map(x=>(x%36).toString(36)).join('');}
-function shareUrl(sid){return location.origin+location.pathname+'?c='+sid;}
-function usesPro(c){return !!(c.custom||c.nums);}
-async function tLink(i){
-  const it=TS.items[i];if(!it)return;
-  try{
-    if(!it.sid){
-      const items=TS.items.map((x,k)=>k===i?{...x,sid:newSid()}:x);
-      await window.TA.shareSave(items[i].sid,items[i].cfg,usesPro(items[i].cfg));
-      await window.TA.saveConfigs(items);TS.items=items;
-    }else await window.TA.shareSave(it.sid,it.cfg,usesPro(it.cfg));
-    drawTeacher();
-    copyText(shareUrl(TS.items[i].sid));
-  }catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
-}
-async function tLinkOff(i){
-  const it=TS.items[i];if(!it||!it.sid)return;
-  if(!confirm(tr('confirmOff')))return;
-  try{
-    await window.TA.shareDelete(it.sid);
-    const items=TS.items.map((x,k)=>{if(k!==i)return x;const y={...x};delete y.sid;return y;});
-    await window.TA.saveConfigs(items);TS.items=items;drawTeacher();toast(tr('linkOffDone'));
-  }catch(e){console.error(e);toast(tr('lbError')+' '+(e.code||''));}
-}
-async function copyText(t){
-  try{await navigator.clipboard.writeText(t);toast(tr('copied'));}
-  catch(e){window.prompt('',t);}
-}
-async function tDel(i){
-  if(!confirm(tr('confirmDel')))return;
-  const gone=TS.items[i],items=TS.items.filter((_,k)=>k!==i);
-  try{if(gone&&gone.sid){try{await window.TA.shareDelete(gone.sid);}catch(e){console.error(e);}}
-    await window.TA.saveConfigs(items);TS.items=items;drawTeacher();}
-  catch(e){console.error(e);toast(tr('lbError'));}
-}
-// ---- 編輯器 ----
-function edOpen(i){
-  const it=i>=0?TS.items[i]:null,c=it?it.cfg:null;
-  ED={idx:i,id:it?it.id:(Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
-    name:c?c.name:'',mode:c?c.mode:'A',rows:c?c.rows:5,cols:c?c.cols:4,hearts:c?c.hearts:5,
-    ids:c?(c.ids?c.ids.slice():[]):SETS.basic.slice(),
-    custom:c&&c.custom?c.custom.map(x=>({...x})):[],
-    nmode:c&&c.nums?'list':(c&&c.range===9999?'9999':'999'),
-    list:c&&c.nums?c.nums.join(', '):'',err:''};
-  renderEditor();
-}
-function edSet(k,v){
-  if(k==='nmode'&&v==='list'&&!isPro()){toast(tr('proOnly'));return;}
-  ED[k]=v;renderEditor();
-}
-function edStep(k,d){const lim=k==='rows'?[3,8]:[3,6];ED[k]=Math.min(lim[1],Math.max(lim[0],ED[k]+d));renderEditor();}
-function edToggle(id){
-  const i=ED.ids.indexOf(id);
-  if(i>=0)ED.ids.splice(i,1);else ED.ids.push(id);
-  renderEditor();
-}
-function edQuick(w){ED.ids=w==='basic'?SETS.basic.slice():(w==='adv'?SETS.adv.slice():(w==='all'?Object.keys(COLORS):[]));renderEditor();}
-function edAddColor(){if(!isPro()){toast(tr('proOnly'));return;}if(ED.custom.length>=12)return;ED.custom.push({n:'',s:'',h:'#43a047'});renderEditor();}
-function edDelColor(i){ED.custom.splice(i,1);renderEditor();}
-function edListen(i){const c=ED.custom[i];const t=(c.s||c.n||'').trim();if(t)speak(t);}
-function renderEditor(){
-  screen='editor';
-  const pro=isPro(),E=ED;
-  const lockCls=pro?'':' lock';
-  const chips=Object.keys(COLORS).map(id=>{const c=COLORS[id];const on=E.ids.includes(id);
-    return `<span class="chip ${on?'':'off'}" style="background:${c.bg};color:${c.fg};border-color:${c.id==='white'?'#999':c.bg}" onclick="edToggle('${id}')">${cLabel(c)}</span>`;}).join('');
-  const crows=E.custom.map((c,i)=>`<div class="crow">
-    <input type="color" value="${c.h}" oninput="ED.custom[${i}].h=this.value">
-    <input class="txt" maxlength="8" placeholder="${esc(tr('colorName'))}" value="${esc(c.n)}" oninput="ED.custom[${i}].n=this.value" style="flex:1.2">
-    <input class="txt" maxlength="12" placeholder="${esc(tr('colorSay'))}" value="${esc(c.s)}" oninput="ED.custom[${i}].s=this.value" style="flex:1.4">
-    <button class="sbtn" onclick="edListen(${i})" title="${esc(tr('listen'))}">🔊</button>
-    <button class="sbtn" onclick="edDelColor(${i})">✕</button></div>`).join('');
-  app.innerHTML=`<h1>${L('teacher')}</h1>
-  <div class="panel"><h3>${L('cfgName')}</h3><input class="txt" maxlength="20" value="${esc(E.name)}" oninput="ED.name=this.value"></div>
-  <div class="panel"><h3>${L('pickMode')}</h3><div class="opts">
-    ${opt(L('A'),E.mode==='A',"edSet('mode','A')")}${opt(L('B'),E.mode==='B',"edSet('mode','B')")}</div></div>
-  <div class="panel"><h3>${L('grid')} <span class="note">${E.rows*E.cols}</span></h3>
-    <div class="step">${tr('rows')} <button onclick="edStep('rows',-1)">−</button><span>${E.rows}</span><button onclick="edStep('rows',1)">＋</button>
-    &nbsp; ${tr('cols')} <button onclick="edStep('cols',-1)">−</button><span>${E.cols}</span><button onclick="edStep('cols',1)">＋</button></div></div>
-  <div class="panel"><h3>${L('hearts')}</h3><div class="opts">
-    ${opt('3',E.hearts===3,"edSet('hearts',3)")}${opt('5',E.hearts===5,"edSet('hearts',5)")}${opt(tr('unlimited'),E.hearts===0,"edSet('hearts',0)")}</div></div>
-  <div class="panel"><h3>${L('presetColors')} <span class="note">${tr('colorSel')}</span></h3>
-    <div class="opts" style="margin-bottom:8px">${opt(L('basic'),false,"edQuick('basic')")}${opt(L('adv'),false,"edQuick('adv')")}${opt(tr('all'),false,"edQuick('all')")}${opt(tr('none'),false,"edQuick('none')")}</div>
-    <div class="chips">${chips}</div></div>
-  <div class="panel${lockCls}"><h3>${L('customColors')}${pro?'':' 🔒'}</h3>${crows}
-    <button class="sbtn" onclick="edAddColor()" ${E.custom.length>=12?'disabled':''}>${tr('addColor')}</button></div>
-  <div class="panel"><h3>${L('numSel')}</h3><div class="opts">
-    ${opt('0 – 999',E.nmode==='999',"edSet('nmode','999')")}${opt('0 – 9999',E.nmode==='9999',"edSet('nmode','9999')")}
-    <div class="opt ${E.nmode==='list'?'on':''}${lockCls}" onclick="edSet('nmode','list')">${tr('customNums')}${pro?'':' 🔒'}</div></div>
-    ${E.nmode==='list'?`<textarea class="txt" style="margin-top:8px" placeholder="1, 2, 3, 10-20, 100" oninput="ED.list=this.value">${esc(E.list)}</textarea><div class="note">${tr('numHint')}</div>`:''}</div>
-  ${pro?'':`<p class="note">🔒 ${tr('proOnly')}</p>`}
-  <div id="edErr" class="err">${esc(E.err)}</div>
-  <button class="big" onclick="edSave()">${L('save')}</button>
-  <button class="big sec" onclick="edTest()">▶ ${L('testPlay')}</button>
-  <button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;
-}
-function edToCfg(){
-  const E=ED;
-  const raw={name:E.name,mode:E.mode,rows:E.rows,cols:E.cols,hearts:E.hearts};
-  raw.ids=E.ids;raw.custom=E.custom;
-  if(E.ids.length+E.custom.length<2)return {err:tr('colorSel')};
-  if(E.nmode==='list'){const l=parseNumList(E.list);if(!l)return {err:tr('numHint')};raw.nums=l;}
-  else raw.range=E.nmode==='9999'?9999:999;
-  if(E.custom.some(c=>!c.n.trim()))return {err:tr('colorName')+'?'};
-  const c=normalizeCfg(raw);
-  if(!c)return {err:tr('bad')};
-  return {cfg:c};
-}
-function edTest(){
-  const r=edToCfg();
-  if(r.err){ED.err=r.err;document.getElementById('edErr').textContent=r.err;return;}
-  startGameFromEditor(r.cfg);
-}
-function startGameFromEditor(c){startGame(toGame(c),'teacher');}
-async function edSave(){
-  const r=edToCfg();
-  const errEl=document.getElementById('edErr');
-  const fail=m=>{ED.err=m;errEl.textContent=m;};
-  if(r.err)return fail(r.err);
-  const c=r.cfg;
-  if(!isPro()&&(c.custom||c.nums))return fail(tr('proOnly'));
-  if(!c.name)c.name=(ED.idx>=0?'':'#')+(TS.items.length+(ED.idx>=0?0:1));
-  const items=TS.items.slice(),entry={id:ED.id,cfg:c};
-  const old=ED.idx>=0?TS.items[ED.idx]:null;if(old&&old.sid)entry.sid=old.sid;
-  if(ED.idx>=0)items[ED.idx]=entry;
-  else{if(items.length>=limitN())return fail(tr('limitReached'));items.push(entry);ED.idx=items.length-1;}
-  try{await window.TA.saveConfigs(items);TS.items=items;ED.name=c.name;
-    if(entry.sid){try{await window.TA.shareSave(entry.sid,c,usesPro(c));}catch(e){console.error(e);}}
-   ED.err='';toast(tr('saved2'));}
-  catch(e){console.error(e);fail((e.code||e.message||'')+'');}
 }
 // ---- 老師的連結（學生端） ----
 function renderLinkStart(c){
@@ -1141,74 +966,11 @@ function renderLinkStart(c){
     ${c.name?`<div style="font-size:1.2rem;font-weight:700">${esc(c.name)}</div>`:''}
     <div class="note">${cfgSummary(c)}</div></div>
   ${CLASS?`<div class="panel" style="text-align:center"><div style="font-size:1.1rem;font-weight:700">🏫 ${esc(String(CLASS.name||'').slice(0,40))}</div></div>`:''}
-  <div class="panel"><h3>${CLASS?tr('classNick'):L('studentName')}</h3><input class="txt" maxlength="${CLASS?16:30}" value="${esc(stuName)}" oninput="stuName=this.value"></div>
-  ${langPanels()}${ratePanel()}
+  <div class="panel"><h3>${CLASS?L('classNick'):L('studentName')}</h3><input class="txt" maxlength="${CLASS?16:30}" value="${esc(stuName)}" oninput="stuName=this.value"></div>
   <div class="panel"><h3>${L('showText')}</h3><div class="opts">
-    ${opt(tr('off'),!cfg.showText,"setC('showText',false)")}${opt(tr('on'),cfg.showText,"setC('showText',true)")}</div></div>
-  <button class="big" onclick="startLink()">${L('start')}</button>`;
-}
-// ---- 管理 ----
-async function renderAdmin(){
-  screen='admin';
-  app.innerHTML=`<h1>⚙ 管理</h1><p style="text-align:center">…</p>`;
-  try{
-    ADM=await window.TA.listTeachers();
-    ADM.sort((a,b)=>(a.email||'').localeCompare(b.email||''));
-    drawAdmin();
-  }catch(e){console.error(e);app.innerHTML=`<h1>⚙ 管理</h1><p class="err">${esc(e.code||e.message||'')}</p><button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;}
-}
-function admStatus(t){
-  if(t.plan==='free'||!t.expiresAt)return '';
-  const left=t.expiresAt-Date.now();
-  if(left<=0)return '<span class="badge" style="background:#ddd;color:#555">已到期</span>';
-  if(left<=7*86400000)return '<span class="badge" style="background:#ffcc80;color:#6a3a00">7 天內到期</span>';
-  return '<span class="badge pro">使用中</span>';
-}
-function drawAdmin(){
-  const rows=ADM.map((t,i)=>{
-    const paid=t.plan!=='free';
-    const legacy=t.plan==='pro';
-    return `<div class="cfgItem"><b style="word-break:break-all">${esc(t.email||'')}</b> <span class="note">${esc(t.name||'')}</span>
-      <div class="crow" style="margin-top:6px"><select class="txt" style="flex:1" onchange="admPlan(${i},this.value)">
-        ${legacy?'<option value="pro" selected>舊版 Pro（請重新選方案）</option>':''}
-        <option value="free" ${t.plan==='free'?'selected':''}>免費</option>
-        <option value="trial" ${t.plan==='trial'?'selected':''}>試用（${TRIAL_DAYS} 天）${t.trialUsed&&t.plan!=='trial'?'・已試用過':''}</option>
-        <option value="month" ${t.plan==='month'?'selected':''}>月訂</option>
-        <option value="year" ${t.plan==='year'?'selected':''}>年訂</option></select>${admStatus(t)}</div>
-      ${paid?`<div class="crow"><span class="note" style="flex:none">開始</span><input type="date" class="txt" style="flex:1" ${t.plan==='trial'?'disabled':''} value="${t.startAt?fdate(t.startAt):''}" onchange="admStart(${i},this.value)">
-        <span class="note" style="flex:none">到期</span><b style="flex:none">${t.expiresAt?fdate(t.expiresAt):'—'}</b></div>
-      <div class="crow"><span class="note" style="flex:none">續訂 ×${t.periods||0}</span>
-        <button class="sbtn" onclick="admRenew(${i},1)" ${legacy||t.plan==='trial'||!t.startAt?'disabled':''}>＋ 續訂</button>
-        <button class="sbtn" onclick="admRenew(${i},-1)" ${(t.periods||0)<=0?'disabled':''}>－ 撤銷</button></div>`:''}</div>`;}).join('');
-  app.innerHTML=`<h1>⚙ 管理</h1><p class="note">${ADM.length} 位老師</p>${rows}
-    <button class="big sec" onclick="renderTeacher()">${L('backTeacher')}</button>`;
-}
-async function admSave(i,fields){
-  const t=ADM[i];
-  try{await window.TA.setPlan(t.uid,fields);Object.assign(t,fields);drawAdmin();}
-  catch(e){console.error(e);toast(String(e.code||e.message));drawAdmin();}
-}
-function admPlan(i,v){
-  const t=ADM[i];if(!t||v==='pro')return;
-  if(v==='free')return admSave(i,{plan:'free',startAt:null,periods:0,expiresAt:null});
-  if(v==='trial'){
-    if(t.plan==='trial')return;
-    if(t.trialUsed&&!confirm('這位老師已經試用過了，要再開一次嗎？')){drawAdmin();return;}
-    const now=Date.now();
-    return admSave(i,{plan:'trial',startAt:now,periods:0,expiresAt:now+TRIAL_DAYS*86400000,trialUsed:true});
-  }
-  const startStr=t.startAt&&t.plan!=='pro'&&t.plan!=='trial'?fdate(t.startAt):today();
-  const per=t.plan==='free'||t.plan==='pro'||t.plan==='trial'?0:(t.periods||0);
-  admSave(i,{plan:v,startAt:new Date(startStr+'T00:00:00').getTime(),periods:per,expiresAt:calcExpires(v,startStr,per)});
-}
-function admStart(i,v){
-  const t=ADM[i];if(!t||!v||t.plan==='free'||t.plan==='pro'||t.plan==='trial')return;
-  admSave(i,{startAt:new Date(v+'T00:00:00').getTime(),expiresAt:calcExpires(t.plan,v,t.periods||0)});
-}
-function admRenew(i,d){
-  const t=ADM[i];if(!t||!t.startAt||t.plan==='free'||t.plan==='pro'||t.plan==='trial')return;
-  const per=Math.max(0,(t.periods||0)+d);
-  admSave(i,{periods:per,expiresAt:calcExpires(t.plan,fdate(t.startAt),per)});
+    ${opt(L('off'),!cfg.showText,"setC('showText',false)")}${opt(L('on'),cfg.showText,"setC('showText',true)")}</div></div>
+  <button class="big" onclick="startLink()">${L('start')}</button>
+  ${verHtml()}`;
 }
 function linkMsg(k){screen='linkmsg';const t=T[k];app.innerHTML=`${titleHtml()}<div class="panel" style="text-align:center"><p class="err">${tr(k)}</p><p class="err" style="font-size:.95rem">${t[2]}</p><p class="err" style="font-size:.95rem">${t[3]}</p></div><button class="big" onclick="location.href=location.pathname">🏠 ${L('start')}</button>`;}
 async function loadShared(id){
@@ -1227,7 +989,6 @@ async function loadShared(id){
     linkMsg(e&&e.code==='permission-denied'?'linkExpired':'lbError');
   }
 }
-window.onTAChange=()=>{if(screen==='teacher')renderTeacher();};
 (function init(){
   const q=new URLSearchParams(location.search),t=q.get('t'),id=q.get('c'),cl=String(q.get('class')||'').toLowerCase();
   if(/^[a-z0-9]{8,32}$/.test(cl))CLASSID=cl;
@@ -1238,8 +999,8 @@ window.onTAChange=()=>{if(screen==='teacher')renderTeacher();};
 </script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,signInAnonymously,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,query,orderBy,limit,getDocs,getDoc,where,writeBatch,doc,setDoc,updateDoc,deleteDoc,serverTimestamp,Timestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getAuth,signInAnonymously} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,query,orderBy,limit,getDocs,getDoc,where,doc,setDoc,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={
   apiKey:"AIzaSyC_YSDn2OH6_GKKwCq0d8QFNl3fYXzTC60",
   authDomain:"memorma-24dab.firebaseapp.com",
@@ -1249,7 +1010,7 @@ const firebaseConfig={
   appId:"1:806709458465:web:f0d12acb2f911f2f165560",
   measurementId:"G-RS1DJ7DH50"
 };
-// 中心專案 subscription-48d3c：教師登入、方案（site_plans）、教師設定、學生分享連結都在這裡。
+// 中心專案 subscription-48d3c：學生分享連結（shared_configs）、班級（classes、class_scores）。老師端都在老師管理中心。
 const centralConfig={
   apiKey:"AIzaSyCHZz8Hh7m45bJfZC9aK_f_NvUD-aUeuzU",
   authDomain:"subscription-48d3c.firebaseapp.com",
@@ -1258,7 +1019,6 @@ const centralConfig={
   messagingSenderId:"276281656991",
   appId:"1:276281656991:web:de242ba22373816c3044aa"
 };
-const ADMIN_EMAIL='a2224907@gmail.com';
 try{
   // 排行榜：維持原專案 memorma-24dab（匿名登入）
   const app=initializeApp(firebaseConfig);
@@ -1270,7 +1030,7 @@ try{
     const c=await signInAnonymously(auth);
     return c.user.uid;
   }
-  // 訂閱／教師功能：中心專案（命名 app，與上面互不影響）
+  // 中心專案（命名 app，與上面互不影響）：學生端只用匿名登入讀連結、回傳班級成績
   const capp=initializeApp(centralConfig,'central');
   const cauth=getAuth(capp);
   const cdb=getFirestore(capp);
@@ -1295,39 +1055,7 @@ try{
       });
     }
   };
-  const real=u=>u&&!u.isAnonymous;
-  const ms=t=>t&&t.toMillis?t.toMillis():null;
   window.TA={
-    ready(){return cauth.authStateReady();},
-    user(){const u=cauth.currentUser;return real(u)?{uid:u.uid,email:u.email||'',name:u.displayName||''}:null;},
-    isAdmin(){const u=cauth.currentUser;return !!(real(u)&&u.email===ADMIN_EMAIL&&u.emailVerified);},
-    async login(){await signInWithPopup(cauth,new GoogleAuthProvider());},
-    async logout(){await signOut(cauth);},
-    async profile(){
-      // 會員資料 site_members/{uid}（首次登入自動建立）；方案 site_plans/{uid} 只有管理員能寫，沒有文件就是免費
-      const u=cauth.currentUser,mref=doc(cdb,'site_members',u.uid);
-      let m=await getDoc(mref);
-      if(!m.exists()){
-        await setDoc(mref,{email:u.email||'',name:u.displayName||'',createdAt:serverTimestamp()});
-        m=await getDoc(mref);
-      }
-      const md=m.data();
-      const p=await getDoc(doc(cdb,'site_plans',u.uid));
-      const d=p.exists()?p.data():{};
-      return {plan:d.plan||'free',expiresAt:ms(d.expiresAt),startAt:ms(d.startAt),periods:d.periods||0,email:md.email,name:md.name};
-    },
-    async configs(){
-      const u=cauth.currentUser,s=await getDoc(doc(cdb,'teacher_configs',u.uid));
-      return s.exists()?(s.data().items||[]):[];
-    },
-    async saveConfigs(items){
-      const u=cauth.currentUser;
-      await setDoc(doc(cdb,'teacher_configs',u.uid),{items,updatedAt:serverTimestamp()});
-    },
-    async shareSave(id,c,pro){
-      const u=cauth.currentUser;
-      await setDoc(doc(cdb,'shared_configs',id),{owner:u.uid,cfg:c,pro:!!pro,updatedAt:serverTimestamp()});
-    },
     async classGet(cid){
       await ensureCUid();
       const s=await getDoc(doc(cdb,'classes',cid));
@@ -1362,68 +1090,12 @@ try{
       const snap=await getDocs(query(collection(cdb,'class_scores'),where('cid','==',cid),limit(300)));
       return snap.docs.map(d=>d.data()).filter(r=>r.game==='colores').sort((a,b)=>b.best-a.best).slice(0,10);
     },
-    async classes(){
-      const u=cauth.currentUser,ix=await getDoc(doc(cdb,'teacher_classes',u.uid));
-      const slots=ix.exists()?(ix.data().slots||{}):{};
-      const list=[];
-      await Promise.all(Object.keys(slots).map(async k=>{
-        try{const s=await getDoc(doc(cdb,'classes',slots[k]));if(s.exists())list.push({cid:s.id,slot:+k,...s.data()});}catch(e){console.error(e);}
-      }));
-      list.sort((a,b)=>a.slot-b.slot);
-      return {list,slots};
-    },
-    async classCreate(cid,slot,name,slots){
-      const u=cauth.currentUser,b=writeBatch(cdb),ts=serverTimestamp();
-      b.set(doc(cdb,'teacher_classes',u.uid),{slots:{...slots,[String(slot)]:cid},updatedAt:ts});
-      b.set(doc(cdb,'classes',cid),{owner:u.uid,slot,name,showBoard:false,updatedAt:ts});
-      await b.commit();
-    },
-    async classUpdate(c,patch){
-      await setDoc(doc(cdb,'classes',c.cid),{owner:c.owner,slot:c.slot,name:patch.name||c.name,showBoard:'showBoard' in patch?patch.showBoard:c.showBoard,updatedAt:serverTimestamp()});
-    },
-    async classScores(cid){
-      const u=cauth.currentUser;
-      const snap=await getDocs(query(collection(cdb,'class_scores'),where('owner','==',u.uid),where('cid','==',cid),limit(2000)));
-      return snap.docs.map(d=>{const x=d.data();return {id:d.id,...x,lastAt:ms(x.lastAt)};});
-    },
-    async classScoreDelete(ids){
-      for(let i=0;i<ids.length;i+=400){const b=writeBatch(cdb);ids.slice(i,i+400).forEach(id=>b.delete(doc(cdb,'class_scores',id)));await b.commit();}
-    },
-    async classDelete(c,slots){
-      const u=cauth.currentUser;
-      const all=await getDocs(query(collection(cdb,'class_scores'),where('owner','==',u.uid),where('cid','==',c.cid),limit(2000)));
-      await window.TA.classScoreDelete(all.docs.map(d=>d.id));
-      const ns={...slots};delete ns[String(c.slot)];
-      const b=writeBatch(cdb);
-      b.delete(doc(cdb,'classes',c.cid));
-      b.set(doc(cdb,'teacher_classes',u.uid),{slots:ns,updatedAt:serverTimestamp()});
-      await b.commit();
-    },
-    async shareDelete(id){await deleteDoc(doc(cdb,'shared_configs',id));},
     async shareGet(id){
       await ensureCUid();
       const s=await getDoc(doc(cdb,'shared_configs',id));
       return s.exists()?s.data().cfg:null;
-    },
-    async listTeachers(){
-      // 管理頁：會員清單（site_members）合併方案（site_plans）
-      const [ms_,ps]=await Promise.all([getDocs(collection(cdb,'site_members')),getDocs(collection(cdb,'site_plans'))]);
-      const plans={};ps.docs.forEach(d=>{plans[d.id]=d.data();});
-      return ms_.docs.map(d=>{const x=d.data(),p=plans[d.id]||{};
-        return {uid:d.id,email:x.email,name:x.name,plan:p.plan||'free',expiresAt:ms(p.expiresAt),startAt:ms(p.startAt),periods:p.periods||0,trialUsed:!!p.trialUsed};});
-    },
-    async setPlan(uid,f){
-      const o={};
-      if('plan' in f)o.plan=f.plan;
-      if('periods' in f)o.periods=f.periods;
-      if('trialUsed' in f)o.trialUsed=!!f.trialUsed;
-      if('startAt' in f)o.startAt=f.startAt?Timestamp.fromMillis(f.startAt):null;
-      if('expiresAt' in f)o.expiresAt=f.expiresAt?Timestamp.fromMillis(f.expiresAt):null;
-      // site_plans 文件可能還不存在（新會員），所以用 merge 寫入
-      await setDoc(doc(cdb,'site_plans',uid),o,{merge:true});
     }
   };
-  onAuthStateChanged(cauth,()=>{if(window.onTAChange)window.onTAChange();});
 }catch(err){console.error('Firebase init failed',err);}
 </script>
 </body>
