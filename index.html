@@ -586,7 +586,7 @@ function buildBoard(g){
   cs=shuffle(cs).slice(0,N);
   return {rows:g.rows,cols:g.cols,cells:nums.map((n,i)=>({n,color:cs[i],alive:true,acc:accepted(n)}))};
 }
-let CLASSID='',CLASS=null;   // 班級模式：成績自動回傳給老師（?class=班級碼）
+let CLASSID='',CLASS=null,SETKEY='link';   // SETKEY：成績依「用了哪個設定組」分開記（?c=設定碼；舊式 ?t= 連結＝link）   // 班級模式：成績自動回傳給老師（?class=班級碼）
 function startLink(){
   if(CLASS&&!String(stuName||'').trim()){toast(tr('classNeed'));return;}
   startGame(toGame(LINKCFG),'link',stuName);
@@ -606,10 +606,10 @@ async function sendClassResult(){
   const nick=[...String(S.stuName||'').trim()].slice(0,16).join('');
   el.innerHTML=`<p class="note">${L('classSending')}</p>`;
   try{
-    await window.TA.classSubmit(CLASSID,CLASS.owner,{nick,score:Math.max(0,Math.min(1000000,S.score|0)),extra:{secs:S.finalSecs,cleared:S.clearedFlag?1:0}});
+    await window.TA.classSubmit(CLASSID,CLASS.owner,{k:SETKEY,nick,score:Math.max(0,Math.min(1000000,S.score|0)),extra:{secs:S.finalSecs,cleared:S.clearedFlag?1:0}});
     el.innerHTML=`<p class="note">${L('classSent')}</p>`;
     if(CLASS.showBoard){
-      const rows=await window.TA.classBoard(CLASSID);
+      const rows=await window.TA.classBoard(CLASSID,SETKEY);
       el.innerHTML+=`<h3>${L('classBoard')}</h3><table>${rows.map((r,i)=>`<tr><td>${i+1}. ${esc(r.nick)}</td><td>${r.best}</td></tr>`).join('')}</table>`;
     }
   }catch(e){
@@ -992,7 +992,7 @@ async function loadShared(id){
 (function init(){
   const q=new URLSearchParams(location.search),t=q.get('t'),id=q.get('c'),cl=String(q.get('class')||'').toLowerCase();
   if(/^[a-z0-9]{8,32}$/.test(cl))CLASSID=cl;
-  if(id&&/^[a-z0-9]{8,32}$/.test(id)){loadShared(id);return;}
+  if(id&&/^[a-z0-9]{8,32}$/.test(id)){SETKEY=id;loadShared(id);return;}
   if(t){const c=decodeCfg(t);if(c){prepClass().then(ok=>{if(ok)renderLinkStart(c);});return;}linkMsg('linkGone');return;}
   renderSetup();
 })();
@@ -1075,20 +1075,20 @@ try{
     async classSubmit(cid,owner,e){
       await ensureCUid();
       const h=await window.TA.nickHash(e.nick);
-      const ref=doc(cdb,'class_scores',cid+'_colores_'+h);
+      const ref=doc(cdb,'class_scores',cid+'_colores_'+e.k+'_'+h);
       const old=await getDoc(ref);
       if(!old.exists()){
-        await setDoc(ref,{cid,owner,game:'colores',h,nick:e.nick,best:e.score,plays:1,lastAt:serverTimestamp(),extra:e.extra});
+        await setDoc(ref,{cid,owner,game:'colores',k:e.k,h,nick:e.nick,best:e.score,plays:1,lastAt:serverTimestamp(),extra:e.extra});
       }else{
         const o=old.data(),upd={nick:e.nick,plays:(o.plays||0)+1,lastAt:serverTimestamp(),best:Math.max(o.best||0,e.score)};
         if(e.score>(o.best||0))upd.extra=e.extra;
         await updateDoc(ref,upd);
       }
     },
-    async classBoard(cid){
+    async classBoard(cid,k){
       await ensureCUid();
       const snap=await getDocs(query(collection(cdb,'class_scores'),where('cid','==',cid),limit(300)));
-      return snap.docs.map(d=>d.data()).filter(r=>r.game==='colores').sort((a,b)=>b.best-a.best).slice(0,10);
+      return snap.docs.map(d=>d.data()).filter(r=>r.game==='colores'&&r.k===k).sort((a,b)=>b.best-a.best).slice(0,10);
     },
     async shareGet(id){
       await ensureCUid();

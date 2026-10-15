@@ -17,14 +17,17 @@ export const collection=(db,...p)=>({path:p.join('/')});
 export const doc=(db,...p)=>({path:p.join('/'),id:p[p.length-1]});
 export const query=(c)=>c; export const orderBy=()=>0; export const limit=()=>0; export const where=()=>0;
 export const getDoc=async r=>({exists:()=>D[r.path]!==undefined,data:()=>JSON.parse(JSON.stringify(D[r.path])),id:r.id});
-export const getDocs=async()=>({docs:[]});
+export const getDocs=async q=>({docs:Object.keys(D).filter(k=>k.startsWith(q.path+'/')&&k.split('/').length===q.path.split('/').length+1).map(k=>({id:k.split('/').pop(),data:()=>JSON.parse(JSON.stringify(D[k]))}))});
 export const setDoc=async(r,d)=>{D[r.path]=JSON.parse(JSON.stringify(d));};
 export const updateDoc=async(r,d)=>{D[r.path]=Object.assign(D[r.path]||{},d);};
 export const serverTimestamp=()=>Date.now();`;
 
-const CID = 'class0000aaaa', SID = 'cfg000011112';
+const CID = 'class0000aaaa', CID2 = 'class0000bbbb', SID = 'cfg000011112', SID2 = 'cfg000022223';
 const DATA = {
   ['classes/' + CID]: { owner: 'u1', slot: 0, name: '週三班', showBoard: false },
+  ['classes/' + CID2]: { owner: 'u1', slot: 1, name: '週五班', showBoard: true },
+  // 別的設定組的成績：排行榜不應該出現
+  ['class_scores/' + CID2 + '_colores_' + SID2 + '_' + 'a'.repeat(16)]: { cid: CID2, owner: 'u1', game: 'colores', k: SID2, h: 'a'.repeat(16), nick: 'Zed', best: 999, plays: 1, lastAt: 1, extra: {} },
   ['shared_configs/' + SID]: { owner: 'u1', pro: true, cfg: { name: '自訂色', mode: 'A', rows: 3, cols: 3, hearts: 5, ids: ['red'],
     custom: [{ n: '天空藍', s: '天空藍色', h: '#7fd1ff', p: 'tiān kōng lán' }, { n: '米白', s: '', h: '#f5f0e1' }], range: 999 } }
 };
@@ -162,6 +165,19 @@ const txt = (page, sel) => page.$eval(sel, e => e.innerText.replace(/\s+/g, ' ')
     const order = await page.$$eval('#over .card > *', es => es.map(e => e.id || e.tagName));
     ok(order.indexOf('commentLine') < order.indexOf('classArea'), '評語在回傳訊息前面', order);
     ok(await page.evaluate(cid => Object.keys(window.__DATA).some(k => k.startsWith('class_scores/' + cid + '_colores_')), CID), '成績寫進 class_scores');
+    const rec = await page.evaluate(cid => Object.entries(window.__DATA).find(([k, v]) => k.startsWith('class_scores/' + cid + '_')), CID);
+    ok(rec && rec[1].k === SID && rec[0] === 'class_scores/' + CID + '_colores_' + SID + '_' + rec[1].h, '步驟 6-2：設定記成設定碼，文件 id = 班級_colores_設定碼_暱稱', rec);
+    ok(errors.length === 0, '沒有程式錯誤', errors);
+    await ctx.close(); }
+  { // 步驟 6-2：班級排行榜只比同一個設定組
+    const { page, ctx, errors } = await open(browser, { qs: '?c=' + SID + '&class=' + CID2 });
+    await page.waitForFunction(() => screen === 'link');
+    await page.fill('#app input.txt', 'Leo'); await page.dispatchEvent('#app input.txt', 'input');
+    await page.click('#app .big'); await page.waitForSelector('.cbtn');
+    await page.evaluate(() => finish(false));
+    await page.waitForFunction(() => document.querySelector('#classArea table'), null, { timeout: 5000 }).catch(() => {});
+    const t = await txt(page, '#classArea');
+    ok(t.includes('Leo') && !t.includes('Zed'), '班級排行榜只列同一個設定組（別組的 Zed 不出現）', t);
     ok(errors.length === 0, '沒有程式錯誤', errors);
     await ctx.close(); }
 
