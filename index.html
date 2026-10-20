@@ -56,7 +56,8 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 .key{min-height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid #c8c8d0;background:#fff;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;text-align:center;color:#222}
 .key small{font-size:.55em}
 .key.fn{background:#f0f0f2;font-size:.85rem}
-.key.ok{background:#222;color:#fff;grid-column:1/-1;font-size:.95rem;min-height:34px}
+.key.ok{background:#222;color:#fff;grid-column:1/-1;font-size:.95rem;min-height:34px;flex-direction:row;gap:8px}
+.key.ok small{font-size:.7em;font-weight:600;opacity:.9}
 #toast{position:fixed;left:50%;top:18%;transform:translateX(-50%);background:#222;color:#fff;border-radius:12px;padding:8px 16px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s;z-index:12;text-align:center;white-space:pre-line}
 #toast.show{opacity:.95}
 .overlay{position:fixed;inset:0;background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:center;z-index:9}
@@ -297,8 +298,7 @@ const T={
  k2:['很好，差一點就清完了！','很好，差一点就清完了！','¡Muy bien, ya casi lo logras!','Very good, almost there!'],
  k3:['全部清完，太厲害了！','全部清完，太厉害了！','¡Tablero limpio, increíble!','Board cleared, amazing!'],
  k4:['完美！你是數字高手！','完美！你是数字高手！','¡Perfecto! ¡Eres un maestro de los números!','Perfect! You\'re a numbers master!'],
- // 以下只顯示中文（不加外語小字）
- confirm:['確認','确认'],back:['退格','退格']
+ confirm:['確認','确认','Confirmar','Confirm'],back:['退格','退格','Borrar','Delete']
 };
 
 // 玩法設定（只有色數用）：玩法、格數、顏色組、數字範圍、顯示題目文字
@@ -652,8 +652,8 @@ function renderGame(){
    ?`<div id="tray"><div class="trayTitle">${L('pickColor')}</div>
       <div id="colorBtns" style="grid-template-columns:repeat(${cols},1fr)">${cl.map(c=>`<div class="cbtn" style="background:${c.bg};color:${c.fg}" onclick="answerA('${c.id}',this)">${phHtml(cPy(c))}<span class="zh">${esc(cLabel(c))}</span>${cAux(c)?`<small>${cAux(c)}</small>`:''}</div>`).join('')}</div></div>`
    :`<div id="tray"><div id="inbox"></div><div id="keys">${KEYS.map(k=>`<div class="key" onclick="pressKey('${k[0]}')">${phHtml(PY[k[0]])}<span class="zh">${k[cfg.simp?1:0]}</span>${auxKey(k)?`<small>${auxKey(k)}</small>`:''}</div>`).join('')}
-      <div class="key fn" onclick="backspace()">⌫ ${tr('back')}</div>
-      <div class="key ok" onclick="submitB()">${L('confirm')}</div></div></div>`;
+      <div class="key fn" onclick="backspace()">⌫ ${L('back')}</div>
+      <div class="key ok" onclick="submitB()">${tr('confirm')}${fo('confirm')?`<small>${fo('confirm')}</small>`:''}</div></div></div>`;
   app.innerHTML=`
   <div id="hud">
     <div><small>${lab('score')}</small><span id="sc">0</span></div>
