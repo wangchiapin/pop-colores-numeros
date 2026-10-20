@@ -78,7 +78,7 @@ const txt = (page, sel) => page.$eval(sel, e => e.innerText.replace(/\s+/g, ' ')
     await ctx.close(); }
   { const { page, ctx } = await open(browser, { ls: { [KEY]: JSON.stringify({ v: 1, script: 'trad', lang: 'en', phon: 'off', rate: 'fast', other: 1 }), shushu_cfg: JSON.stringify({ aux: 'es' }) } });
     ok((await txt(page, '#app .big')).includes('Start'), '跑吧存的「中＋英」色數也跟著用');
-    ok(await page.evaluate(() => cfg.rate === 1.1 && cfg.aux === 'en'), '語速「快」→ 1.1');
+    ok(await page.evaluate(() => cfg.rate === 0.85 && cfg.aux === 'en'), '語速「快」→ 0.85（和其他遊戲同一組語速）');
     await ctx.close(); }
 
   console.log('\n[2] ⚙️ 視窗');
@@ -90,7 +90,7 @@ const txt = (page, sel) => page.$eval(sel, e => e.innerText.replace(/\s+/g, ' ')
     await page.click('#setov [onclick="setS(\'rate\',\'slow\')"]'); await page.waitForTimeout(150);
     const s = await settings(page);
     ok(s.phon === 'zhuyin' && s.lang === 'en' && s.rate === 'slow' && s.other === 7, '存回共用鑰匙，別款欄位保留', s);
-    ok((await page.evaluate(() => window.__rates)).pop() === 0.55, '改語速會試聽（慢 0.55）');
+    ok((await page.evaluate(() => window.__rates)).pop() === 0.45, '改語速會試聽（慢 0.45）');
     await page.click('#setov .big');
     ok(await page.$eval('#setov', e => e.classList.contains('hide')), '按完成關掉');
     ok((await txt(page, '#app .big')).includes('Start'), '關掉後畫面換成中＋英');
