@@ -458,7 +458,7 @@ function renderSetup(){
     ${opt(L('off'),!cfg.showText,"setC('showText',false)")}${opt(L('on'),cfg.showText,"setC('showText',true)")}</div></div>
   <button class="big" onclick="startGame(stdG(),'std')">${L('start')}</button>
   <button class="big sec" onclick="showLB()">🏆 ${L('lbBtn')}</button>
-  <a class="big sec" href="${CENTER_URL}">👩‍🏫 ${L('teacher')}</a>
+  <a class="big sec" href="${CENTER_URL}">${L('teacher')}</a>
   ${verHtml()}`;
 }
 function rerender(){

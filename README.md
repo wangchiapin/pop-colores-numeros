@@ -4,7 +4,7 @@
 
 - **網址：** https://wangchiapin.github.io/pop-colores-numeros/
 - **Firebase 專案：** memorma-24dab（排行榜，匿名登入）；中心專案 subscription-48d3c（老師連結、班級成績）
-- **老師端：** 都在「老師管理中心」https://wangchiapin.github.io/profesor/ （設定組、自訂顏色與數字、班級、成績簿、學習單）。遊戲裡只剩一顆「👩‍🏫 老師管理中心」按鈕；以前遊戲內的教師區、管理頁已刪除（步驟 5-3）。
+- **老師端：** 都在「老師管理中心」https://wangchiapin.github.io/profesor/ （設定組、自訂顏色與數字、班級、成績簿、學習單）。遊戲裡只剩一顆「老師管理中心」按鈕；以前遊戲內的教師區、管理頁已刪除（步驟 5-3）。
 - **狀態：** 使用中
 
 ## 學生連結（照常可用）
