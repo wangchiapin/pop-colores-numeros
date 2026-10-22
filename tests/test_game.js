@@ -64,7 +64,7 @@ const txt = (page, sel) => page.$eval(sel, e => e.innerText.replace(/\s+/g, ' ')
     const s = await settings(page);
     ok(s && s.script === 'trad' && s.lang === 'es' && s.phon === 'pinyin' && s.rate === 'normal', '第一次寫入預設', s);
     ok(await page.evaluate(() => typeof renderTeacher === 'undefined' && typeof renderAdmin === 'undefined'), '遊戲內教師區、管理頁已刪除');
-    ok(await page.$eval('a.big[href*="profesor"]', a => a.href) === 'https://wangchiapin.github.io/profesor/#/settings', '老師管理中心按鈕連到中心');
+    ok(await page.$eval('a.big[href*="profesor"]', a => a.href) === 'https://wangchiapin.github.io/profesor/#/home', '老師管理中心按鈕連到中心');
     ok((await txt(page, 'a.big[href*="profesor"]')).includes('老師管理中心'), '按鈕文字「老師管理中心」');
     ok(!(await page.$('#app .panel h3 small')) || !(await page.evaluate(() => [...document.querySelectorAll('#app .panel h3')].some(h => /中文字形|輔助語言|語速/.test(h.textContent)))), '開始畫面不再有字形／輔助語言／語速');
     ok(errors.length === 0, '沒有程式錯誤', errors);

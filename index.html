@@ -437,7 +437,7 @@ function speak(text,cb){
 const app=document.getElementById('app');
 let LINKCFG=null,stuName='';
 function opt(label,on,fn){return `<div class="opt ${on?'on':''}" onclick="${fn}">${label}</div>`;}
-const CENTER_URL='https://wangchiapin.github.io/profesor/#/settings';
+const CENTER_URL='https://wangchiapin.github.io/profesor/#/home';
 function gearBtn(){return `<button class="gear" onclick="openSet()" title="${esc(lab('settings'))}" aria-label="${esc(lab('settings'))}">⚙️</button>`;}
 function titleHtml(){return `${gearBtn()}<h1>${cfg.simp?'色数消消乐':'色數消消樂'}</h1><p class="sub">Pop Colores y Números</p>`;}
 function verHtml(){return '<p class="ver">v5-3</p>';}
