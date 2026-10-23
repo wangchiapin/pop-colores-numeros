@@ -30,4 +30,4 @@
 
 ## 測試
 
-`node tests/run.js`（見 `tests/README.md`）。開始畫面最下面的小字「v5-3」是版本號，用來確認手機拿到新版。
+`node tests/run.js`（見 `tests/README.md`）。開始畫面最下面的小字「v5-4」是版本號，用來確認手機拿到新版。

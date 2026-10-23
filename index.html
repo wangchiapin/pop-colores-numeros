@@ -45,6 +45,9 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(0);opacity:0}}
 @keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 @keyframes pulse{to{outline-color:#ffb300}}
+#boardWrap.shake{animation:shake .3s}
+.spark{position:fixed;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;border:1px solid rgba(0,0,0,.25);pointer-events:none;z-index:50;animation:spark .6s ease-out forwards}
+@keyframes spark{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
 #tray{background:#ececef;border:2px solid #cfcfd6;border-radius:16px;padding:8px 8px 8px;margin-top:4px}
 .trayTitle{text-align:center;font-weight:700;font-size:.85rem;margin-bottom:6px}
 .trayTitle small{font-size:.72em}
@@ -440,7 +443,7 @@ function opt(label,on,fn){return `<div class="opt ${on?'on':''}" onclick="${fn}"
 const CENTER_URL='https://wangchiapin.github.io/profesor/#/home';
 function gearBtn(){return `<button class="gear" onclick="openSet()" title="${esc(lab('settings'))}" aria-label="${esc(lab('settings'))}">⚙️</button>`;}
 function titleHtml(){return `${gearBtn()}<h1>${cfg.simp?'色数消消乐':'色數消消樂'}</h1><p class="sub">Pop Colores y Números</p>`;}
-function verHtml(){return '<p class="ver">v5-3</p>';}
+function verHtml(){return '<p class="ver">v5-4</p>';}
 function renderSetup(){
   screen='setup';
   document.title=(cfg.simp?'色数消消乐':'色數消消樂')+' Pop Colores y Números';
@@ -782,12 +785,39 @@ function award(n){
   S.score+=pts;
   toast(`+${pts}${parts.length?'\n'+parts.join('  '):''}`);
 }
+// 答對：方塊消失的位置噴一小朵煙火（方塊本身的顏色＋金、粉、天藍）
+function burst(el,color){
+  try{
+    const r=el.getBoundingClientRect();
+    const cx=r.left+r.width/2,cy=r.top+r.height/2;
+    const cols=[color,'#ffc400','#ff5c8a','#3ec6ff'];
+    for(let i=0;i<12;i++){
+      const a=(Math.PI*2*i/12)+Math.random()*.4;
+      const d=Math.min(r.width,70)*(.7+Math.random()*.6);
+      const p=document.createElement('div');
+      p.className='spark';
+      p.style.left=cx+'px';p.style.top=cy+'px';
+      p.style.background=cols[i%cols.length];
+      p.style.setProperty('--dx',Math.round(Math.cos(a)*d)+'px');
+      p.style.setProperty('--dy',Math.round(Math.sin(a)*d)+'px');
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(),700);
+    }
+  }catch(e){}
+}
+// 答錯：手機震動（Android）＋整個方塊區抖一下（iPhone 不支援手機震動，靠畫面抖動）
+function buzz(){
+  try{ if(navigator.vibrate)navigator.vibrate(200); }catch(e){}
+  const bw=document.getElementById('boardWrap');
+  if(bw){bw.classList.remove('shake');void bw.offsetWidth;bw.classList.add('shake');}
+}
 function correct(idx){
   S.busy=true;
   const c=S.cells[idx];
   award(c.n);
   c.alive=false;
   const el=document.getElementById('c'+idx);
+  burst(el,S.cmap[c.color].bg);
   el.classList.remove('hint');el.classList.add('pop');
   setTimeout(()=>{el.classList.add('empty');},330);
   updateHud();
@@ -797,6 +827,7 @@ function wrong(el){
   S.score=Math.max(0,S.score-5);S.streak=0;S.wrong++;
   if(S.g.hearts)S.hearts--;
   if(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');}
+  buzz();
   toast('−5');
   updateHud();
   if(S.g.hearts&&S.hearts<=0){S.busy=true;setTimeout(()=>finish(false),600);return false;}

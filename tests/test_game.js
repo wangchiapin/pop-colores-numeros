@@ -115,6 +115,18 @@ const txt = (page, sel) => page.$eval(sel, e => e.innerText.replace(/\s+/g, ' ')
     ok(await page.evaluate(() => S.cells.length === 20 && document.querySelectorAll('.cell').length === 20), '改設定不會重開一局');
     ok(errors.length === 0, '沒有程式錯誤', errors);
     await ctx.close(); }
+  console.log('\n[3b] 答錯震動、答對煙火');
+  { const { page, ctx, errors } = await open(browser, { speech: true });
+    await page.evaluate(() => { window.__vib = []; navigator.vibrate = n => { window.__vib.push(n); return true; }; startGame(stdG(), 'std'); }); await page.waitForTimeout(200);
+    await page.evaluate(() => { const bad = Object.keys(S.cmap).find(id => id !== S.cells[S.cur].color); answerA(bad, null); });
+    ok(await page.evaluate(() => window.__vib.length === 1 && window.__vib[0] === 200), '答錯：手機震動 200 毫秒');
+    ok(await page.$eval('#boardWrap', e => e.classList.contains('shake')), '答錯：整個方塊區抖動');
+    await page.evaluate(() => answerA(S.cells[S.cur].color, null));
+    ok(await page.$$eval('.spark', e => e.length) === 12, '答對：方塊消失處噴出 12 顆煙火點');
+    await page.waitForTimeout(900);
+    ok(await page.$$eval('.spark', e => e.length) === 0, '煙火播完自動清掉');
+    ok(errors.length === 0, '沒有程式錯誤', errors);
+    await ctx.close(); }
   { const { page, ctx } = await open(browser);
     const r = await page.evaluate(() => [pyOf('一百一十'), pyOf('三十六'), pyOf('兩千零五'), pyOf('深藍色'), pyOf('米白')]);
     ok(r[0] === 'yì bǎi yì shí' && r[1] === 'sān shí liù' && r[2] === 'liǎng qiān líng wǔ' && r[3] === 'shēn lán sè' && r[4] === '', '數字與顏色的拼音（一百 唸 yì；不認得的字不顯示）', r);
