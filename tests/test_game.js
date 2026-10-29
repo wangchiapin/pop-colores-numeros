@@ -193,6 +193,28 @@ const txt = (page, sel) => page.$eval(sel, e => e.innerText.replace(/\s+/g, ' ')
     ok(errors.length === 0, '沒有程式錯誤', errors);
     await ctx.close(); }
 
+  { // 2026-10-29：?preview（老師試玩班級連結）不回傳成績
+    const { page, ctx, errors } = await open(browser, { qs: '?c=' + SID + '&class=' + CID + '&preview=1', ls: { [KEY]: JSON.stringify({ v: 1, script: 'trad', lang: 'en', phon: 'pinyin', rate: 'normal' }) } });
+    await page.waitForFunction(() => screen === 'link');
+    await page.fill('#app input.txt', 'Preview'); await page.dispatchEvent('#app input.txt', 'input');
+    await page.click('#app .big'); await page.waitForSelector('.cbtn');
+    await page.evaluate(() => finish(false));
+    await page.waitForFunction(() => document.getElementById('classArea').innerText.includes('預覽'));
+    ok((await txt(page, '#classArea')).includes('不會回傳'), '預覽模式：顯示成績不會回傳', await txt(page, '#classArea'));
+    ok(await page.evaluate(cid => !Object.keys(window.__DATA).some(k => k.startsWith('class_scores/' + cid + '_colores_')), CID), '預覽模式：沒有寫進 class_scores');
+    ok(errors.length === 0, '沒有程式錯誤', errors);
+    await ctx.close(); }
+  { // 2026-10-29：老師訂閱到期（permission-denied）→ 明確提示、不出現重試鈕
+    const { page, ctx, errors } = await open(browser, { qs: '?c=' + SID + '&class=' + CID, ls: { [KEY]: JSON.stringify({ v: 1, script: 'trad', lang: 'en', phon: 'pinyin', rate: 'normal' }) } });
+    await page.waitForFunction(() => screen === 'link');
+    await page.fill('#app input.txt', 'Leo'); await page.dispatchEvent('#app input.txt', 'input');
+    await page.click('#app .big'); await page.waitForSelector('.cbtn');
+    await page.evaluate(() => { window.TA.classSubmit = async () => { throw { code: 'permission-denied' }; }; });
+    await page.evaluate(() => finish(false));
+    await page.waitForFunction(() => document.getElementById('classArea').innerText.includes('無法記錄'));
+    ok(!(await page.$('#classArea button')), '訂閱到期：提示請通知老師，沒有重試鈕');
+    await ctx.close(); }
+
   await browser.close();
   console.log('\n通過 ' + pass + '，失敗 ' + fail);
   process.exit(fail ? 1 : 0);
