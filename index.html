@@ -286,6 +286,7 @@ const T={
  empty:['還沒有成績','还没有成绩','Aún no hay puntajes','No scores yet'],
  close:['關閉','关闭','Cerrar','Close'],
  teacher:['老師管理中心','老师管理中心','Centro para profesores','Teacher center'],
+ maintStudent:['🔧 維修中，請稍後再來','🔧 维修中，请稍后再来','🔧 En mantenimiento; vuelve más tarde','🔧 Under maintenance — please come back later'],
  linkGone:['這個連結已失效（老師已停用或刪除）','这个链接已失效（老师已停用或删除）','Este enlace ya no es válido (el profesor lo desactivó o borró)','This link is no longer valid (disabled or deleted by the teacher)'],
  linkExpired:['這個連結暫時無法使用（老師的訂閱已到期）','这个链接暂时无法使用（老师的订阅已到期）','Este enlace no está disponible (la suscripción del profesor venció)','This link is unavailable (the teacher\'s subscription has expired)'],
  linkLoading:['載入中…','载入中…','Cargando…','Loading…'],
@@ -1022,11 +1023,19 @@ function renderLinkStart(c){
   ${verHtml()}`;
 }
 function linkMsg(k){screen='linkmsg';const t=T[k];app.innerHTML=`${titleHtml()}<div class="panel" style="text-align:center"><p class="err">${tr(k)}</p><p class="err" style="font-size:.95rem">${t[2]}</p><p class="err" style="font-size:.95rem">${t[3]}</p></div><button class="big" onclick="location.href=location.pathname">🏠 ${L('start')}</button>`;}
+// 維修開關：老師管理中心的 portalStatus/center-colores（off:true＝維修中）。維修中：所有學生連結（?c= ?t= ?class=）都不能玩、不記成績；?preview（老師預覽）不受影響；讀不到開關就照常放行。
+async function maintBlock(){
+  if(new URLSearchParams(location.search).has('preview'))return false;
+  for(let i=0;i<100&&!window.TA;i++)await new Promise(r=>setTimeout(r,100));
+  if(!window.TA)return false;
+  try{return await window.TA.maintOn();}catch(e){return false;}
+}
 async function loadShared(id){
   app.innerHTML=`${titleHtml()}<p style="text-align:center">${tr('linkLoading')}</p>`;
   try{
     for(let i=0;i<100&&!window.TA;i++)await new Promise(r=>setTimeout(r,100));   // Firebase 模組是後載入的，等它就緒
     if(!window.TA)throw {code:'unavailable'};
+    if(await maintBlock())return linkMsg('maintStudent');
     const r=await window.TA.shareGet(id);
     if(!r)return linkMsg('linkGone');
     const c=normalizeCfg(r);
@@ -1042,7 +1051,7 @@ async function loadShared(id){
   const q=new URLSearchParams(location.search),t=q.get('t'),id=q.get('c'),cl=String(q.get('class')||'').toLowerCase();
   if(/^[a-z0-9]{8,32}$/.test(cl)){CLASSID=cl;PREVIEW=q.has('preview');}   // ?preview：老師試玩班級連結，成績不回傳（跑吧同樣做法）
   if(id&&/^[a-z0-9]{8,32}$/.test(id)){SETKEY=id;loadShared(id);return;}
-  if(t){const c=decodeCfg(t);if(c){prepClass().then(ok=>{if(ok)renderLinkStart(c);});return;}linkMsg('linkGone');return;}
+  if(t){const c=decodeCfg(t);if(c){maintBlock().then(m=>{if(m)return linkMsg('maintStudent');return prepClass().then(ok=>{if(ok)renderLinkStart(c);});});return;}linkMsg('linkGone');return;}
   renderSetup();
 })();
 </script>
@@ -1105,6 +1114,11 @@ try{
     }
   };
   window.TA={
+    async maintOn(){
+      await ensureCUid();
+      const m=await getDoc(doc(cdb,'portalStatus','center-colores'));
+      return m.exists()&&m.data().off===true;
+    },
     async classGet(cid){
       await ensureCUid();
       const s=await getDoc(doc(cdb,'classes',cid));

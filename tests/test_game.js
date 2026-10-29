@@ -24,6 +24,7 @@ export const serverTimestamp=()=>Date.now();`;
 
 const CID = 'class0000aaaa', CID2 = 'class0000bbbb', SID = 'cfg000011112', SID2 = 'cfg000022223';
 const DATA = {
+  // （維修測試時，open 會再加 portalStatus/center-colores）
   ['classes/' + CID]: { owner: 'u1', slot: 0, name: '週三班', showBoard: false },
   ['classes/' + CID2]: { owner: 'u1', slot: 1, name: '週五班', showBoard: true },
   // 別的設定組的成績：排行榜不應該出現
@@ -32,7 +33,7 @@ const DATA = {
     custom: [{ n: '天空藍', s: '天空藍色', h: '#7fd1ff', p: 'tiān kōng lán' }, { n: '米白', s: '', h: '#f5f0e1' }], range: 999 } }
 };
 
-async function open(browser, { qs = '', ls = null, speech = false } = {}){
+async function open(browser, { qs = '', ls = null, speech = false, maint = false } = {}){
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } }); const page = await ctx.newPage();
   const errors = []; page.on('pageerror', e => errors.push(String(e)));
   await page.route('**/*', r => {
@@ -45,6 +46,7 @@ async function open(browser, { qs = '', ls = null, speech = false } = {}){
     return r.abort();
   });
   await page.addInitScript('window.__DATA=' + JSON.stringify(DATA) + ';');
+  if(maint) await page.addInitScript("window.__DATA['portalStatus/center-colores']={off:true};");
   if(ls) await page.addInitScript('try{' + Object.keys(ls).map(k => 'localStorage.setItem(' + JSON.stringify(k) + ',' + JSON.stringify(ls[k]) + ');').join('') + '}catch(e){}');
   if(speech) await page.addInitScript(`
     window.__rates=[];window.SpeechSynthesisUtterance=function(t){this.text=t;};
@@ -193,6 +195,17 @@ const txt = (page, sel) => page.$eval(sel, e => e.innerText.replace(/\s+/g, ' ')
     ok(errors.length === 0, '沒有程式錯誤', errors);
     await ctx.close(); }
 
+  { // 2026-10-29：老師中心維修開關開啟 → 所有學生連結都不能玩、不記成績；?preview 不受影響
+    for(const q of ['?c=' + SID, '?c=' + SID + '&class=' + CID]){
+      const { page, ctx, errors } = await open(browser, { qs: q, maint: true });
+      const t = await txt(page, '#app');
+      ok(t.includes('維修中') || t.includes('mantenimiento'), '維修中：連結顯示維修中 ' + q, t);
+      ok(!(await page.$('#app input.txt')) && !(await page.$('.cbtn')), '維修中：沒有輸入名字、沒有遊戲畫面 ' + q);
+      ok(errors.length === 0, '沒有程式錯誤', errors); await ctx.close(); }
+    const { page, ctx } = await open(browser, { qs: '?c=' + SID + '&class=' + CID + '&preview=1', maint: true, ls: { [KEY]: JSON.stringify({ v: 1, script: 'trad', lang: 'en', phon: 'pinyin', rate: 'normal' }) } });
+    await page.waitForFunction(() => screen === 'link', null, { timeout: 5000 }).catch(() => {});
+    ok(!!(await page.$('#app .big')), '預覽（?preview）不受維修影響');
+    await ctx.close(); }
   { // 2026-10-29：?preview（老師試玩班級連結）不回傳成績
     const { page, ctx, errors } = await open(browser, { qs: '?c=' + SID + '&class=' + CID + '&preview=1', ls: { [KEY]: JSON.stringify({ v: 1, script: 'trad', lang: 'en', phon: 'pinyin', rate: 'normal' }) } });
     await page.waitForFunction(() => screen === 'link');
