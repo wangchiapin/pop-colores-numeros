@@ -32,8 +32,7 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 #hearts{letter-spacing:1px;color:#e53935}
 #ctl{display:flex;gap:6px;margin-bottom:8px}
 #ctl button{flex:1;min-height:46px;border:1.5px solid #d4d4d8;background:#fff;border-radius:999px;padding:4px 2px;font-size:.92rem;cursor:pointer;color:#222;line-height:1.2}
-#qbar{display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;margin:4px 0 8px}
-#qbar button{border:1.5px solid #d4d4d8;background:#fff;border-radius:22px;padding:6px 16px;font-size:1rem;cursor:pointer}
+#qbar{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 8px}#qbar:empty,#qbar:has(#qtext:empty){display:none}
 #qtext{font-size:1.4rem;font-weight:700}
 #boardWrap{position:relative;margin-bottom:18px}
 #board{display:grid;gap:5px;width:100%}
@@ -738,10 +737,11 @@ function renderGame(){
   </div>
   <div id="ctl">
     <button id="pbtn" onclick="togglePause()">${pauseLabel(false)}</button>
+    <button id="rbtn" onclick="replay()">🔊 ${L('replay')}</button>
     <button onclick="askConfirm('restart')">↻ ${L('restart')}</button>
     <button onclick="askConfirm('menu')">⌂ ${L('menu')}</button>
   </div>
-  <div id="qbar"><button onclick="replay()">🔊 ${L('replay')}</button><span id="qtext"></span></div>
+  <div id="qbar"><span id="qtext"></span></div>
   <div id="boardWrap">
     <div id="board" style="grid-template-columns:repeat(${S.cols},1fr)">
       ${S.cells.map((c,i)=>{const col=S.cmap[c.color];return `<div class="cell${c.alive?'':' empty'}" id="c${i}" style="background:${col.bg};color:${col.fg}">${c.n}</div>`;}).join('')}

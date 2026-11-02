@@ -15,7 +15,7 @@ const settingsJson = page => page.evaluate(() => JSON.parse(localStorage.getItem
     ok(await page.$$eval('#board .cell', e => e.length) === 20, '5×4 → 20 格');
     ok((await page.$eval('#board', e => getComputedStyle(e).gridTemplateColumns.split(' ').length)) === 4, '5×4：畫面上 4 欄');
     ok(await page.$$eval('#board .cell', es => new Set(es.map(e => e.offsetTop)).size) === 5, '5×4：畫面上 5 列');
-    await page.click('#ctl button:nth-child(3)'); await page.click('#cYes');   // ⌂ 主選單
+    await page.click('#ctl button:nth-child(4)'); await page.click('#cYes');   // ⌂ 主選單
     ok(await H.isOn(page, '5×4'), '回主選單');
     await H.clickOpt(page, '6×5');
     ok(await H.isOn(page, '6×5') && !(await H.isOn(page, '5×4')), '按 6×5 → 選中');
@@ -30,7 +30,7 @@ const settingsJson = page => page.evaluate(() => JSON.parse(localStorage.getItem
     await page.waitForTimeout(450);
     ok((await H.cellsInfo(page)).filter(c => c.alive).length === 29, '6×5：答對消掉一格（剩 29）');
     await page.waitForFunction(() => !S.busy);   // 答對後 650ms 才出下一題；太早離開會觸發遊戲的一個小問題（見回報）
-    await page.click('#ctl button:nth-child(3)'); await page.click('#cYes');
+    await page.click('#ctl button:nth-child(4)'); await page.click('#cYes');
     await H.clickOpt(page, '7×6');
     ok((await settingsJson(page)).grid === 2, '格數 7×6 記進 shushu_cfg');
     await H.startStd(page);
@@ -62,7 +62,7 @@ const settingsJson = page => page.evaluate(() => JSON.parse(localStorage.getItem
     const labels = await page.$$eval('.cbtn .zh', e => e.map(x => x.textContent));
     ok(labels.join(',') === '紅,黃,藍,綠,黑,白,灰,橘,紫', '基本色按鈕文字與順序', labels);
     ok(await page.$$eval('#colorBtns', e => e[0].style.gridTemplateColumns) === 'repeat(3, 1fr)', '基本色 9 顆排 3 欄');
-    await page.click('#ctl button:nth-child(3)'); await page.click('#cYes');
+    await page.click('#ctl button:nth-child(4)'); await page.click('#cYes');
     await H.clickOpt(page, '進階色');
     ok(await H.isOn(page, '進階色') && (await settingsJson(page)).set === 'adv', '按進階色 → 選中並記下');
     await H.startStd(page);
@@ -99,7 +99,7 @@ const settingsJson = page => page.evaluate(() => JSON.parse(localStorage.getItem
     await H.startStd(page);
     let nums = (await H.cellsInfo(page)).map(c => c.n);
     ok(Math.max(...nums) <= 999 && nums.filter(n => n < 10).length === 2 && nums.filter(n => n >= 10 && n < 100).length === 6 && nums.filter(n => n >= 100).length === 12, '0–999：個位 2／兩位 6／三位 12，沒有千位數', nums);
-    await page.click('#ctl button:nth-child(3)'); await page.click('#cYes');
+    await page.click('#ctl button:nth-child(4)'); await page.click('#cYes');
     await H.clickOpt(page, '0 – 9999');
     ok((await settingsJson(page)).range === 9999 && await H.isOn(page, '0 – 9999'), '按 0–9999 → 選中並記下');
     await H.startStd(page);
@@ -131,7 +131,7 @@ const settingsJson = page => page.evaluate(() => JSON.parse(localStorage.getItem
     ok(await H.isOn(page, '關'), '預設是「關」');
     await H.startStd(page);
     ok(await page.$eval('#qtext', e => e.innerHTML) === '', 'A：關 → 題目區是空的');
-    await page.click('#ctl button:nth-child(3)'); await page.click('#cYes');
+    await page.click('#ctl button:nth-child(4)'); await page.click('#cYes');
     await H.clickOpt(page, '開');
     ok(await H.isOn(page, '開') && (await settingsJson(page)).showText === true, '按「開」→ 選中並記下');
     await H.startStd(page);
@@ -140,7 +140,7 @@ const settingsJson = page => page.evaluate(() => JSON.parse(localStorage.getItem
     ok((await page.$eval('#qtext .ph', e => e.textContent)).length > 0, 'A：題目文字上面有拼音');
     const target = (await H.cellsInfo(page))[await page.evaluate(() => S.cur)];
     ok(H.parseCN(await page.$eval('#qtext .zh', e => e.textContent)) === target.n, '題目文字的數字就是被問方塊上的數字', [target.n]);
-    await page.click('#ctl button:nth-child(3)'); await page.click('#cYes');
+    await page.click('#ctl button:nth-child(4)'); await page.click('#cYes');
     await H.clickOpt(page, '聽顏色');
     await H.startStd(page);
     const sp2 = await H.lastSpoken(page);
@@ -149,7 +149,7 @@ const settingsJson = page => page.evaluate(() => JSON.parse(localStorage.getItem
     // 答完下一題，題目文字跟著換
     const q = await page.evaluate(() => S.qid); await H.answerB(page); await H.waitQ(page, q);
     ok(await page.$eval('#qtext .zh', e => e.textContent) === await H.lastSpoken(page), '下一題題目文字更新');
-    await page.click('#ctl button:nth-child(3)'); await page.click('#cYes');
+    await page.click('#ctl button:nth-child(4)'); await page.click('#cYes');
     await H.clickOpt(page, '關');
     await H.startStd(page);
     ok(await page.$eval('#qtext', e => e.innerHTML) === '', 'B：改回「關」→ 題目區又是空的');

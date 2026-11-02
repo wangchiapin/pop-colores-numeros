@@ -3,7 +3,7 @@
 const H = require('./helpers');
 const { ok, open, txt } = H;
 
-const MENU = '#ctl button:nth-child(3)', RESTART = '#ctl button:nth-child(2)';
+const MENU = '#ctl button:nth-child(4)', RESTART = '#ctl button:nth-child(3)';
 const dataKeys = (page, prefix) => page.evaluate(p => Object.keys(window.__DATA).filter(k => k.startsWith(p)), prefix);
 const data = (page, k) => page.evaluate(k => window.__DATA[k], k);
 const calm = page => page.waitForFunction(() => S && !S.busy);          // 答對後要等 650ms 下一題才出現
@@ -106,7 +106,7 @@ const cfgLs = o => ({ shushu_cfg: JSON.stringify(o) });
     ok((await txt(page, '#pbtn')).includes('繼續') && (await txt(page, '#cover')).includes('已暫停'), '按鈕變「繼續」，蓋板寫「已暫停」', await txt(page, '#cover'));
     await H.answerA(page, { correct: false });
     ok(await H.hudHearts(page) === '♥♥♥♥♥' && await H.hudScore(page) === 0, '暫停中按顏色按鈕：不扣愛心、不算分');
-    await page.click('#qbar button');
+    await page.click('#rbtn');
     ok(await page.evaluate(() => window.__spoken.length) === spokenN, '暫停中按「重播」不會唸');
     await page.waitForTimeout(1500);
     ok(await txt(page, '#tm') === '0:01', '暫停 1.5 秒，計時沒走（還是 0:01）', await txt(page, '#tm'));
