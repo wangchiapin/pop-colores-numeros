@@ -95,6 +95,20 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 .gear{position:absolute;top:10px;right:12px;width:42px;height:42px;border-radius:999px;border:1.5px solid #d4d4d8;background:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2}
 #hud .gear.inhud{position:static;flex:0 0 42px;align-self:center;padding:0}
 #infoov{background:rgba(0,0,0,.35);z-index:11}
+#app:has(.cs){min-height:0}
+.cs{margin:-4px 0 -16px}
+.cs h1{font-size:1.35rem;margin:2px 0 0}
+.cs .sub{margin:0 0 8px;font-size:.85rem}
+.cs .panel{display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:6px}
+.cs .panel h3{flex:0 0 27%;margin:0;font-size:.88rem;line-height:1.2}
+.cs .panel h3 small{display:block;font-size:.68rem;font-weight:400;color:#777;line-height:1.15}
+.cs .panel .opts{flex:1 1 auto}
+.cs .panel.wide{display:block}
+.cs .panel.wide h3{margin:0 0 4px}
+.cs .opt{min-height:40px;padding:3px 6px;font-size:.92rem}
+.cs .opt small{font-size:.68rem}
+.cs .big{min-height:46px;margin-top:6px;font-size:1.05rem}
+.cs .ver{margin-top:8px}
 .infob{position:absolute;top:10px;right:62px;width:42px;height:42px;border-radius:999px;border:1.5px solid #d4d4d8;background:#fff;font:700 22px Georgia,serif;color:#444;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2}
 #infoov .setcard{background:#fff;border:1.5px solid #e4e4e7;border-radius:20px;padding:14px 12px;box-shadow:0 6px 30px rgba(0,0,0,.15);text-align:left}
 #infoov h2{margin:0 0 6px;text-align:left}
@@ -476,9 +490,9 @@ function verHtml(){return '<p class="ver">v5-4</p>';}
 function renderSetup(){
   screen='setup';
   document.title=(cfg.simp?'色数消消乐':'色數消消樂')+' Pop Colores y Números';
-  app.innerHTML=`${titleHtml(true)}
+  app.innerHTML=`<div class="cs">${titleHtml(true)}
   <div id="voiceWarn">${voiceNote()}</div>
-  <div class="panel"><h3>${L('pickMode')}</h3><div class="opts">
+  <div class="panel wide"><h3>${L('pickMode')}</h3><div class="opts">
     ${opt(L('A'),cfg.mode==='A',"setC('mode','A')")}${opt(L('B'),cfg.mode==='B',"setC('mode','B')")}</div></div>
   <div class="panel"><h3>${L('grid')}</h3><div class="opts">
     ${GRIDS.map((g,i)=>opt(`${g[0]}×${g[1]}<small>${g[0]*g[1]}</small>`,cfg.grid===i,`setC('grid',${i})`)).join('')}</div></div>
@@ -491,7 +505,7 @@ function renderSetup(){
   <button class="big" onclick="startGame(stdG(),'std')">${L('start')}</button>
   <button class="big sec" onclick="showLB()">🏆 ${L('lbBtn')}</button>
   <a class="big sec" href="${CENTER_URL}">${L('teacher')}</a>
-  ${verHtml()}`;
+  ${verHtml()}</div>`;
 }
 function rerender(){
   if(screen==='link')renderLinkStart(LINKCFG);

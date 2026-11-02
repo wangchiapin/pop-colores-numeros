@@ -60,6 +60,17 @@ const { ok, open } = H;
     ok(await page.$('#hud .gear') !== null, '遊戲中有 ⚙');
     await ctx.close(); }
 
+  console.log('\n[I5] 首頁（選玩法／格數／顏色…）在手機高度內一頁放得下，不用上下捲動');
+  { const { page, ctx } = await open(browser, { viewport: { width: 390, height: 656 } });
+    await page.evaluate(() => { document.getElementById('voiceWarn').innerHTML = ''; });   // 測試用的假語音沒有台灣華語，會多一行提醒文字；真的手機有語音就不會出現
+    const r = await page.evaluate(() => ({ doc: document.documentElement.scrollHeight, vh: innerHeight, btns: [...document.querySelectorAll('#app .big')].map(b => Math.round(b.getBoundingClientRect().bottom)) }));
+    ok(r.doc <= r.vh, '整頁不超過螢幕高度（不用捲動）', r);
+    ok(r.btns.length === 3 && r.btns.every(b => b <= r.vh), '開始遊戲／排行榜／老師管理中心都在畫面內', r);
+    ok(await page.$$eval('#app .cs .panel', e => e.length) === 5, '五個設定區塊都在');
+    ok(await page.$eval('#app .cs .panel', e => !!e.querySelector('.opt.on')), '玩法有選中的選項');
+    ok(await page.$$eval('#app .cs .panel:nth-child(n+3) .opts, #app .cs .panel .opts', es => es.every(o => o.getBoundingClientRect().width > 100)), '各區塊選項寬度足夠點');
+    await ctx.close(); }
+
   await browser.close();
   const c = H.counts();
   console.log('\n通過 ' + c.pass + '，失敗 ' + c.fail);

@@ -99,7 +99,7 @@ const isOn = (page, text) => page.locator('#app .opt', { hasText: text }).first(
 async function waitQ(page, prevQid = 0){
   await page.waitForFunction(q => S && (S.ended || (S.qid > q && !S.busy && window.__spoken[window.__spoken.length - 1] === S.qspeak)), prevQid, { timeout: 8000 });
 }
-async function startStd(page){ await page.locator('#app > .big').first().click(); await page.waitForSelector('#board'); await waitQ(page, 0); }
+async function startStd(page){ await page.locator('#app .big').first().click(); await page.waitForSelector('#board'); await waitQ(page, 0); }
 
 // ---- 作答（全部用畫面按鈕）----
 // A：從語音內容找出被問的方塊 → 點跟它同色的顏色按鈕。回傳 {spoken, n, match}
