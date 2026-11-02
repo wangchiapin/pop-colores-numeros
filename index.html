@@ -79,7 +79,7 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 #confirm .row{display:flex;gap:8px}
 #confirm .row button{flex:1;min-height:54px;padding:6px 12px;border-radius:999px;border:1.5px solid #ccc;background:#fff;font-size:1.05rem;cursor:pointer;line-height:1.2}
 #confirm .row button.y{background:#222;color:#fff;border-color:#222}
-.overlay .card{max-height:94vh;overflow:auto}
+.overlay .card{max-height:94vh;max-height:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .big.sec{background:#f0f0f2;color:#222}
 .big.sec small{color:#888}
 .lb{width:100%;border-collapse:collapse;margin:8px 0;font-size:.95rem}
@@ -94,6 +94,17 @@ small{display:block;font-size:.68em;color:#888;font-weight:400;line-height:1.15}
 /* ⚙️：右上角；遊戲中放在分數那一排最右邊 */
 .gear{position:absolute;top:10px;right:12px;width:42px;height:42px;border-radius:999px;border:1.5px solid #d4d4d8;background:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2}
 #hud .gear.inhud{position:static;flex:0 0 42px;align-self:center;padding:0}
+#infoov{background:rgba(0,0,0,.35);z-index:11}
+.infob{position:absolute;top:10px;right:62px;width:42px;height:42px;border-radius:999px;border:1.5px solid #d4d4d8;background:#fff;font:700 22px Georgia,serif;color:#444;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2}
+#infoov .setcard{background:#fff;border:1.5px solid #e4e4e7;border-radius:20px;padding:14px 12px;box-shadow:0 6px 30px rgba(0,0,0,.15);text-align:left}
+#infoov h2{margin:0 0 6px;text-align:left}
+#infoov h4{margin:12px 0 6px;font-size:1rem;text-align:left}
+#infoov ol{margin:0;padding-left:1.4em;font-size:.92rem;line-height:1.6}
+#infoov small{display:block;font-size:.78rem;color:#777;font-weight:400}
+#infoov h2 small,#infoov h4 small{display:inline;margin-left:6px}
+#infoov .md{background:#f4f4f5;border-radius:12px;padding:9px 12px;margin:6px 0;font-size:.92rem;line-height:1.5}
+#infoov .md b{display:block}
+html.ovopen #hgCopy{display:none!important}
 #setov .setcard{background:#fff;border:1.5px solid #e4e4e7;border-radius:20px;padding:14px 12px;box-shadow:0 6px 30px rgba(0,0,0,.15)}
 #setov{background:rgba(0,0,0,.35);z-index:11}
 #setov h2{margin:0 0 10px}
@@ -150,6 +161,7 @@ table.adm td{padding:5px 3px;border-bottom:1px solid #eee;vertical-align:top}
 <div id="over" class="overlay hide"></div>
 <div id="lbov" class="overlay hide"></div>
 <div id="setov" class="overlay hide" onclick="if(event.target===this)closeSet()"></div>
+<div id="infoov" class="overlay hide" onclick="if(event.target===this)closeInfo()"></div>
 <div id="confirm" class="overlay hide"><div class="card"><p id="confirmText"></p><div class="row"><button id="cNo" onclick="confirmNo()"></button><button id="cYes" class="y" onclick="confirmYes()"></button></div></div></div>
 
 <script>
@@ -240,6 +252,7 @@ const KEYS=[
 ];
 // 介面文字：[繁體, 簡體, es, en]
 const T={
+ info:['說明','说明','Ayuda','Help'],
  pickMode:['玩法','玩法','Modo de juego','Game mode'],
  A:['聽數字，選顏色','听数字，选颜色','Oír número, elegir color','Hear number, pick color'],
  B:['聽顏色，輸入數字','听颜色，输入数字','Oír color, escribir número','Hear color, type number'],
@@ -457,12 +470,13 @@ let LINKCFG=null,stuName='';
 function opt(label,on,fn){return `<div class="opt ${on?'on':''}" onclick="${fn}">${label}</div>`;}
 const CENTER_URL='https://wangchiapin.github.io/profesor/#/home';
 function gearBtn(){return `<button class="gear" onclick="openSet()" title="${esc(lab('settings'))}" aria-label="${esc(lab('settings'))}">⚙️</button>`;}
-function titleHtml(){return `${gearBtn()}<h1>${cfg.simp?'色数消消乐':'色數消消樂'}</h1><p class="sub">Pop Colores y Números</p>`;}
+function infoBtn(){return `<button class="infob" onclick="openInfo()" title="${esc(lab('info'))}" aria-label="${esc(lab('info'))}">i</button>`;}
+function titleHtml(withInfo){return `${withInfo?infoBtn():''}${gearBtn()}<h1>${cfg.simp?'色数消消乐':'色數消消樂'}</h1><p class="sub">Pop Colores y Números</p>`;}
 function verHtml(){return '<p class="ver">v5-4</p>';}
 function renderSetup(){
   screen='setup';
   document.title=(cfg.simp?'色数消消乐':'色數消消樂')+' Pop Colores y Números';
-  app.innerHTML=`${titleHtml()}
+  app.innerHTML=`${titleHtml(true)}
   <div id="voiceWarn">${voiceNote()}</div>
   <div class="panel"><h3>${L('pickMode')}</h3><div class="opts">
     ${opt(L('A'),cfg.mode==='A',"setC('mode','A')")}${opt(L('B'),cfg.mode==='B',"setC('mode','B')")}</div></div>
@@ -495,12 +509,38 @@ let setPausedByMe=false;
 function openSet(){
   if(screen==='game'&&S&&!S.ended&&!S.paused){pauseGame();setPausedByMe=true;}
   drawSet();
-  document.getElementById('setov').classList.remove('hide');
+  document.getElementById('setov').classList.remove('hide');syncOv();
 }
 function closeSet(){
-  document.getElementById('setov').classList.add('hide');
+  document.getElementById('setov').classList.add('hide');syncOv();
   if(setPausedByMe){setPausedByMe=false;resumeGame();}
 }
+function syncOv(){const o=['setov','infoov'].some(i=>{const e=document.getElementById(i);return e&&!e.classList.contains('hide');});document.documentElement.classList.toggle('ovopen',o);}
+// ===== ⓘ 說明視窗 =====
+const INFO_STEPS=[
+ ['選玩法、格數、顏色，按「開始遊戲」','选玩法、格数、颜色，按「开始游戏」','Elige modo, tamaño y colores, y pulsa Empezar','Pick a mode, board size and colors, then press Start'],
+ ['答對：方塊消失、得分；連續答對、答得快有額外加分','答对：方块消失、得分；连续答对、答得快有额外加分','Aciertas: el bloque desaparece y sumas puntos; la racha y la rapidez dan bonos','Correct: the block disappears and you score; streaks and speed give bonuses'],
+ ['答錯：扣 5 分、少一顆愛心；愛心用完就結束','答错：扣 5 分、少一颗爱心；爱心用完就结束','Fallas: −5 puntos y pierdes una vida; sin vidas, termina','Wrong: −5 points and you lose a life; no lives left, game over'],
+ ['沒聽清楚，按「重播」再聽一次','没听清楚，按「重播」再听一次','Si no oíste bien, pulsa Repetir',"Didn't hear it? Press Replay"],
+ ['全部清完有獎勵，剩下的愛心也加分','全部清完有奖励，剩下的爱心也加分','Al limpiar el tablero hay bono, y las vidas que sobran suman','Clearing the board gives a bonus, and spare lives add points']];
+const INFO_MODES=[
+ ['聽數字，選顏色','听数字，选颜色','Oír número, elegir color','Hear number, pick color',
+  '聽到一個數字，找到盤面上那個數字的方塊，按下它的顏色。錯 3 次會亮出那個方塊，但這題不給分','听到一个数字，找到盘面上那个数字的方块，按下它的颜色。错 3 次会亮出那个方块，但这题不给分','Oyes un número, buscas ese bloque y pulsas su color. Tras 3 fallos se ilumina, sin puntos','You hear a number, find that block and press its color. After 3 misses it lights up, with no points'],
+ ['聽顏色，輸入數字','听颜色，输入数字','Oír color, escribir número','Hear color, type number',
+  '聽到一個顏色，找到那個顏色的方塊，輸入方塊上的數字','听到一个颜色，找到那个颜色的方块，输入方块上的数字','Oyes un color, buscas un bloque de ese color y escribes su número','You hear a color, find a block of that color and type its number']];
+function infoHtml(){
+  const sb=(a,i)=>cfg.aux==='none'?'':(cfg.aux==='es'?a[i]:a[i+1]);
+  const z=(a)=>cfg.simp?a[1]:a[0];
+  const li=a=>`<li>${esc(z(a))}${sb(a,2)?`<small>${esc(sb(a,2))}</small>`:''}</li>`;
+  const hd=(zt,zs,es,en)=>{const a=[zt,zs,es,en];return esc(z(a))+(sb(a,2)?`<small>${esc(sb(a,2))}</small>`:'');};
+  const md=a=>`<div class="md"><b>${esc(z(a))}${sb(a,2)?` <small style="display:inline">${esc(sb(a,2))}</small>`:''}</b>${esc(cfg.simp?a[5]:a[4])}${sb(a,6)?`<small>${esc(sb(a,6))}</small>`:''}</div>`;
+  return `<div class="card setcard"><h2>ⓘ ${hd('說明','说明','Ayuda','Help')}</h2>
+  <h4>${hd('怎麼玩','怎么玩','Cómo jugar','How to play')}</h4><ol>${INFO_STEPS.map(li).join('')}</ol>
+  <h4>${hd('兩種玩法','两种玩法','Dos modos','Two modes')}</h4>${INFO_MODES.map(md).join('')}
+  <button class="big" onclick="closeInfo()" style="margin-top:10px">${L('done')}</button></div>`;
+}
+function openInfo(){const o=document.getElementById('infoov');o.innerHTML=infoHtml();o.classList.remove('hide');syncOv();}
+function closeInfo(){document.getElementById('infoov').classList.add('hide');syncOv();}
 function setS(k,v){
   SETTINGS[k]=v;writeSettings(SETTINGS);syncFromSettings();
   drawSet();rerender();
@@ -1010,7 +1050,7 @@ function cfgSummary(c){
 function renderLinkStart(c){
   LINKCFG=c;screen='link';
   document.title=(cfg.simp?'色数消消乐':'色數消消樂')+' Pop Colores y Números';
-  app.innerHTML=`${titleHtml()}
+  app.innerHTML=`${titleHtml(true)}
   <div id="voiceWarn">${voiceNote()}</div>
   <div class="panel" style="text-align:center"><h3>${L('startLink')}</h3>
     ${c.name?`<div style="font-size:1.2rem;font-weight:700">${esc(c.name)}</div>`:''}
